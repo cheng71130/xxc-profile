@@ -1,0 +1,113 @@
+* {
+    // 盒子模型非常重要!!!
+    box-sizing: border-box;
+}
+
+// :root {
+// 	// 重写el组件text全局样式
+// 	--el-text-color-primary: #606266 !important;
+// }
+
+html,
+body,
+#app {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	font-family:
+		Helvetica Neue,
+		Helvetica,
+		PingFang SC,
+		Hiragino Sans GB,
+		Microsoft YaHei,
+		SimSun,
+		sans-serif;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	-webkit-tap-highlight-color: transparent;
+	// background-color: black;
+	font-size: 14px;
+	overflow: hidden;
+	position: relative;
+}
+
+/* 宽高 100%
+------------------------------- */
+.w100 {
+	width: 100% !important;
+}
+.h100 {
+	height: 100% !important;
+}
+.vh100 {
+	height: 100vh !important;
+}
+.max100vh {
+	max-height: 100vh !important;
+}
+.min100vh {
+	min-height: 100vh !important;
+}
+
+/* 外边距、内边距全局样式
+------------------------------- */
+@for $i from 1 through 35 {
+	.mt#{$i} {
+		margin-top: #{$i}px !important;
+	}
+	.mr#{$i} {
+		margin-right: #{$i}px !important;
+	}
+	.mb#{$i} {
+		margin-bottom: #{$i}px !important;
+	}
+	.ml#{$i} {
+		margin-left: #{$i}px !important;
+	}
+	.pt#{$i} {
+		padding-top: #{$i}px !important;
+	}
+	.pr#{$i} {
+		padding-right: #{$i}px !important;
+	}
+	.pb#{$i} {
+		padding-bottom: #{$i}px !important;
+	}
+	.pl#{$i} {
+		padding-left: #{$i}px !important;
+	}
+}
+
+
+// -------------------------------------------------------------
+
+.f-center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.f-spaceBetween {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.f-start {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.f-end {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.f-column {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
