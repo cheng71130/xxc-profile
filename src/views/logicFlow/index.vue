@@ -10,13 +10,13 @@
 						<span class="name1">logicFlow</span>
 						<SvgIcon name="flow2" size="22" />
 						<span> - </span>
-						<el-skeleton v-if="state.canvasLoading" animated class="f-center">
+						<span class="name2">xxcDemo</span>
+						<!-- <el-skeleton v-if="state.canvasLoading" animated class="f-center">
 							<template #template>
 								<el-skeleton-item variant="h1" />
 							</template>
 						</el-skeleton>
-						<span v-else class="name2">xxcDemo</span>
-						<!-- <span v-else class="name">{{ state.processInfo.processName }}</span> -->
+						<span v-else class="name">{{ state.processInfo.processName }}</span> -->
 					</div>
 				</template>
 			</el-page-header>
