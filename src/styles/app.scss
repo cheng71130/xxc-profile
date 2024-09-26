@@ -86,28 +86,33 @@ body,
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	gap: 10px;
 }
 
 .f-spaceBetween {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	gap: 10px;
 }
 
 .f-start {
 	display: flex;
-	align-items: center;
 	justify-content: flex-start;
+	align-items: center;
+	gap: 10px;
 }
 
 .f-end {
 	display: flex;
-	align-items: center;
 	justify-content: flex-end;
+	align-items: center;
+	gap: 10px;
 }
 
 .f-column {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
+	gap: 10px;
 }

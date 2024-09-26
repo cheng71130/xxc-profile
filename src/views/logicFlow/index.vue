@@ -30,9 +30,10 @@
 							class="dndPanel"
 							ref="dndPanelRef"
 							v-loading="state.dndPanelLoading"
+							element-loading-text="Loading..."
 							element-loading-background="#F7F8FA"
 						>
-							<div class="f-start">
+							<div class="f-start" style="gap: 0">
 								<el-input
 									class="myInput"
 									ref="inputRef"
@@ -124,7 +125,13 @@
 					</el-scrollbar>
 				</el-card>
 			</left-right-collapse>
-			<el-card class="cardRight" shadow="always" :body-style="{ padding: 0 }" v-loading="state.canvasLoading">
+			<el-card
+				class="cardRight"
+				shadow="always"
+				:body-style="{ padding: 0 }"
+				v-loading="state.canvasLoading"
+				element-loading-text="Loading..."
+			>
 				<!-- 画布 -->
 				<div class="h100" ref="LogicFlowContainer"></div>
 				<TeleportContainer />
@@ -974,7 +981,6 @@ Every individual encounters moments of doubt and despair, where giving up seems 
 						.vertical-line {
 							height: 14px;
 							border-right: 3px solid blueviolet;
-							margin-right: 10px;
 						}
 
 						.title {

@@ -137,9 +137,9 @@
 		background: linear-gradient(to bottom right, rgba(255, 235, 205, 0.9), rgba(245, 222, 179, 0.9));
 		border-radius: 12px;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-		padding: 1.5rem;
+		padding: 2rem;
 		width: 400px;
-		height: 450px;
+		height: 410px;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -156,14 +156,14 @@
 	}
 
 	.card-img {
-		width: 100%;
+		width: 95%;
 		border-radius: 8px;
-		margin-bottom: 1rem;
+		margin-top: 1.3rem;
+		margin-bottom: 2rem;
 	}
 
 	.card-title {
 		font-size: 26px;
-		margin: 1rem 0;
 		color: #462b79;
 		font-weight: bold;
 		position: relative;
