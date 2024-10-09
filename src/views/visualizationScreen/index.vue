@@ -11,7 +11,7 @@
 			<header>
 				<div><dv-decoration8 style="width: 90%; height: 50px" /></div>
 				<div class="header-center">
-					<div class="title">无损检测数字化平台</div>
+					<div class="title">迈凯伦 - xxc - McLaren</div>
 					<dv-decoration5 :dur="4" style="height: 40px; position: absolute; bottom: 6px" />
 				</div>
 				<div>
@@ -22,11 +22,11 @@
 				<div class="main-top">
 					<div class="mainTop">
 						<div class="grid-box">
-							<div class="statistic">核电厂业主</div>
+							<div class="statistic">迈凯伦业主</div>
 							<dataDisplay :text="{ numText: '15' }" style="text-align: right"></dataDisplay>
 						</div>
 						<div class="grid-box">
-							<div class="statistic">合作机组</div>
+							<div class="statistic">合作尾翼</div>
 							<dataDisplay
 								:text="{ numText: '56' }"
 								:color="{ numColor: '#f88484' }"
@@ -34,7 +34,7 @@
 							></dataDisplay>
 						</div>
 						<div class="grid-box">
-							<div class="statistic">大修项目</div>
+							<div class="statistic">机检轮廓</div>
 							<dataDisplay
 								:text="{ numText: '382' }"
 								:color="{ numColor: '#36b9ff' }"
@@ -74,7 +74,7 @@
 							></dataDisplay>
 						</div>
 						<div class="grid-box">
-							<div class="statistic">年度项目</div>
+							<div class="statistic">年度轮廓</div>
 							<dataDisplay :text="{ numText: '23' }" style="text-align: right"></dataDisplay>
 						</div>
 					</div>
@@ -82,14 +82,14 @@
 				</div>
 				<div class="main-bottom">
 					<dv-border-box8 :dur="5" backgroundColor="#0922595c" class="border-box">
-						<div class="subtitle">核电厂项目汇总</div>
+						<div class="subtitle">迈凯伦轮廓汇总</div>
 						<dv-scroll-ranking-board :config="config" style="height: calc(100% - 40px)" />
 					</dv-border-box8>
 
 					<div class="main-bottomRight">
 						<div class="main-bottomRight-top" style="margin-bottom: 10px">
 							<dv-border-box13 :dur="5" backgroundColor="#0922595c" class="border-box">
-								<div class="subtitle">年度项目汇总</div>
+								<div class="subtitle">年度轮廓汇总</div>
 								<dv-charts :option="option" class="dv_chart" />
 							</dv-border-box13>
 							<dv-border-box8 :dur="5" backgroundColor="#0922595c" class="border-box">
@@ -133,7 +133,7 @@
 								<div>均无异常</div>
 							</dv-border-box12>
 							<dv-border-box12 class="border-box" backgroundColor="#0922595c">
-								<div class="subtitle">健康监测</div>
+								<div class="subtitle">部位监测</div>
 								<dv-active-ring-chart :config="config4" style="width: 100%; height: 64%" />
 								汇总情况
 								<div>均无异常</div>
@@ -180,15 +180,15 @@
 	const config = reactive({
 		data: [
 			{
-				name: '红沿河核电厂',
+				name: '红沿河迈凯伦',
 				value: 13
 			},
 			{
-				name: '国核示范核电厂',
+				name: 'xxc示范迈凯伦',
 				value: 4
 			},
 			{
-				name: '海阳核电厂',
+				name: '海阳迈凯伦',
 				value: 23
 			},
 			{
@@ -196,19 +196,19 @@
 				value: 16
 			},
 			{
-				name: '秦山核电厂',
+				name: '秦山迈凯伦',
 				value: 25
 			},
 			{
-				name: '宁德核电厂',
+				name: '宁德迈凯伦',
 				value: 18
 			},
 			{
-				name: '秦山第二核电厂',
+				name: '秦山第二迈凯伦',
 				value: 45
 			},
 			{
-				name: '台山核电厂',
+				name: '台山迈凯伦',
 				value: 17
 			}
 		],
@@ -217,18 +217,18 @@
 		// waitTime: 100000,
 	})
 	const config1 = reactive({
-		header: ['业主', '机组', '项目', '项目等级'],
+		header: ['业主', '尾翼', '轮廓', '轮廓等级'],
 		data: [
-			['<span style="color:#37a2da;">红沿河核电厂</span>', '6号机组', '红沿河602次大修', 'B'],
-			['田湾核电厂', '<span style="color:#32c5e9;">5号机组</span>', '田湾502次大修', 'A'],
-			['海阳核电厂', '2号机组', '<span style="color:#67e0e3;">海阳201次大修</span>', 'A'],
-			['海阳核电厂', '<span style="color:#9fe6b8;">1号机组</span>', '海阳102次大修', 'B'],
-			['<span style="color:#ffdb5c;">海阳核电厂</span>', '2号机组', '海阳202次大修	', 'A'],
-			['海阳核电厂', '<span style="color:#ff9f7f;">1号机组</span>', '海阳101次大修', 'A'],
-			['国核示范核电厂', '4号机组', '<span style="color:#fb7293;">国核401次大修</span>', 'B'],
-			['田湾核电厂', '<span style="color:#e062ae;">3号机组</span>', '田湾312次大修', 'C'],
-			['<span style="color:#e690d1;">国核示范核电厂</span>', '5号机组', '国核533次大修', 'A'],
-			['红沿河核电厂', '<span style="color:#e7bcf3;">6号机组</span>', '红沿河603次大修', 'B']
+			['<span style="color:#37a2da;">红沿河迈凯伦</span>', '6号尾翼', '红沿河602次机检', 'B'],
+			['田湾迈凯伦', '<span style="color:#32c5e9;">5号尾翼</span>', '田湾502次机检', 'A'],
+			['海阳迈凯伦', '2号尾翼', '<span style="color:#67e0e3;">海阳201次机检</span>', 'A'],
+			['海阳迈凯伦', '<span style="color:#9fe6b8;">1号尾翼</span>', '海阳102次机检', 'B'],
+			['<span style="color:#ffdb5c;">海阳迈凯伦</span>', '2号尾翼', '海阳202次机检	', 'A'],
+			['海阳迈凯伦', '<span style="color:#ff9f7f;">1号尾翼</span>', '海阳101次机检', 'A'],
+			['xxc示范迈凯伦', '4号尾翼', '<span style="color:#fb7293;">xxc401次机检</span>', 'B'],
+			['田湾迈凯伦', '<span style="color:#e062ae;">3号尾翼</span>', '田湾312次机检', 'C'],
+			['<span style="color:#e690d1;">xxc示范迈凯伦</span>', '5号尾翼', 'xxc533次机检', 'A'],
+			['红沿河迈凯伦', '<span style="color:#e7bcf3;">6号尾翼</span>', '红沿河603次机检', 'B']
 		],
 		rowNum: 8,
 		headerBGC: '#3E81F4',

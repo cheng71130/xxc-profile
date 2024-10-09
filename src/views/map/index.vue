@@ -37,7 +37,7 @@
 		echarts.registerMap('china', mapData) //注册可用的地图
 		let option = {
 			title: {
-				text: '核电厂总体情况',
+				text: '中国 - China',
 				textStyle: {
 					fontSize: 28
 				},
