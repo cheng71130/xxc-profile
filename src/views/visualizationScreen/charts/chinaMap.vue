@@ -9,11 +9,30 @@
 	const chart = ref(null)
 	const chartDom = ref(null)
 	const option = ref({})
-	const customerInfo = ref([])
+	const scatters = ref([])
+	const timer = ref()
 
 	onMounted(async () => {
-		// drawMap()
+		await getScatters()
+		drawMap()
 	})
+
+	const getScatters = async () => {
+		scatters.value = [
+			{
+				name: 'HY101',
+				value: ['121.173506', '36.688316', '海阳市', '暂无', 'A', 463830391451717]
+			},
+			{
+				name: 'HY102',
+				value: ['94.928293', '36.407272', '格尔木市', '暂无', 'A', 477855267524677]
+			},
+			{
+				name: 'PN203-KH',
+				value: ['100.549961', '25.483727', '祥云县', '暂无', 'B', 636289526722629]
+			}
+		]
+	}
 
 	const drawMap = () => {
 		chartDom.value = echarts.init(chart.value)
@@ -22,7 +41,32 @@
 		option.value = {
 			backgroundColor: 'transparent',
 			tooltip: {
-				show: false
+				trigger: 'item',
+				className: 'echarts-custom-tooltip',
+				position: 'top',
+				formatter: function (params) {
+					if (params.componentSubType === 'effectScatter') {
+						return `
+								<div class="tooltip-wrapper">
+	           					  <div class="tooltip-title">${params.name}</div>
+								  <div class="tooltip-info">
+	           						<div class="tooltip-item">
+	           						  <span class="tooltip-dot" style="background-color: ${params.color}"></span>
+	           						  <span class="tooltip-value">地址 ：${params.value[2]}</span>
+	           						</div>
+	           						<div class="tooltip-item">
+	           						  <span class="tooltip-dot" style="background-color: ${params.color}"></span>
+	           						  <span class="tooltip-value">进程 ：${params.value[3]}</span>
+	           						</div>
+	           						<div class="tooltip-item">
+	           						  <span class="tooltip-dot" style="background-color: ${params.color}"></span>
+	           						  <span class="tooltip-value">等级 ：${params.value[4]}</span>
+	           						</div>
+								  </div>
+	           					</div>
+							`
+					}
+				}
 			},
 			geo: [
 				{
@@ -150,7 +194,7 @@
 				{
 					type: 'effectScatter',
 					coordinateSystem: 'geo',
-					data: customerInfo.value,
+					data: scatters.value,
 					showEffectOn: 'render',
 					rippleEffect: {
 						scale: 4,
@@ -169,7 +213,7 @@
 					symbolSize: [25, 15],
 					itemStyle: {
 						normal: {
-							color: '#16ffff'
+							color: '#4BFFFC'
 						},
 						opacity: 0.5
 					},
@@ -178,6 +222,84 @@
 			]
 		}
 		chartDom.value.setOption(option.value)
+
+		// 轮播
+		if (scatters.value) {
+			let active = 0
+			const showTipFun = () => {
+				chartDom.value.dispatchAction({
+					type: 'showTip',
+					seriesIndex: 0,
+					dataIndex: active
+				})
+				// emit('dataChanged', scatters.value[active].value[5])
+				active++
+			}
+			const activeFun = () => {
+				if (active < scatters.value.length) {
+					showTipFun()
+				} else {
+					active = 0 // 重置计数器
+					showTipFun()
+				}
+			}
+			// 立即执行一次
+			activeFun()
+			// 然后设置定时器
+			timer.value = setInterval(activeFun, 5000)
+		}
 	}
+
+	onUnmounted(() => {
+		if (timer.value) {
+			clearInterval(timer.value)
+		}
+	})
 </script>
-<style scoped lang="less"></style>
+
+<style lang="less">
+	.echarts-custom-tooltip {
+		background: transparent !important;
+		border: none !important;
+		padding: 0 !important;
+		.tooltip-wrapper {
+			background: linear-gradient(to left, rgba(11, 46, 143, 0.75), rgba(54, 120, 218, 0.75));
+			padding: 20px 30px;
+			border-radius: 10px;
+			min-width: 150px;
+			backdrop-filter: blur(4px);
+			box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+			.tooltip-title {
+				color: #fff;
+				font-size: 30px;
+				font-weight: 500;
+				margin-bottom: 30px;
+			}
+
+			.tooltip-info {
+				display: flex;
+				flex-direction: column;
+				gap: 15px;
+
+				.tooltip-item {
+					display: flex;
+					align-items: center;
+					gap: 20px;
+					color: rgba(255, 255, 255, 0.9);
+					font-size: 26px;
+
+					.tooltip-dot {
+						width: 12px;
+						height: 12px;
+						border-radius: 50%;
+						flex-shrink: 0;
+					}
+
+					.tooltip-value {
+						font-weight: 500;
+					}
+				}
+			}
+		}
+	}
+</style>

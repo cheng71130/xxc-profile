@@ -29,7 +29,7 @@
 							<div class="statistical-item"></div>
 							<div class="statistical-item"></div>
 						</div>
-						<ChinaMap/>
+						<ChinaMap />
 					</div>
 					<div class="middleRight"></div>
 				</div>
@@ -78,12 +78,15 @@
 	const loading = ref(true)
 
 	onMounted(() => {
-		autofit.init({
-			dw: 3840,
-			dh: 1920,
-			el: 'body',
-			resize: true
-		})
+		autofit.init(
+			{
+				dw: 3840,
+				dh: 1920,
+				el: 'body',
+				resize: true
+			},
+			false
+		)
 	})
 
 	onBeforeUnmount(() => {
@@ -163,7 +166,7 @@
 					position: relative;
 					.statisticalContainer {
 						position: absolute;
-						top: 40px;
+						top: 20px;
 						height: 400px;
 						width: 100%;
 						display: flex;
