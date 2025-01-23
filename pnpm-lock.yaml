@@ -26,6 +26,9 @@ importers:
       '@logicflow/vue-node-registry':
         specifier: ^1.0.3
         version: 1.0.3(@logicflow/core@2.0.3)(vue@3.5.1(typescript@5.5.4))
+      autofit.js:
+        specifier: ^3.2.2
+        version: 3.2.3
       echarts:
         specifier: ^5.4.3
         version: 5.5.1
@@ -795,6 +798,9 @@ packages:
 
   async@3.2.6:
     resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
+
+  autofit.js@3.2.3:
+    resolution: {integrity: sha512-0XfzClDp21c4gL5BsZC8/p/9Rw+3aUr4OQWJlZpJUEb8zdMC18GWNkyPxrQaZS1agnJYbjKO7csDcb9k17nxNQ==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -2523,6 +2529,8 @@ snapshots:
   async-validator@4.2.5: {}
 
   async@3.2.6: {}
+
+  autofit.js@3.2.3: {}
 
   balanced-match@1.0.2: {}
 
