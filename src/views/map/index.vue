@@ -1,200 +1,194 @@
 <template>
-	<div ref="chinaMap" class="box-card"></div>
+	<div class="map-container" ref="container"></div>
 </template>
+
 <script setup>
-	import { mapData } from '../../common/mapData.js'
-	import * as echarts from 'echarts'
+	import { ref, onMounted, onBeforeUnmount } from 'vue'
+	import * as THREE from 'three'
+	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+	import { ElLoading } from 'element-plus'
+	// 修改导入路径
+	import chinaJson from './china.json'
 
-	const chinaMap = ref()
-	onMounted(() => {
-		drawChina()
-	})
-	let regions = [
-		{
-			name: '山东',
-			itemStyle: {
-				areaColor: '#BEC4F3',
-				opacity: 1
-			}
-		},
-		{
-			name: '辽宁',
-			itemStyle: {
-				areaColor: '#BEC4F3',
-				opacity: 1
-			}
-		},
-		{
-			name: '浙江',
-			itemStyle: {
-				areaColor: '#BEC4F3',
-				opacity: 1
-			}
-		}
-	]
-	function drawChina() {
-		let myChart = echarts.init(chinaMap.value)
-		echarts.registerMap('china', mapData) //注册可用的地图
-		let option = {
-			title: {
-				text: '中国 - China',
-				textStyle: {
-					fontSize: 28
-				},
-				left: '45%',
-				top: '2%'
-			},
+	const container = ref(null)
+	let scene, camera, renderer, controls
 
-			tooltip: {
-				show: true,
-				padding: 5
-			},
-			legend: {
-				show: true
-			},
-			geo: {
-				silent: true,
-				map: 'china',
-				// roam: true,
-				// zoom: 1,
-				// scaleLimit: {
-				//   min: 0.5, //最小
-				//   max: 2, //最大
-				// },
-				label: {
-					show: true,
-					color: '#454545'
-				},
-				// regions: regions,
-				itemStyle: {
-					areaColor: '#fff',
-					borderWidth: 1
-				}
-			},
-			//配置属性
-			series: [
-				{
-					type: 'map',
-					map: 'china',
-					silent: true,
-					label: {
-						show: true,
-						color: '#454545'
-					},
-					itemStyle: {
-						normal: {
-							areaColor: '#fff',
-							borderColor: '#a18a3a',
-							borderWidth: 0.2
-						},
-						emphasis: {
-							show: false,
-							areaColor: null
-						}
-					},
-					data: regions
-				},
-				{
-					type: 'effectScatter',
-					coordinateSystem: 'geo',
-					data: [
-						{ name: '荣成', value: [122.41, 37.16] },
-						{ name: '烟台', value: [121.454425, 37.469868] }
-						// { name: "瓦房店", value: [121.979603, 39.627114] },
-						// { name: "嘉兴", value: [120.762045, 30.750912] },
-					],
-					showEffectOn: 'render',
-					rippleEffect: {
-						//涟漪特效相关配置
-						brushType: 'stroke', //波纹的绘制方式，可选 'stroke' 和 'fill'
-						scale: 5
-					},
-					hoverAnimation: true, //是否开启鼠标 hover 的提示动画效果
-					label: {
-						// show: true,
-						show: false,
-						formatter: '{b}',
-						position: 'bottom',
-						distance: 10,
-						color: '#ff0048',
-						fontStyle: 'oblique',
-						fontWeight: 'bold'
-					},
-					itemStyle: {
-						//图形样式，normal 是图形在默认状态下的样式；emphasis 是图形在高亮状态下的样式，比如在鼠标悬浮或者图例联动高亮时
-						normal: {
-							color: '#ff0048', //散点的颜色
-							shadowBlur: 10,
-							shadowColor: 20
-						}
-					},
-					symbolSize: 8,
-					zlevel: 1,
-					tooltip: {
-						formatter: '{b}<br/>状态：进行中',
-						borderColor: '#82A6CD'
-					}
-				},
-				{
-					type: 'scatter',
-					coordinateSystem: 'geo',
-					data: [
-						{ name: '瓦房店', value: [121.979603, 39.627114] },
-						{ name: '嘉兴', value: [120.762045, 30.750912] }
-					],
-					showEffectOn: 'render',
-					hoverAnimation: true, //是否开启鼠标 hover 的提示动画效果
-					label: {
-						// show: true,
-						show: false,
-						formatter: '{b}',
-						position: 'bottom',
-						distance: 10,
-						color: '#ff0048',
-						fontStyle: 'oblique',
-						fontWeight: 'bold'
-					},
-					itemStyle: {
-						//图形样式，normal 是图形在默认状态下的样式；emphasis 是图形在高亮状态下的样式，比如在鼠标悬浮或者图例联动高亮时
-						normal: {
-							color: '#ff0048', //散点的颜色
-							shadowBlur: 10,
-							shadowColor: 20
-						}
-					},
-					symbolSize: 8,
-					zlevel: 1,
-					tooltip: {
-						formatter: '{b}<br/>状态：未开始',
-						borderColor: '#82A6CD'
-					}
-				}
-				// {
-				//   type: "lines",
-				//   coordinateSystem: "geo",
-				//   data: [
-				//     {
-				//       coords: [
-				//         [122.41, 37.16],
-				//         [121.454425, 37.469868],
-				//       ],
-				//       // 统一的样式设置
-				//       lineStyle: {
-				//         width: 2,
-				//       },
-				//     },
-				//   ],
-				// },
-			]
-		}
-		myChart.setOption(option)
+	const initScene = () => {
+		scene = new THREE.Scene()
+		scene.background = new THREE.Color(0x001122)
+
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
+		scene.add(ambientLight)
+
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
+		directionalLight.position.set(10, 10, 10)
+		scene.add(directionalLight)
 	}
+
+	const initCamera = () => {
+		camera = new THREE.PerspectiveCamera(45, container.value.clientWidth / container.value.clientHeight, 0.1, 1000)
+		// 调整相机位置，拉近距离
+		camera.position.set(0, -30, 40)
+		camera.lookAt(0, 0, 0)
+	}
+
+	const initRenderer = () => {
+		renderer = new THREE.WebGLRenderer({ antialias: true })
+		renderer.setSize(container.value.clientWidth, container.value.clientHeight)
+		container.value.appendChild(renderer.domElement)
+	}
+
+	const initControls = () => {
+		controls = new OrbitControls(camera, renderer.domElement)
+		controls.enableDamping = true
+		controls.dampingFactor = 0.05
+		// 设置控制器的一些限制，使地图始终在视野内
+		controls.minDistance = 20
+		controls.maxDistance = 100
+		controls.maxPolarAngle = Math.PI / 2
+	}
+
+	const isValidCoord = (coord) => {
+		return (
+			Array.isArray(coord) &&
+			coord.length === 2 &&
+			!isNaN(coord[0]) &&
+			!isNaN(coord[1]) &&
+			isFinite(coord[0]) &&
+			isFinite(coord[1])
+		)
+	}
+
+	const processCoord = (coord) => {
+		// 调整缩放因子，使地图更大一些
+		const scale = 0.1
+		return {
+			x: coord[0] * scale,
+			y: coord[1] * scale
+		}
+	}
+
+	const createMap = () => {
+		const loading = ElLoading.service({
+			lock: true,
+			text: '正在渲染地图...',
+			background: 'rgba(0, 0, 0, 0.7)'
+		})
+
+		try {
+			const group = new THREE.Group()
+
+			chinaJson.features.forEach((feature, featureIndex) => {
+				if (feature.geometry.type === 'MultiPolygon') {
+					feature.geometry.coordinates.forEach((polygon, polygonIndex) => {
+						polygon.forEach((ring, ringIndex) => {
+							const validCoords = ring.filter(isValidCoord)
+							if (validCoords.length < 3) return
+
+							const shape = new THREE.Shape()
+
+							validCoords.forEach((coord, index) => {
+								const point = processCoord(coord)
+								if (index === 0) {
+									shape.moveTo(point.x, point.y)
+								} else {
+									shape.lineTo(point.x, point.y)
+								}
+							})
+
+							const firstPoint = processCoord(validCoords[0])
+							shape.lineTo(firstPoint.x, firstPoint.y)
+
+							try {
+								const extrudeSettings = {
+									depth: 1, // 增加厚度，使3D效果更明显
+									bevelEnabled: false
+								}
+
+								const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+								const material = new THREE.MeshPhongMaterial({
+									color: 0x1890ff,
+									transparent: true,
+									opacity: 0.8,
+									side: THREE.DoubleSide
+								})
+
+								const mesh = new THREE.Mesh(geometry, material)
+								group.add(mesh)
+							} catch (error) {
+								console.warn(`跳过无效的多边形: feature ${featureIndex}, polygon ${polygonIndex}, ring ${ringIndex}`)
+							}
+						})
+					})
+				}
+			})
+
+			// 计算包围盒
+			const box = new THREE.Box3().setFromObject(group)
+			const center = box.getCenter(new THREE.Vector3())
+
+			// 计算包围盒的大小
+			const size = box.getSize(new THREE.Vector3())
+			const maxSize = Math.max(size.x, size.y, size.z)
+
+			// 根据包围盒大小调整组的缩放
+			const scale = 50 / maxSize // 将地图缩放到合适大小
+			group.scale.set(scale, scale, scale)
+
+			// 将地图居中
+			group.position.set(-center.x * scale, -center.y * scale, -center.z * scale)
+
+			// 旋转地图
+			group.rotation.x = -Math.PI / 2
+
+			scene.add(group)
+
+			// 调整相机位置以适应地图大小
+			camera.position.set(0, -30, 40)
+			camera.lookAt(0, 0, 0)
+		} catch (error) {
+			console.error('渲染地图失败:', error)
+			ElMessage.error('渲染地图失败')
+		} finally {
+			loading.close()
+		}
+	}
+
+	const animate = () => {
+		requestAnimationFrame(animate)
+		controls.update()
+		renderer.render(scene, camera)
+	}
+
+	const handleResize = () => {
+		if (!container.value) return
+
+		camera.aspect = container.value.clientWidth / container.value.clientHeight
+		camera.updateProjectionMatrix()
+		renderer.setSize(container.value.clientWidth, container.value.clientHeight)
+	}
+
+	onMounted(() => {
+		initScene()
+		initCamera()
+		initRenderer()
+		initControls()
+		createMap()
+		animate()
+
+		window.addEventListener('resize', handleResize)
+	})
+
+	onBeforeUnmount(() => {
+		window.removeEventListener('resize', handleResize)
+		renderer?.dispose()
+		scene?.clear()
+	})
 </script>
-<style scoped lang="less">
-	.box-card {
-		width: 100vw;
+
+<style scoped>
+	.map-container {
+		width: 100%;
 		height: 100vh;
-		background-color: antiquewhite;
-		// background-color: #454545;
 	}
 </style>

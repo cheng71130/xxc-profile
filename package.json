@@ -15,11 +15,12 @@
     "@logicflow/core": "^2.0.3",
     "@logicflow/extension": "^2.0.6",
     "@logicflow/vue-node-registry": "^1.0.3",
+    "autofit.js": "^3.2.2",
     "echarts": "^5.4.3",
     "element-plus": "^2.7.6",
+    "three": "^0.174.0",
     "vue": "^3.4.37",
-    "vue-router": "^4.2.5",
-    "autofit.js": "^3.2.2"
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",

@@ -10,6 +10,7 @@
 	const chartDom = ref(null)
 	const option = ref({})
 	const scatters = ref([])
+	const allLineData = ref()
 	const timer = ref()
 
 	onMounted(async () => {
@@ -32,6 +33,16 @@
 				value: ['100.549961', '25.483727', '祥云县', '暂无', 'B', 636289526722629]
 			}
 		]
+
+		allLineData.value = scatters.value.map((point) => {
+			const pointCoord = [point.value[0], point.value[1]]
+			// const tooltipPixel = [650, 520]
+			// const tooltipCoord = chartDom.value.convertFromPixel('geo', tooltipPixel)
+			const tooltipCoord = [91.98, 41.88]
+			return {
+				coords: [pointCoord, tooltipCoord]
+			}
+		})
 	}
 
 	const drawMap = () => {
@@ -42,35 +53,83 @@
 			backgroundColor: 'transparent',
 			tooltip: {
 				trigger: 'item',
+				triggerOn: 'none',
 				className: 'echarts-custom-tooltip',
-				position: 'top',
+				position: [180, 450],
 				formatter: function (params) {
-					if (params.componentSubType === 'effectScatter') {
+					if (params.seriesIndex === 0) {
+						// waterChart.setOption({
+						// 	series: [
+						// 		{
+						// 			type: 'liquidFill',
+						// 			data: [params.value[7], params.value[7] - 0.1, params.value[7] - 0.2], // 多层波浪
+						// 			radius: '80%',
+						// 			amplitude: 8,
+						// 			phase: 'auto',
+						// 			period: 'auto',
+						// 			direction: 'right',
+						// 			shape: 'circle',
+						// 			waveAnimation: true,
+						// 			animationDuration: 2000,
+						// 			animationDurationUpdate: 1000,
+						// 			color: ['#FFC300'],
+						// 			backgroundStyle: {
+						// 				color: 'rgba(255, 255, 255, 0.1)'
+						// 			},
+						// 			outline: {
+						// 				show: true,
+						// 				borderDistance: 0,
+						// 				itemStyle: {
+						// 					borderColor: '#FFC300',
+						// 					borderWidth: 3,
+						// 					shadowBlur: 20,
+						// 					shadowColor: 'rgba(0, 0, 0, 0.25)'
+						// 				}
+						// 			},
+						// 			label: {
+						// 				show: true,
+						// 				color: '#fff',
+						// 				insideColor: '#fff',
+						// 				fontSize: 32,
+						// 				align: 'center',
+						// 				baseline: 'middle'
+						// 			}
+						// 		}
+						// 	]
+						// })
 						return `
-								<div class="tooltip-wrapper">
-	           					  <div class="tooltip-title">${params.name}</div>
-								  <div class="tooltip-info">
-	           						<div class="tooltip-item">
-	           						  <span class="tooltip-dot" style="background-color: ${params.color}"></span>
-	           						  <span class="tooltip-value">地址 ：${params.value[2]}</span>
-	           						</div>
-	           						<div class="tooltip-item">
-	           						  <span class="tooltip-dot" style="background-color: ${params.color}"></span>
-	           						  <span class="tooltip-value">进程 ：${params.value[3]}</span>
-	           						</div>
-	           						<div class="tooltip-item">
-	           						  <span class="tooltip-dot" style="background-color: ${params.color}"></span>
-	           						  <span class="tooltip-value">等级 ：${params.value[4]}</span>
-	           						</div>
-								  </div>
-	           					</div>
-							`
+									<div class="tooltip-wrapper">
+			           				  <div class="tooltip-title">
+			  							<div class="tooltip-title-left">海阳核电厂</div>
+			  							<div class="tooltip-title-right">HYP2045104</div>
+									  </div>
+									  <div class="tooltip-info">
+									 	<div class="tooltip-info-left">
+									 		<div class="tooltip-item">
+			           				 		  <span class="tooltip-key">地址：</span>
+			           				 		  <span class="tooltip-value">四川省德阳市</span>
+			           				 		</div>
+									 		<div class="tooltip-item">
+			           				 		  <span class="tooltip-key">开始日期：</span>
+			           				 		  <span class="tooltip-value">2025-03-17</span>
+			           				 		</div>
+									 		<div class="tooltip-item">
+			           				 		  <span class="tooltip-key">项目负责人：</span>
+			           				 		  <span class="tooltip-value">肖学成</span>
+			           				 		</div>
+									 	</div>
+										<div class="tooltip-info-right">
+											<span class="tooltip-key">当前进程：</span>
+										</div>
+									  </div>
+			           				</div>
+								`
 					}
 				}
 			},
 			geo: [
 				{
-					layoutCenter: ['50%', '50%'], //位置
+					layoutCenter: ['50%', '54%'], //位置
 					layoutSize: '145%', //大小
 					show: true,
 					map: 'china',
@@ -87,20 +146,17 @@
 								colorStops: [
 									{
 										offset: 0,
-										color: 'rgba(3,27,78,0.75)' // 0% 处的颜色
+										color: 'rgba(3,27,78,0.8)' // 0% 处的颜色
 									},
 									{
 										offset: 1,
-										color: 'rgba(58,149,253,0.75)' // 50% 处的颜色
+										color: 'rgba(58,149,250,0.8)' // 50% 处的颜色
 									}
 								],
 								global: true // 缺省为 false
 							},
 							borderColor: '#c0f3fb',
 							borderWidth: 3
-							// shadowColor: '#8cd3ef',
-							// shadowOffsetY: 10,
-							// shadowBlur: 120
 						}
 					},
 					silent: true
@@ -111,18 +167,14 @@
 					zlevel: -1,
 					aspectScale: 0.88,
 					zoom: 0.65,
-					layoutCenter: ['50%', '51%'],
+					layoutCenter: ['50%', '54.8%'],
 					layoutSize: '145%',
 					silent: true,
 					itemStyle: {
 						normal: {
 							borderWidth: 1,
-							// borderColor:"rgba(17, 149, 216,0.6)",
 							borderColor: 'rgba(58,149,253,0.8)',
-							shadowColor: 'rgba(172, 122, 255,0.5)',
-							shadowOffsetY: 5,
-							shadowBlur: 10,
-							areaColor: 'rgba(5,21,35,0.1)'
+							areaColor: 'rgba(5,21,35,0.8)'
 						}
 					}
 				},
@@ -132,72 +184,29 @@
 					zlevel: -2,
 					aspectScale: 0.88,
 					zoom: 0.65,
-					layoutCenter: ['50%', '52%'],
+					layoutCenter: ['50%', '55.8%'],
 					layoutSize: '145%',
 					silent: true,
 					itemStyle: {
 						normal: {
 							borderWidth: 1,
 							borderColor: 'rgba(58,149,253,0.6)',
-							shadowColor: 'rgba(65, 214, 255,1)',
-							shadowOffsetY: 5,
-							shadowBlur: 10,
-							areaColor: 'transpercent'
-						}
-					}
-				},
-				{
-					type: 'map',
-					map: 'chinaNoSouthIsland',
-					zlevel: -3,
-					aspectScale: 0.88,
-					zoom: 0.65,
-					layoutCenter: ['50%', '53%'],
-					layoutSize: '145%',
-					silent: true,
-					itemStyle: {
-						normal: {
-							borderWidth: 1,
-							// borderColor: "rgba(11, 43, 97,0.8)",
-							borderColor: 'rgba(58,149,253,0.4)',
 							shadowColor: 'rgba(58,149,253,1)',
 							shadowOffsetY: 15,
 							shadowBlur: 10,
-							areaColor: 'transpercent'
-						}
-					}
-				},
-				{
-					type: 'map',
-					map: 'chinaNoSouthIsland',
-					zlevel: -4,
-					aspectScale: 0.88,
-					zoom: 0.65,
-					layoutCenter: ['50%', '54%'],
-					layoutSize: '145%',
-					silent: true,
-					itemStyle: {
-						normal: {
-							borderWidth: 5,
-							// borderColor: "rgba(11, 43, 97,0.8)",
-							borderColor: 'rgba(5,9,57,0.8)',
-							shadowColor: 'rgba(29, 111, 165,0.8)',
-							shadowOffsetY: 15,
-							shadowBlur: 10,
-							areaColor: 'rgba(5,21,35,0.1)'
+							areaColor: ''
 						}
 					}
 				}
 			],
 			series: [
-				// 涟漪散点图
 				{
 					type: 'effectScatter',
 					coordinateSystem: 'geo',
 					data: scatters.value,
 					showEffectOn: 'render',
 					rippleEffect: {
-						scale: 4,
+						scale: 3,
 						brushType: 'fill'
 					},
 					label: {
@@ -218,6 +227,71 @@
 						opacity: 0.5
 					},
 					zlevel: 4
+				},
+				// {
+				// 	type: 'scatter',
+				// 	coordinateSystem: 'geo',
+				// 	data: scatters.value,
+				// 	label: {
+				// 		normal: {
+				// 			formatter: '{b}',
+				// 			position: 'bottom',
+				// 			show: false,
+				// 			color: '#fff',
+				// 			distance: 10
+				// 		}
+				// 	},
+				// 	symbol: 'circle',
+				// 	symbolSize: [30, 20],
+				// 	itemStyle: {
+				// 		normal: {
+				// 			color: '#16ffff',
+				// 			shadowBlur: 30,
+				// 			shadowColor: '#00fefe'
+				// 		},
+				// 		opacity: 1
+				// 	},
+				// 	zlevel: 4
+				// },
+				// {
+				// 	type: 'lines',
+				// 	zlevel: 5,
+				// 	effect: {
+				// 		show: false
+				// 	},
+				// 	lineStyle: {
+				// 		color: '#16ffff',
+				// 		width: 2,
+				// 		opacity: 0.8,
+				// 		curveness: 0.2,
+				// 		cap: 'round',
+				// 		shadowBlur: 1,
+				// 		shadowColor: '#16ffff'
+				// 	},
+				// 	data: []
+				// },
+				{
+					type: 'lines',
+					zlevel: 6,
+					effect: {
+						show: true,
+						constantSpeed: 120,
+						color: '#16ffff',
+						trailLength: 0.8,
+						symbolSize: 14,
+						symbol: 'circle'
+					},
+					lineStyle: {
+						color: '#16ffff',
+						width: 2,
+						opacity: 0.8,
+						curveness: 0.2,
+						cap: 'round',
+						shadowBlur: 1,
+						shadowColor: '#16ffff'
+					},
+					data: [],
+					animation: false
 				}
 			]
 		}
@@ -226,27 +300,43 @@
 		// 轮播
 		if (scatters.value) {
 			let active = 0
+
 			const showTipFun = () => {
-				chartDom.value.dispatchAction({
-					type: 'showTip',
-					seriesIndex: 0,
-					dataIndex: active
+				requestAnimationFrame(() => {
+					allLineData.value.forEach((item) => {
+						item.needEffect = false
+					})
+					allLineData.value[active].needEffect = true
+					chartDom.value.setOption(
+						{
+							series: [
+								{},
+								// {
+								// 	data: allLineData.value.filter((item) => !item.needEffect)
+								// },
+								{
+									data: allLineData.value.filter((item) => item.needEffect)
+								}
+							]
+						},
+						false
+					)
+
+					chartDom.value.dispatchAction({
+						type: 'showTip',
+						seriesIndex: 0,
+						dataIndex: active
+					})
+
+					// emit('data-changed', scatters.value[active].value[8])
+					active = (active + 1) % scatters.value.length
 				})
-				// emit('dataChanged', scatters.value[active].value[5])
-				active++
 			}
-			const activeFun = () => {
-				if (active < scatters.value.length) {
-					showTipFun()
-				} else {
-					active = 0 // 重置计数器
-					showTipFun()
-				}
-			}
+
 			// 立即执行一次
-			activeFun()
-			// 然后设置定时器
-			timer.value = setInterval(activeFun, 5000)
+			showTipFun()
+			// 设置定时器
+			timer.value = setInterval(showTipFun, 30000)
 		}
 	}
 
@@ -262,42 +352,72 @@
 		background: transparent !important;
 		border: none !important;
 		padding: 0 !important;
+		border-radius: 30px !important;
+
 		.tooltip-wrapper {
-			background: linear-gradient(to left, rgba(11, 46, 143, 0.75), rgba(54, 120, 218, 0.75));
-			padding: 20px 30px;
-			border-radius: 10px;
-			min-width: 150px;
+			background-color: #014e7468;
+			border-radius: 30px;
 			backdrop-filter: blur(4px);
-			box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+			box-shadow: 0 2px 12px 0 rgba(40, 77, 239, 0.1);
+			width: 700px;
+			height: 330px;
+			overflow: hidden;
+
 			.tooltip-title {
-				color: #fff;
-				font-size: 30px;
-				font-weight: 500;
-				margin-bottom: 30px;
+				padding: 10px 35px;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				background: linear-gradient(to bottom, #2a9bd3 0%, #1e5d7c 50%, #2a9bd3 100%);
+				.tooltip-title-left {
+					color: #fff;
+					font-size: 30px;
+					font-weight: bold;
+				}
+				.tooltip-title-right {
+					color: #fff;
+					font-size: 27px;
+					font-weight: bold;
+					background-image: linear-gradient(
+						106.2deg,
+						rgba(244, 117, 105, 1) 19.7%,
+						rgba(247, 146, 66, 1) 50.5%,
+						rgba(254, 190, 7, 1) 83.2%
+					);
+					border-radius: 80px;
+					padding: 12px 25px;
+				}
 			}
 
 			.tooltip-info {
+				padding: 35px;
 				display: flex;
-				flex-direction: column;
 				gap: 15px;
 
-				.tooltip-item {
+				.tooltip-key {
+					color: #71e2f5;
+					font-size: 28px;
+				}
+
+				.tooltip-value {
+					color: #fff;
+					font-size: 28px;
+				}
+
+				.tooltip-info-left {
+					flex: 2;
 					display: flex;
+					flex-direction: column;
+					gap: 50px;
+				}
+
+				.tooltip-info-right {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					justify-content: flex-start;
 					align-items: center;
-					gap: 20px;
-					color: rgba(255, 255, 255, 0.9);
-					font-size: 26px;
-
-					.tooltip-dot {
-						width: 12px;
-						height: 12px;
-						border-radius: 50%;
-						flex-shrink: 0;
-					}
-
-					.tooltip-value {
-						font-weight: 500;
-					}
 				}
 			}
 		}
