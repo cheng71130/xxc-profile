@@ -1,6 +1,18 @@
 <template>
 	<div class="bg">
-		<div id="bigScreen">
+		<div v-if="loading" id="box">
+			<div id="l1">L</div>
+			<div id="l2">O</div>
+			<div id="l3">A</div>
+			<div id="l4">D</div>
+			<div id="l5">I</div>
+			<div id="l6">N</div>
+			<div id="l7">G</div>
+			<div>.</div>
+			<div>.</div>
+			<div>.</div>
+		</div>
+		<div v-else id="bigScreen">
 			<header>
 				<span class="title">无损检测数字化平台</span>
 				<RealTimeClock />
@@ -87,6 +99,10 @@
 			},
 			false
 		)
+
+		setTimeout(() => {
+			loading.value = false
+		}, 1000)
 	})
 
 	onBeforeUnmount(() => {
@@ -101,6 +117,7 @@
 		// background-image: url('@/assets/screen/bg.png');
 		// background-size: cover;
 		// background-position: center center;
+		background-color: #141b29;
 	}
 	#bigScreen {
 		background-image: url('@/assets/screen/bg.png');
@@ -144,7 +161,7 @@
 				display: flex;
 				flex-direction: column;
 				gap: 40px;
-				padding-bottom: 100px;
+				padding-bottom: 120px;
 				.main-leftTop {
 					flex: 1.5;
 				}
@@ -195,15 +212,16 @@
 				display: flex;
 				flex-direction: column;
 				gap: 40px;
-				padding-bottom: 100px;
+				padding-bottom: 120px;
 				.main-rightChild {
 					flex: 1;
 				}
 			}
 			.subTitle {
 				height: 64px;
-				display: flex;
-				align-items: center;
+				// display: flex;
+				// align-items: center;
+				padding-top: 10px;
 				padding-left: 30px;
 				margin-bottom: 15px;
 				background-image: url('@/assets/screen/subTitle.png');
@@ -222,5 +240,74 @@
 					linear-gradient(to bottom, #152338 0%, transparent 35%, transparent 65%, #152338 100%);
 			}
 		}
+	}
+</style>
+
+<style scoped>
+	#box div {
+		display: inline-block;
+		margin: 5px;
+		font-size: 60px;
+		color: #fff;
+		animation: 2s obrot linear infinite;
+	}
+
+	#box {
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	@keyframes obrot {
+		0% {
+			transform: rotateX(0);
+		}
+		12.5% {
+			transform: rotateX(90deg);
+		}
+		25% {
+			transform: rotateX(180deg);
+		}
+		37.5% {
+			transform: rotateX(270deg);
+		}
+		50% {
+			transform: rotateX(360deg);
+		}
+		100% {
+			transform: rotateX(360deg);
+		}
+	}
+
+	#box div:nth-child(1) {
+		animation-delay: 0s;
+	}
+	#box div:nth-child(2) {
+		animation-delay: 0.1s;
+	}
+	#box div:nth-child(3) {
+		animation-delay: 0.2s;
+	}
+	#box div:nth-child(4) {
+		animation-delay: 0.3s;
+	}
+	#box div:nth-child(5) {
+		animation-delay: 0.4s;
+	}
+	#box div:nth-child(6) {
+		animation-delay: 0.5s;
+	}
+	#box div:nth-child(7) {
+		animation-delay: 0.6s;
+	}
+	#box div:nth-child(8) {
+		animation: none;
+	}
+	#box div:nth-child(9) {
+		animation: none;
+	}
+	#box div:nth-child(10) {
+		animation: none;
 	}
 </style>

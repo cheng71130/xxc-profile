@@ -66,7 +66,8 @@
 						},
 						axisLine: {
 							lineStyle: {
-								color: '#fff'
+								// color: '#fff'
+								color: 'rgba(255, 255, 255, .5)'
 							}
 						},
 						axisTick: {

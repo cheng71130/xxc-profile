@@ -49,8 +49,9 @@
 						show: false
 					},
 					axisLine: {
+						// show: false,
 						lineStyle: {
-							color: '#fff'
+							color: 'rgba(255, 255, 255, .1)'
 						}
 					},
 					axisLabel: {
