@@ -1,12 +1,7 @@
 * {
-    // 盒子模型非常重要!!!
-    box-sizing: border-box;
+	// 盒子模型非常重要!!!
+	box-sizing: border-box;
 }
-
-// :root {
-// 	// 重写el组件text全局样式
-// 	--el-text-color-primary: #606266 !important;
-// }
 
 html,
 body,
@@ -15,14 +10,7 @@ body,
 	padding: 0;
 	width: 100%;
 	height: 100%;
-	font-family:
-		Helvetica Neue,
-		Helvetica,
-		PingFang SC,
-		Hiragino Sans GB,
-		Microsoft YaHei,
-		SimSun,
-		sans-serif;
+	font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
 	font-weight: 400;
 	-webkit-font-smoothing: antialiased;
 	-webkit-tap-highlight-color: transparent;
@@ -78,7 +66,6 @@ body,
 		padding-left: #{$i}px !important;
 	}
 }
-
 
 // -------------------------------------------------------------
 

@@ -47,7 +47,7 @@
 	.xxc {
 		width: 300px;
 		height: 150px;
-		border-radius: 4px;
+		border-radius: 8px;
 		overflow: hidden;
 		border: 1px sandybrown solid;
 		background-image: radial-gradient(

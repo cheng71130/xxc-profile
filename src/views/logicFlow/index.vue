@@ -1,5 +1,5 @@
 <template>
-	<div class="myLogicFlow">
+	<div class="myLogicFlow animate__animated animate__slideInLeft">
 		<el-card shadow="always" style="min-height: 64px">
 			<el-page-header @back="router.go(-1)">
 				<template #title>
@@ -23,16 +23,10 @@
 		</el-card>
 		<div class="process-container">
 			<left-right-collapse :isCollapsed="state.isCollapsed">
-				<el-card class="cardLeft" shadow="always" :body-style="{ padding: 0, background: '#F7F8FA' }">
+				<el-card class="cardLeft" shadow="always" :body-style="{ padding: 0 }" v-loading="state.dndPanelLoading">
 					<el-scrollbar>
 						<!-- 左边栏 -->
-						<div
-							class="dndPanel"
-							ref="dndPanelRef"
-							v-loading="state.dndPanelLoading"
-							element-loading-text="Loading..."
-							element-loading-background="#F7F8FA"
-						>
+						<div class="dndPanel" ref="dndPanelRef">
 							<div class="f-start" style="gap: 0">
 								<el-input
 									class="myInput"
@@ -125,13 +119,7 @@
 					</el-scrollbar>
 				</el-card>
 			</left-right-collapse>
-			<el-card
-				class="cardRight"
-				shadow="always"
-				:body-style="{ padding: 0 }"
-				v-loading="state.canvasLoading"
-				element-loading-text="Loading..."
-			>
+			<el-card class="cardRight" shadow="always" :body-style="{ padding: 0 }" v-loading="state.canvasLoading">
 				<!-- 画布 -->
 				<div class="h100" ref="LogicFlowContainer"></div>
 				<TeleportContainer />
@@ -284,7 +272,7 @@
 		showRetractBtn: true,
 		showExpandBtn: false,
 		searchName: '',
-		dndPanelLoading: true,
+		dndPanelLoading: false,
 		algorithmModel: [],
 		algorithmTotal: 0,
 		algorithmCurrentPage: 1,
@@ -553,8 +541,10 @@
 	}
 
 	const getDndPanelData = async () => {
-		state.dndPanelLoading = true
 		try {
+			setTimeout(() => {
+				state.dndPanelLoading = true
+			}, 100)
 			// 获取业务数据
 			// const responses = await Promise.all([
 			// 	getAPI(AlgorithmModelApi).apiAlgorithmModelPagePost({ algorithmName: state.searchName, pageSize: 999 }),
@@ -951,7 +941,6 @@ Every individual encounters moments of doubt and despair, where giving up seems 
 				height: 100%;
 				.dndPanel {
 					height: 100%;
-					background-color: #f7f8fa;
 					width: 100%;
 					padding: 15px;
 					user-select: none;
@@ -998,7 +987,7 @@ Every individual encounters moments of doubt and despair, where giving up seems 
 							gap: 15px;
 							padding: 10px 15px 10px 10px;
 							background-color: #fff;
-							border-radius: 4px;
+							border-radius: 8px;
 							margin-bottom: 12px;
 							box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.1);
 							transition: box-shadow ease 0.5s;
@@ -1172,7 +1161,7 @@ Every individual encounters moments of doubt and despair, where giving up seems 
 
 	/* logicFlow ui优化 */
 	.lf-mini-map {
-		border-radius: 4px;
+		border-radius: 8px;
 		/* box-shadow: 0px 0px 10px -4px rgba(0, 0, 0, 0.2); */
 	}
 

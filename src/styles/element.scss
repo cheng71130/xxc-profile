@@ -1,11 +1,26 @@
-.el-row>* {
+// 更改主题色
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+	$colors: (
+		'primary': (
+			'base': #8a2be2
+		)
+	)
+);
+
+@use 'element-plus/theme-chalk/src/index.scss' as *;
+
+:root {  
+	--el-border-radius-base: 6px;      /* 基础圆角 */  
+  }  
+
+
+.el-row > * {
 	height: 100%;
 }
 
 /* Form 表单
 ------------------------------- */
 .el-form {
-
 	// 用于修改弹窗时表单内容间隔太大问题，如系统设置的新增菜单弹窗里的表单内容
 	.el-form-item:last-of-type {
 		margin-bottom: 0 !important;
@@ -202,8 +217,8 @@
 	width: 0;
 }
 
-.el-table__body-wrapper .el-table__body tr>td:last-child,
-.el-table__header-wrapper .el-table__header tr>th:last-child {
+.el-table__body-wrapper .el-table__body tr > td:last-child,
+.el-table__header-wrapper .el-table__header tr > th:last-child {
 	border-right: none;
 }
 
@@ -269,6 +284,6 @@
 .el-carousel__indicators--outside {
 	margin-top: 30px;
 	button {
-		background-color: rgba(255, 255, 255, 1)
+		background-color: rgba(255, 255, 255, 1);
 	}
 }
