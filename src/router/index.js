@@ -1,24 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Map from '../views/map/index.vue'
-import Screen from '../views/visualizationScreen/index.vue'
-import Flow from '../views/logicFlow/index.vue'
 
 const routes = [
 	{
+		path: '/home',
+		name: 'Home',
+		component: () => import('@/views/home/index.vue')
+	},
+	{
 		path: '/visualizationScreen',
 		name: 'Screen',
-		component: Screen
+		component: () => import('@/views/visualizationScreen/index.vue')
 	},
 	{
 		path: '/map-cn',
 		name: 'Map',
-		component: Map
+		component: () => import('@/views/map/index.vue')
 	},
 	{
 		path: '/flowDemo',
 		name: 'Flow',
-		component: Flow
-	}
+		component: () => import('@/views/logicFlow/index.vue')
+	},
 ]
 
 const router = createRouter({

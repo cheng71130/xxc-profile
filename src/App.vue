@@ -10,8 +10,8 @@
 				<p>{{ item.description }}</p>
 			</div>
 		</el-main>
+		<el-footer class="footer" @click="router.push('/home')">Footer</el-footer>
 	</el-container>
-	<!-- <div v-if="!loaded" class="loader"></div> -->
 	<div v-if="!allImagesLoaded" class="load-container">
 		<div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
 			<div class="wheel"></div>
@@ -130,6 +130,15 @@
 		padding: 2rem;
 		gap: 2rem;
 		overflow: hidden;
+		z-index: 1;
+	}
+
+	.footer {
+		background-color: rgba(58, 63, 68, 0.8);
+		color: white;
+		text-align: center;
+		padding: 1rem;
+		box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 		z-index: 1;
 	}
 
