@@ -8,6 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import SvgIcon from './components/svgIcon.vue'
 import '@/assets/fonts/dsFont.css' // 引入电子字体样式
 import DataVVue3 from '@kjgl77/datav-vue3'
+import 'virtual:uno.css'
 
 const app = createApp(App)
 
