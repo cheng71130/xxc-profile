@@ -15,8 +15,14 @@
 					<span class="text-xl font-bold neon-text">欢迎来到我的主页</span>
 				</div>
 				<div class="menu hidden md:flex">
-					<a v-for="(item, index) in navItems" :key="index" :href="item.link"
-						class="mx-3 text-base transition-colors duration-300 hover-glow"> {{ item.text }} </a>
+					<a
+						v-for="(item, index) in navItems"
+						:key="index"
+						:href="item.link"
+						class="mx-3 text-base transition-colors duration-300 hover-glow"
+					>
+						{{ item.text }}
+					</a>
 				</div>
 				<div class="md:hidden">
 					<el-button icon class="neon-btn" @click="mobileMenuVisible = !mobileMenuVisible">
@@ -39,8 +45,14 @@
 					</el-button>
 				</div>
 				<div class="flex flex-col">
-					<a v-for="(item, index) in navItems" :key="index" :href="item.link"
-						class="py-3 border-b border-glow hover-glow" @click="mobileMenuVisible = false"> {{ item.text }}
+					<a
+						v-for="(item, index) in navItems"
+						:key="index"
+						:href="item.link"
+						class="py-3 border-b border-glow hover-glow"
+						@click="mobileMenuVisible = false"
+					>
+						{{ item.text }}
 					</a>
 				</div>
 			</div>
@@ -55,12 +67,14 @@
 						<p class="description mt-4">我热衷于创造优秀的用户体验和高性能的网站应用，擅长将设计转化为高质量的代码。</p>
 						<div class="mt-8 flex flex-wrap justify-center md:justify-start gap-4">
 							<el-button class="neon-btn-primary pulse-glow" size="large" @click="scrollTo('#projects')">
-								查看作品 <el-icon class="ml-2">
+								查看作品
+								<el-icon class="ml-2">
 									<Picture />
 								</el-icon>
 							</el-button>
-							<el-button class="neon-btn" size="large" @click="scrollTo('#contact')"> 联系我 <el-icon
-									class="ml-2">
+							<el-button class="neon-btn" size="large" @click="scrollTo('#contact')">
+								联系我
+								<el-icon class="ml-2">
 									<Message />
 								</el-icon>
 							</el-button>
@@ -69,13 +83,16 @@
 					<div class="md:w-1/2 flex justify-center" data-aos="fade-left">
 						<div class="profile-image">
 							<div class="image-glow-wrapper">
-								<img src="@/assets/home/xxc.jpg"
-									alt="前端开发者照片" class="rounded-full">
+								<img src="@/assets/home/xxc.jpg" alt="前端开发者照片" class="rounded-full" />
 							</div>
 							<div class="tech-icons">
-								<div class="tech-icon neon-floating" v-for="(icon, index) in techIcons" :key="index"
-									:style="`--delay: ${index * 0.2}s; --glow-color: ${icon.glowColor};`">
-									<img :src="icon.url" :alt="icon.name">
+								<div
+									class="tech-icon neon-floating"
+									v-for="(icon, index) in techIcons"
+									:key="index"
+									:style="`--delay: ${index * 0.2}s; --glow-color: ${icon.glowColor};`"
+								>
+									<img :src="icon.url" :alt="icon.name" />
 								</div>
 							</div>
 						</div>
@@ -96,8 +113,7 @@
 					<div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right">
 						<div class="about-image-wrapper">
 							<div class="glow-border">
-								<img src="@/assets/home/1.jpg"
-									alt="工作照片" class="rounded-lg">
+								<img src="@/assets/home/1.jpg" alt="工作照片" class="rounded-lg" />
 							</div>
 							<div class="experience-badge neon-badge">
 								<span class="years">5+</span>
@@ -128,7 +144,9 @@
 								<span class="info-value available neon-text-green">可接受项目</span>
 							</div>
 						</div>
-						<el-button class="neon-btn-primary mt-6" @click="downloadResume"> 下载简历 <el-icon class="ml-2">
+						<el-button class="neon-btn-primary mt-6" @click="downloadResume">
+							下载简历
+							<el-icon class="ml-2">
 								<Download />
 							</el-icon>
 						</el-button>
@@ -155,8 +173,16 @@
 								<div class="skill-info flex justify-between mb-2">
 									<span class="skill-name">{{ skill.name }}</span>
 								</div>
-								<el-progress :percentage="skill.level" :color="skill.color" :show-text="true"
-									:stroke-width="16" class="neon-progress" />
+								<el-progress
+									:percentage="skill.level"
+									:color="skill.color"
+									:show-text="true"
+									:stroke-width="12"
+									class="neon-progress"
+									striped
+									striped-flow
+									:duration="25"
+								/>
 							</div>
 						</div>
 					</div>
@@ -174,8 +200,16 @@
 								<div class="skill-info flex justify-between mb-2">
 									<span class="skill-name">{{ skill.name }}</span>
 								</div>
-								<el-progress :percentage="skill.level" :color="skill.color" :show-text="true"
-									:stroke-width="16" class="neon-progress" />
+								<el-progress
+									:percentage="skill.level"
+									:color="skill.color"
+									:show-text="true"
+									:stroke-width="12"
+									class="neon-progress"
+									striped
+									striped-flow
+									:duration="25"
+								/>
 							</div>
 						</div>
 					</div>
@@ -193,8 +227,16 @@
 								<div class="skill-info flex justify-between mb-2">
 									<span class="skill-name">{{ skill.name }}</span>
 								</div>
-								<el-progress :percentage="skill.level" :color="skill.color" :show-text="true"
-									:stroke-width="16" class="neon-progress" />
+								<el-progress
+									:percentage="skill.level"
+									:color="skill.color"
+									:show-text="true"
+									:stroke-width="12"
+									class="neon-progress"
+									striped
+									striped-flow
+									:duration="25"
+								/>
 							</div>
 						</div>
 					</div>
@@ -206,15 +248,25 @@
 			<div class="container mx-auto px-4">
 				<h2 class="section-title neon-text text-center mb-16" data-aos="fade-up">我的项目</h2>
 				<div class="project-filters flex flex-wrap justify-center mb-12 gap-2" data-aos="fade-up">
-					<el-button v-for="filter in projectFilters" :key="filter.value"
+					<el-button
+						v-for="filter in projectFilters"
+						:key="filter.value"
 						:class="[activeFilter === filter.value ? 'neon-btn-active' : 'neon-btn']"
-						@click="activeFilter = filter.value"> {{ filter.label }} </el-button>
+						@click="activeFilter = filter.value"
+					>
+						{{ filter.label }}
+					</el-button>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-					<div class="project-card glass-card" v-for="(project, index) in filteredProjects" :key="index"
-						data-aos="flip-up" :data-aos-delay="index * 100">
+					<div
+						class="project-card glass-card"
+						v-for="(project, index) in filteredProjects"
+						:key="index"
+						data-aos="flip-up"
+						:data-aos-delay="index * 100"
+					>
 						<div class="project-image">
-							<img :src="project.image" :alt="project.title" class="w-full">
+							<img :src="project.image" :alt="project.title" class="w-full" />
 							<div class="project-overlay">
 								<div class="project-links">
 									<a :href="project.demoUrl" target="_blank" class="project-link neon-icon-btn">
@@ -234,15 +286,17 @@
 							<h3 class="project-title neon-text">{{ project.title }}</h3>
 							<p class="project-description">{{ project.description }}</p>
 							<div class="project-tech">
-								<el-tag v-for="(tech, i) in project.technologies" :key="i" size="small"
-									class="neon-tag mr-2 mb-2"> {{ tech }} </el-tag>
+								<el-tag v-for="(tech, i) in project.technologies" :key="i" size="small" class="neon-tag mr-2 mb-2">
+									{{ tech }}
+								</el-tag>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="text-center mt-12" data-aos="fade-up">
-					<el-button class="neon-btn-primary" size="large" @click="showMoreProjects"> 查看更多项目 <el-icon
-							class="ml-2">
+					<el-button class="neon-btn-primary" size="large" @click="showMoreProjects">
+						查看更多项目
+						<el-icon class="ml-2">
 							<Right />
 						</el-icon>
 					</el-button>
@@ -255,8 +309,14 @@
 				<h2 class="section-title neon-text text-center mb-16" data-aos="fade-up">工作经历</h2>
 				<div class="experience-timeline">
 					<div class="timeline-line"></div>
-					<div class="timeline-item" v-for="(job, index) in workExperience" :key="index"
-						:class="{ 'timeline-right': index % 2 === 1 }" data-aos="fade-up" :data-aos-delay="index * 100">
+					<div
+						class="timeline-item"
+						v-for="(job, index) in workExperience"
+						:key="index"
+						:class="{ 'timeline-right': index % 2 === 1 }"
+						data-aos="fade-up"
+						:data-aos-delay="index * 100"
+					>
 						<div class="timeline-badge neon-badge-pulse">
 							<el-icon>
 								<Briefcase />
@@ -268,8 +328,9 @@
 							<div class="timeline-company">{{ job.company }}</div>
 							<div class="timeline-desc">{{ job.description }}</div>
 							<div class="timeline-tech mt-3">
-								<el-tag v-for="(tech, i) in job.technologies" :key="i" size="small"
-									class="neon-tag mr-2 mb-2"> {{ tech }} </el-tag>
+								<el-tag v-for="(tech, i) in job.technologies" :key="i" size="small" class="neon-tag mr-2 mb-2">
+									{{ tech }}
+								</el-tag>
 							</div>
 						</div>
 					</div>
@@ -284,7 +345,9 @@
 					<div class="md:w-1/2" data-aos="fade-right">
 						<div class="contact-info-wrapper glass-card-gradient">
 							<h3 class="text-2xl font-bold mb-6">来聊聊您的项目吧</h3>
-							<p class="mb-8">无论您需要一个完整的网站、一个应用程序或需要技术咨询，我都很乐意听取您的想法并提供帮助。</p>
+							<p class="mb-8">
+								无论您需要一个完整的网站、一个应用程序或需要技术咨询，我都很乐意听取您的想法并提供帮助。
+							</p>
 							<div class="contact-info">
 								<div class="info-item flex items-start mb-6">
 									<div class="info-icon neon-icon-blue">
@@ -347,31 +410,47 @@
 					<div class="md:w-1/2" data-aos="fade-left">
 						<div class="contact-form-wrapper glass-card">
 							<el-form :model="contactForm" ref="contactFormRef" label-position="top">
-								<el-form-item label="姓名" prop="name"
-									:rules="[{ required: true, message: '请输入您的姓名', trigger: 'blur' }]">
-									<el-input v-model="contactForm.name" placeholder="您的姓名"
-										class="neon-input"></el-input>
+								<el-form-item
+									label="姓名"
+									prop="name"
+									:rules="[{ required: true, message: '请输入您的姓名', trigger: 'blur' }]"
+								>
+									<el-input v-model="contactForm.name" placeholder="您的姓名" class="neon-input"></el-input>
 								</el-form-item>
-								<el-form-item label="邮箱" prop="email" :rules="[
-									{ required: true, message: '请输入您的邮箱', trigger: 'blur' },
-									{ type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
-								]">
-									<el-input v-model="contactForm.email" placeholder="您的邮箱"
-										class="neon-input"></el-input>
+								<el-form-item
+									label="邮箱"
+									prop="email"
+									:rules="[
+										{ required: true, message: '请输入您的邮箱', trigger: 'blur' },
+										{ type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+									]"
+								>
+									<el-input v-model="contactForm.email" placeholder="您的邮箱" class="neon-input"></el-input>
 								</el-form-item>
-								<el-form-item label="主题" prop="subject"
-									:rules="[{ required: true, message: '请输入主题', trigger: 'blur' }]">
-									<el-input v-model="contactForm.subject" placeholder="消息主题"
-										class="neon-input"></el-input>
+								<el-form-item
+									label="主题"
+									prop="subject"
+									:rules="[{ required: true, message: '请输入主题', trigger: 'blur' }]"
+								>
+									<el-input v-model="contactForm.subject" placeholder="消息主题" class="neon-input"></el-input>
 								</el-form-item>
-								<el-form-item label="消息" prop="message"
-									:rules="[{ required: true, message: '请输入您的消息', trigger: 'blur' }]">
-									<el-input type="textarea" v-model="contactForm.message" placeholder="您的消息" :rows="5"
-										class="neon-input"></el-input>
+								<el-form-item
+									label="消息"
+									prop="message"
+									:rules="[{ required: true, message: '请输入您的消息', trigger: 'blur' }]"
+								>
+									<el-input
+										type="textarea"
+										v-model="contactForm.message"
+										placeholder="您的消息"
+										:rows="5"
+										class="neon-input"
+									></el-input>
 								</el-form-item>
 								<el-form-item>
 									<el-button class="neon-btn-primary w-full" @click="submitContactForm" size="large">
-										发送消息 <el-icon class="ml-2">
+										发送消息
+										<el-icon class="ml-2">
 											<Position />
 										</el-icon>
 									</el-button>
@@ -388,10 +467,11 @@
 				<div class="text-center">
 					<div class="logo mb-4 neon-text-pulse">肖学成</div>
 					<div class="footer-links flex justify-center gap-6 mb-4">
-						<a v-for="(item, index) in navItems" :key="index" :href="item.link"
-							class="footer-link hover-glow"> {{ item.text }} </a>
+						<a v-for="(item, index) in navItems" :key="index" :href="item.link" class="footer-link hover-glow">
+							{{ item.text }}
+						</a>
 					</div>
-					<div class="copyright"> &copy; {{ new Date().getFullYear() }} 个人前端开发者网站. 保留所有权利. </div>
+					<div class="copyright">&copy; {{ new Date().getFullYear() }} 个人前端开发者网站. 保留所有权利.</div>
 				</div>
 			</div>
 			<div class="back-to-top neon-icon-btn pulse-glow" @click="scrollToTop">
@@ -403,17 +483,33 @@
 	</div>
 </template>
 <script setup>
-	import { ref, reactive, onMounted, computed } from 'vue';
-	import { ElMessage } from 'element-plus';
-	import AOS from 'aos';
-	import 'aos/dist/aos.css';
+	import { ref, reactive, onMounted, computed } from 'vue'
+	import { ElMessage } from 'element-plus'
+	import AOS from 'aos'
+	import 'aos/dist/aos.css'
 	import {
-		Menu, Close, ArrowDown, Picture, Message, Download, Grid,
-		SetUp, Tools, View, Connection, Right, Location, Phone, Position,
-		Share, Link, Briefcase, Top
-	} from '@element-plus/icons-vue';
+		Menu,
+		Close,
+		ArrowDown,
+		Picture,
+		Message,
+		Download,
+		Grid,
+		SetUp,
+		Tools,
+		View,
+		Connection,
+		Right,
+		Location,
+		Phone,
+		Position,
+		Share,
+		Link,
+		Briefcase,
+		Top
+	} from '@element-plus/icons-vue'
 
-	// 导航菜单  
+	// 导航菜单
 	const navItems = [
 		{ text: '首页', link: '#home' },
 		{ text: '关于', link: '#about' },
@@ -421,56 +517,80 @@
 		{ text: '项目', link: '#projects' },
 		{ text: '经历', link: '#experience' },
 		{ text: '联系', link: '#contact' }
-	];
+	]
 
-	// 移动端菜单  
-	const mobileMenuVisible = ref(false);
+	// 移动端菜单
+	const mobileMenuVisible = ref(false)
 
-	// 技术图标 - 添加发光颜色  
+	// 技术图标 - 添加发光颜色
 	const techIcons = [
-		{ name: 'HTML5', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg', glowColor: '#E44D26' },
-		{ name: 'CSS3', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg', glowColor: '#1572B6' },
-		{ name: 'JavaScript', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', glowColor: '#F7DF1E' },
-		{ name: 'Vue.js', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg', glowColor: '#4FC08D' },
-		{ name: 'React', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', glowColor: '#61DAFB' },
-		{ name: 'Node.js', url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', glowColor: '#339933' }
-	];
+		{
+			name: 'HTML5',
+			url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+			glowColor: '#E44D26'
+		},
+		{
+			name: 'CSS3',
+			url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
+			glowColor: '#1572B6'
+		},
+		{
+			name: 'JavaScript',
+			url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+			glowColor: '#F7DF1E'
+		},
+		{
+			name: 'Vue.js',
+			url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+			glowColor: '#4FC08D'
+		},
+		{
+			name: 'React',
+			url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+			glowColor: '#61DAFB'
+		},
+		{
+			name: 'Node.js',
+			url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+			glowColor: '#339933'
+		}
+	]
 
-// 前端技能 - 使用单色  
-const frontendSkills = [  
-  { name: 'HTML5/CSS3', level: 95, color: '#ff4b1f' },  
-  { name: 'JavaScript', level: 90, color: '#f9d423' },  
-  { name: 'TypeScript', level: 85, color: '#0072ff' },  
-  { name: 'Sass/Less', level: 90, color: '#fc5c7d' }  
-];  
+	// 前端技能 - 使用单色
+	const frontendSkills = [
+		{ name: 'HTML5/CSS3', level: 95, color: '#ff4b1f' },
+		{ name: 'JavaScript', level: 90, color: '#f9d423' },
+		{ name: 'TypeScript', level: 85, color: '#0072ff' },
+		{ name: 'Sass/Less', level: 90, color: '#fc5c7d' }
+	]
 
-// 框架技能 - 使用单色  
-const frameworkSkills = [  
-  { name: 'Vue.js', level: 95, color: '#11998e' },  
-  { name: 'React', level: 85, color: '#4facfe' },  
-  { name: 'Angular', level: 75, color: '#8e2de2' },  
-  { name: 'Nuxt.js', level: 80, color: '#1ed7b5' }  
-];  
+	// 框架技能 - 使用单色
+	const frameworkSkills = [
+		{ name: 'Vue.js', level: 95, color: '#11998e' },
+		{ name: 'React', level: 85, color: '#4facfe' },
+		{ name: 'Angular', level: 75, color: '#8e2de2' },
+		{ name: 'Nuxt.js', level: 80, color: '#1ed7b5' }
+	]
 
-// 工具技能 - 使用单色  
-const toolSkills = [  
-  { name: 'Webpack/Vite', level: 85, color: '#f83600' },  
-  { name: 'Git/GitHub', level: 90, color: '#5433ff' },  
-  { name: 'UI/UX', level: 75, color: '#9733ee' },  
-  { name: 'Node.js', level: 80, color: '#02aab0' }  
-];  
+	// 工具技能 - 使用单色
+	const toolSkills = [
+		{ name: 'Webpack/Vite', level: 85, color: '#f83600' },
+		{ name: 'Git/GitHub', level: 90, color: '#5433ff' },
+		{ name: 'UI/UX', level: 75, color: '#9733ee' },
+		{ name: 'Node.js', level: 80, color: '#02aab0' }
+	]
 
-	// 项目过滤器  
+	// 项目过滤器
 	const projectFilters = [
 		{ label: '全部', value: 'all' },
 		{ label: 'Web应用', value: 'web' },
 		{ label: '移动应用', value: 'mobile' },
 		{ label: 'UI/UX', value: 'ui' }
-	];
+	]
 
-	const activeFilter = ref('all');
+	const activeFilter = ref('all')
 
-	// 项目数据 - 更换为更可靠的图片链接  
+	// 项目数据 - 更换为更可靠的图片链接
 	const projects = [
 		{
 			title: '企业管理系统',
@@ -526,17 +646,17 @@ const toolSkills = [
 			technologies: ['React Native', 'Redux', 'Firebase'],
 			category: 'mobile'
 		}
-	];
+	]
 
-	// 过滤项目  
+	// 过滤项目
 	const filteredProjects = computed(() => {
 		if (activeFilter.value === 'all') {
-			return projects;
+			return projects
 		}
-		return projects.filter(project => project.category === activeFilter.value);
-	});
+		return projects.filter((project) => project.category === activeFilter.value)
+	})
 
-	// 工作经历  
+	// 工作经历
 	const workExperience = [
 		{
 			title: '高级前端开发工程师',
@@ -559,102 +679,103 @@ const toolSkills = [
 			description: '参与网站和小程序的开发，负责页面切图和基础交互实现。',
 			technologies: ['jQuery', 'Bootstrap', 'CSS3', 'Mini Program']
 		}
-	];
+	]
 
-	// 联系表单  
-	const contactFormRef = ref(null);
+	// 联系表单
+	const contactFormRef = ref(null)
 	const contactForm = reactive({
 		name: '',
 		email: '',
 		subject: '',
 		message: ''
-	});
+	})
 
-	// 滚动检测  
-	const isScrolled = ref(false);
+	// 滚动检测
+	const isScrolled = ref(false)
 
-	// 方法  
+	// 方法
 	const scrollTo = (selector) => {
-		const element = document.querySelector(selector);
+		const element = document.querySelector(selector)
 		if (element) {
-			element.scrollIntoView({ behavior: 'smooth' });
+			element.scrollIntoView({ behavior: 'smooth' })
 		}
-	};
+	}
 
 	const scrollToTop = () => {
 		window.scrollTo({
 			top: 0,
 			behavior: 'smooth'
-		});
-	};
+		})
+	}
 
 	const downloadResume = () => {
 		ElMessage({
 			message: '简历下载开始',
 			type: 'success'
-		});
-		// 实际下载逻辑...  
-	};
+		})
+		// 实际下载逻辑...
+	}
 
 	const showMoreProjects = () => {
 		ElMessage({
 			message: '更多项目即将展示',
 			type: 'info'
-		});
-		// 加载更多项目的逻辑...  
-	};
+		})
+		// 加载更多项目的逻辑...
+	}
 
 	const submitContactForm = async () => {
-		if (!contactFormRef.value) return;
+		if (!contactFormRef.value) return
 
 		await contactFormRef.value.validate((valid) => {
 			if (valid) {
 				ElMessage({
 					message: '消息已发送，我会尽快回复您！',
 					type: 'success'
-				});
-				// 重置表单  
-				contactForm.name = '';
-				contactForm.email = '';
-				contactForm.subject = '';
-				contactForm.message = '';
+				})
+				// 重置表单
+				contactForm.name = ''
+				contactForm.email = ''
+				contactForm.subject = ''
+				contactForm.message = ''
 			}
-		});
-	};
+		})
+	}
 
-	// 监听滚动事件  
+	// 监听滚动事件
 	const handleScroll = () => {
-		isScrolled.value = window.scrollY > 50;
-	};
+		isScrolled.value = window.scrollY > 50
+	}
 
 	onMounted(() => {
-		// 初始化AOS动画  
+		// 初始化AOS动画
 		AOS.init({
 			duration: 1000,
 			easing: 'ease-in-out',
 			once: true,
 			offset: 100
-		});
+		})
 
-		// 添加滚动监听  
-		window.addEventListener('scroll', handleScroll);
-		handleScroll(); // 初始检查  
-	});
+		// 添加滚动监听
+		window.addEventListener('scroll', handleScroll)
+		handleScroll() // 初始检查
+	})
 </script>
-<style scoped lang='scss'>
-	// 霓虹灯效果变量  
+<style scoped lang="scss">
+	// 霓虹灯效果变量
 	$neon-blue: #00f7ff;
 	$neon-purple: #bd4ce6;
 	$neon-pink: #fe53bb;
 	$neon-green: #00ff88;
 	$neon-yellow: #ffd700;
 	$neon-blue-glow: 0 0 10px rgba(0, 247, 255, 0.5), 0 0 20px rgba(0, 247, 255, 0.3), 0 0 30px rgba(0, 247, 255, 0.1);
-	$neon-purple-glow: 0 0 10px rgba(189, 76, 230, 0.5), 0 0 20px rgba(189, 76, 230, 0.3), 0 0 30px rgba(189, 76, 230, 0.1);
+	$neon-purple-glow: 0 0 10px rgba(189, 76, 230, 0.5), 0 0 20px rgba(189, 76, 230, 0.3),
+		0 0 30px rgba(189, 76, 230, 0.1);
 	$neon-pink-glow: 0 0 10px rgba(254, 83, 187, 0.5), 0 0 20px rgba(254, 83, 187, 0.3), 0 0 30px rgba(254, 83, 187, 0.1);
 	$neon-green-glow: 0 0 10px rgba(0, 255, 136, 0.5), 0 0 20px rgba(0, 255, 136, 0.3), 0 0 30px rgba(0, 255, 136, 0.1);
 	$neon-yellow-glow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.1);
 
-	// 全局变量  
+	// 全局变量
 	$dark-bg: #0a0a14;
 	$darker-bg: #050510;
 	$card-bg: rgba(20, 20, 35, 0.7);
@@ -663,7 +784,7 @@ const toolSkills = [
 	$transition-time: 0.3s;
 	$box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 
-	// 深色主题全局样式  
+	// 深色主题全局样式
 	.dark-theme {
 		color: $text-color;
 		font-family: 'PingFang SC', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', Arial, sans-serif;
@@ -672,7 +793,7 @@ const toolSkills = [
 		overflow-x: hidden;
 	}
 
-	// 背景效果 - 霓虹风格  
+	// 背景效果 - 霓虹风格
 	.bg-effect {
 		position: fixed;
 		top: 0;
@@ -697,8 +818,7 @@ const toolSkills = [
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background-image:
-				linear-gradient(rgba(66, 28, 82, 0.1) 1px, transparent 1px),
+			background-image: linear-gradient(rgba(66, 28, 82, 0.1) 1px, transparent 1px),
 				linear-gradient(90deg, rgba(66, 28, 82, 0.1) 1px, transparent 1px);
 			background-size: 40px 40px;
 			background-position: center center;
@@ -710,8 +830,7 @@ const toolSkills = [
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background:
-				radial-gradient(circle at 20% 30%, rgba(189, 76, 230, 0.15) 0%, transparent 50%),
+			background: radial-gradient(circle at 20% 30%, rgba(189, 76, 230, 0.15) 0%, transparent 50%),
 				radial-gradient(circle at 80% 70%, rgba(0, 247, 255, 0.15) 0%, transparent 50%),
 				radial-gradient(circle at 50% 50%, rgba(254, 83, 187, 0.05) 0%, transparent 70%);
 		}
@@ -742,7 +861,7 @@ const toolSkills = [
 		}
 	}
 
-	// 霓虹文字效果  
+	// 霓虹文字效果
 	.neon-text {
 		color: $neon-blue;
 		text-shadow: $neon-blue-glow;
@@ -768,12 +887,12 @@ const toolSkills = [
 		text-shadow: $neon-green-glow;
 	}
 
-	// 脉冲霓虹文字  
+	// 脉冲霓虹文字
 	.neon-text-pulse {
 		animation: neon-pulse 2s infinite alternate;
 	}
 
-	// 渐变文字  
+	// 渐变文字
 	.neon-gradient-text {
 		font-size: 3rem;
 		font-weight: 800;
@@ -784,7 +903,7 @@ const toolSkills = [
 		text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 	}
 
-	// 发光悬停效果  
+	// 发光悬停效果
 	.hover-glow {
 		transition: color 0.3s, text-shadow 0.3s;
 
@@ -794,7 +913,7 @@ const toolSkills = [
 		}
 	}
 
-	// 发光边框按钮  
+	// 发光边框按钮
 	.neon-btn {
 		background-color: rgba(20, 20, 40, 0.5);
 		border: 1px solid rgba(0, 247, 255, 0.3);
@@ -828,7 +947,7 @@ const toolSkills = [
 		}
 	}
 
-	// 发光主要按钮  
+	// 发光主要按钮
 	.neon-btn-primary {
 		background: linear-gradient(135deg, rgba(189, 76, 230, 0.8), rgba(0, 247, 255, 0.8));
 		border: none;
@@ -845,7 +964,7 @@ const toolSkills = [
 		}
 	}
 
-	// 激活按钮状态  
+	// 激活按钮状态
 	.neon-btn-active {
 		background: linear-gradient(135deg, rgba(189, 76, 230, 0.8), rgba(0, 247, 255, 0.8));
 		border: none;
@@ -854,12 +973,12 @@ const toolSkills = [
 		box-shadow: $neon-blue-glow;
 	}
 
-	// 脉冲发光效果  
+	// 脉冲发光效果
 	.pulse-glow {
 		animation: pulse-animation 2s infinite;
 	}
 
-	// 玻璃拟态卡片  
+	// 玻璃拟态卡片
 	.glass-card {
 		background: rgba(20, 20, 35, 0.7);
 		backdrop-filter: blur(10px);
@@ -873,7 +992,7 @@ const toolSkills = [
 		}
 	}
 
-	// 渐变背景卡片  
+	// 渐变背景卡片
 	.glass-card-gradient {
 		background: linear-gradient(135deg, rgba(189, 76, 230, 0.2), rgba(0, 247, 255, 0.2));
 		backdrop-filter: blur(10px);
@@ -884,7 +1003,7 @@ const toolSkills = [
 		color: white;
 	}
 
-	// 霓虹边框  
+	// 霓虹边框
 	.glow-border {
 		position: relative;
 		border-radius: 12px;
@@ -900,7 +1019,7 @@ const toolSkills = [
 		}
 	}
 
-	// 霓虹图标  
+	// 霓虹图标
 	.neon-icon-blue {
 		display: flex;
 		align-items: center;
@@ -940,7 +1059,7 @@ const toolSkills = [
 		box-shadow: $neon-pink-glow;
 	}
 
-	// 霓虹图标按钮  
+	// 霓虹图标按钮
 	.neon-icon-btn {
 		display: flex;
 		align-items: center;
@@ -962,21 +1081,21 @@ const toolSkills = [
 		}
 	}
 
-	// 霓虹徽章  
+	// 霓虹徽章
 	.neon-badge {
 		background: linear-gradient(135deg, $neon-purple, $neon-blue);
 		color: white;
 		box-shadow: 0 0 15px rgba(189, 76, 230, 0.5);
 	}
 
-	// 霓虹徽章脉冲  
+	// 霓虹徽章脉冲
 	.neon-badge-pulse {
 		background: $neon-purple;
 		color: white;
 		animation: badge-pulse 2s infinite alternate;
 	}
 
-	// 霓虹标签  
+	// 霓虹标签
 	.neon-tag {
 		background: rgba(30, 30, 50, 0.7);
 		border: 1px solid rgba(0, 247, 255, 0.3);
@@ -990,7 +1109,7 @@ const toolSkills = [
 		}
 	}
 
-	// 霓虹进度条  
+	// 霓虹进度条
 	.neon-progress {
 		:deep(.el-progress-bar__outer) {
 			background-color: rgba(255, 255, 255, 0.1) !important;
@@ -1004,10 +1123,11 @@ const toolSkills = [
 
 		:deep(.el-progress__text) {
 			color: $text-color !important;
+			font-size: 14px !important;
 		}
 	}
 
-	// 霓虹输入框  
+	// 霓虹输入框
 	.neon-input {
 		:deep(.el-input__wrapper) {
 			background-color: rgba(30, 30, 50, 0.7) !important;
@@ -1036,7 +1156,7 @@ const toolSkills = [
 		}
 	}
 
-	// 导航栏  
+	// 导航栏
 	.navbar {
 		transition: all $transition-time;
 		backdrop-filter: blur(10px);
@@ -1067,7 +1187,7 @@ const toolSkills = [
 		}
 	}
 
-	// 移动端菜单  
+	// 移动端菜单
 	.mobile-menu {
 		background-color: rgba(0, 0, 0, 0.7);
 
@@ -1080,7 +1200,7 @@ const toolSkills = [
 		}
 	}
 
-	// 英雄区域  
+	// 英雄区域
 	.hero-section {
 		min-height: 100vh;
 		padding: 120px 0 60px;
@@ -1207,7 +1327,7 @@ const toolSkills = [
 		}
 	}
 
-	// 关于部分  
+	// 关于部分
 	.about-section {
 		position: relative;
 
@@ -1252,7 +1372,7 @@ const toolSkills = [
 		}
 	}
 
-	// 技能部分  
+	// 技能部分
 	.skills-section {
 		position: relative;
 
@@ -1287,7 +1407,7 @@ const toolSkills = [
 		}
 	}
 
-	// 项目部分  
+	// 项目部分
 	.projects-section {
 		position: relative;
 
@@ -1355,7 +1475,7 @@ const toolSkills = [
 		}
 	}
 
-	// 经验部分  
+	// 经验部分
 	.experience-section {
 		position: relative;
 
@@ -1439,7 +1559,7 @@ const toolSkills = [
 		}
 	}
 
-	// 联系部分  
+	// 联系部分
 	.contact-section {
 		position: relative;
 
@@ -1467,7 +1587,7 @@ const toolSkills = [
 		}
 	}
 
-	// 页脚  
+	// 页脚
 	.footer {
 		background-color: $darker-bg;
 		color: $text-color;
@@ -1509,15 +1629,14 @@ const toolSkills = [
 		}
 	}
 
-	// 霓虹浮动图标  
+	// 霓虹浮动图标
 	.neon-floating {
 		box-shadow: 0 0 15px rgba(var(--glow-color), 0.5);
 		animation: float 3s ease-in-out infinite;
 	}
 
-	// 动画定义  
+	// 动画定义
 	@keyframes float {
-
 		0%,
 		100% {
 			transform: translateY(0);
@@ -1529,7 +1648,6 @@ const toolSkills = [
 	}
 
 	@keyframes float-slow {
-
 		0%,
 		100% {
 			transform: translate(0, 0);
@@ -1541,7 +1659,6 @@ const toolSkills = [
 	}
 
 	@keyframes neon-pulse {
-
 		0%,
 		100% {
 			opacity: 1;
@@ -1555,7 +1672,6 @@ const toolSkills = [
 	}
 
 	@keyframes pulse-animation {
-
 		0%,
 		100% {
 			box-shadow: 0 0 10px rgba(0, 247, 255, 0.5), 0 0 20px rgba(0, 247, 255, 0.3);
@@ -1567,7 +1683,6 @@ const toolSkills = [
 	}
 
 	@keyframes border-glow {
-
 		0%,
 		100% {
 			box-shadow: 0 0 15px rgba(189, 76, 230, 0.5), 0 0 30px rgba(0, 247, 255, 0.3);
@@ -1579,7 +1694,6 @@ const toolSkills = [
 	}
 
 	@keyframes badge-pulse {
-
 		0%,
 		100% {
 			background-color: $neon-purple;
@@ -1592,7 +1706,7 @@ const toolSkills = [
 		}
 	}
 
-	// 媒体查询  
+	// 媒体查询
 	@media (max-width: 768px) {
 		.experience-timeline {
 			.timeline-line {
