@@ -10,7 +10,6 @@
 				<p>{{ item.description }}</p>
 			</div>
 		</el-main>
-		<el-footer class="footer" @click="router.push('/home')">Footer</el-footer>
 	</el-container>
 	<div v-if="!allImagesLoaded" class="load-container">
 		<div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
@@ -57,9 +56,15 @@
 			description: 'This is a cool card with some awesome content.',
 			img: 'https://picsum.photos/1600/1200?random=1'
 		},
+		// {
+		// 	title: 'China-map',
+		// 	path: '/map-cn',
+		// 	description: 'This card has even more amazing stuff to show.',
+		// 	img: 'https://picsum.photos/1600/1200?random=2'
+		// },
 		{
-			title: 'China-map',
-			path: '/map-cn',
+			title: 'Mine',
+			path: '/home',
 			description: 'This card has even more amazing stuff to show.',
 			img: 'https://picsum.photos/1600/1200?random=2'
 		},

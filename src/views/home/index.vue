@@ -12,7 +12,7 @@
 		<header class="navbar fixed top-0 left-0 right-0 z-50" :class="{ 'navbar-scrolled': isScrolled }">
 			<div class="container mx-auto px-4 py-4 flex justify-between items-center">
 				<div class="logo">
-					<span class="text-xl font-bold neon-text">欢迎来到我的主页</span>
+					<span class="text-2xl font-bold tracking-wide neon-text">欢迎来到我的主页</span>
 				</div>
 				<div class="menu hidden md:flex">
 					<a
@@ -57,7 +57,7 @@
 				</div>
 			</div>
 		</div>
-		<!-- 英雄区域 -->
+		<!-- 简介区域 -->
 		<section class="hero-section relative flex flex-col justify-center" id="home">
 			<div class="container mx-auto px-4 z-10">
 				<div class="flex flex-col md:flex-row items-center">
@@ -100,7 +100,7 @@
 				</div>
 			</div>
 			<div class="scroll-down pulse-glow" @click="scrollTo('#about')">
-				<el-icon class="animate-bounce">
+				<el-icon class="animate-bounce mt-2">
 					<ArrowDown />
 				</el-icon>
 			</div>
@@ -116,14 +116,14 @@
 								<img src="@/assets/home/1.jpg" alt="工作照片" class="rounded-lg" />
 							</div>
 							<div class="experience-badge neon-badge">
-								<span class="years">5+</span>
+								<span class="years">4+</span>
 								<span class="text">年经验</span>
 							</div>
 						</div>
 					</div>
 					<div class="md:w-1/2 md:pl-12" data-aos="fade-left">
 						<h3 class="text-2xl font-bold mb-4 neon-text">专注于创建优秀的用户体验</h3>
-						<p class="mb-4">我是一名拥有5年经验的前端开发工程师，专注于构建高性能、响应式和用户友好的web应用。</p>
+						<p class="mb-4">我是一名拥有4年经验的前端开发工程师，专注于构建高性能、响应式和用户友好的web应用。</p>
 						<p class="mb-4">我擅长将设计师的创意转化为功能完善的前端代码，并保持代码的可维护性和可扩展性。</p>
 						<p class="mb-6">我不断学习最新的技术和工具，以提升自己的技能和保持竞争力。</p>
 						<div class="about-info grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -133,15 +133,15 @@
 							</div>
 							<div class="info-item">
 								<span class="info-label">邮箱:</span>
-								<span class="info-value">contact@example.com</span>
+								<span class="info-value">cheng71130@gmail.com</span>
 							</div>
 							<div class="info-item">
 								<span class="info-label">位置:</span>
-								<span class="info-value">上海市</span>
+								<span class="info-value">苏州市</span>
 							</div>
 							<div class="info-item">
 								<span class="info-label">状态:</span>
-								<span class="info-value available neon-text-green">可接受项目</span>
+								<span class="info-value available neon-text-green">在职寻找机会</span>
 							</div>
 						</div>
 						<el-button class="neon-btn-primary mt-6" @click="downloadResume">
@@ -344,12 +344,12 @@
 				<div class="flex flex-col md:flex-row gap-8">
 					<div class="md:w-1/2" data-aos="fade-right">
 						<div class="contact-info-wrapper glass-card-gradient">
-							<h3 class="text-2xl font-bold mb-6">来聊聊您的项目吧</h3>
+							<h3 class="text-2xl font-bold mb-6">欢迎了解我的前端开发项目</h3>
 							<p class="mb-8">
-								无论您需要一个完整的网站、一个应用程序或需要技术咨询，我都很乐意听取您的想法并提供帮助。
+								我有诸多项目经验可以与您分享，期待有机会向您展示我的技术能力和创新思维。
 							</p>
 							<div class="contact-info">
-								<div class="info-item flex items-start mb-6">
+								<div class="info-item flex items-center gap-6 mb-5">
 									<div class="info-icon neon-icon-blue">
 										<el-icon>
 											<Location />
@@ -357,10 +357,10 @@
 									</div>
 									<div class="info-content">
 										<h4 class="info-title">位置</h4>
-										<p class="info-text">上海市浦东新区</p>
+										<p class="info-text">江苏省苏州市工业园区人工智能产业园</p>
 									</div>
 								</div>
-								<div class="info-item flex items-start mb-6">
+								<div class="info-item flex items-center gap-6 mb-5">
 									<div class="info-icon neon-icon-purple">
 										<el-icon>
 											<Message />
@@ -368,10 +368,10 @@
 									</div>
 									<div class="info-content">
 										<h4 class="info-title">邮箱</h4>
-										<p class="info-text">contact@example.com</p>
+										<p class="info-text">cheng71130@gmail.com</p>
 									</div>
 								</div>
-								<div class="info-item flex items-start mb-6">
+								<div class="info-item flex items-center gap-6 mb-5">
 									<div class="info-icon neon-icon-pink">
 										<el-icon>
 											<Phone />
@@ -379,7 +379,7 @@
 									</div>
 									<div class="info-content">
 										<h4 class="info-title">电话</h4>
-										<p class="info-text">+86 138 **** ****</p>
+										<p class="info-text">+86 18909028186</p>
 									</div>
 								</div>
 							</div>
@@ -401,7 +401,7 @@
 								</a>
 								<a href="#" class="social-link neon-icon-btn" target="_blank">
 									<el-icon>
-										<Chat />
+										<Phone />
 									</el-icon>
 								</a>
 							</div>
@@ -487,27 +487,6 @@
 	import { ElMessage } from 'element-plus'
 	import AOS from 'aos'
 	import 'aos/dist/aos.css'
-	import {
-		Menu,
-		Close,
-		ArrowDown,
-		Picture,
-		Message,
-		Download,
-		Grid,
-		SetUp,
-		Tools,
-		View,
-		Connection,
-		Right,
-		Location,
-		Phone,
-		Position,
-		Share,
-		Link,
-		Briefcase,
-		Top
-	} from '@element-plus/icons-vue'
 
 	// 导航菜单
 	const navItems = [
@@ -660,22 +639,22 @@
 	const workExperience = [
 		{
 			title: '高级前端开发工程师',
-			company: 'ABC科技有限公司',
-			period: '2021 - 至今',
+			company: '上海数设科技有限公司',
+			period: '2023 - 至今',
 			description: '负责企业级应用的前端架构设计和开发，优化前端性能，指导初级开发人员。',
 			technologies: ['Vue 3', 'TypeScript', 'Micro Frontend', 'Element Plus']
 		},
 		{
 			title: '前端开发工程师',
-			company: 'XYZ互联网公司',
-			period: '2018 - 2021',
+			company: '上海数设科技有限公司',
+			period: '2021 - 2023',
 			description: '参与多个web应用项目的开发，负责UI组件实现和前端逻辑编写。',
 			technologies: ['React', 'Redux', 'Ant Design', 'Webpack']
 		},
 		{
 			title: '初级前端开发',
-			company: '创新科技工作室',
-			period: '2016 - 2018',
+			company: '苏州帝泰克检测设备有限公司',
+			period: '2020 - 2021',
 			description: '参与网站和小程序的开发，负责页面切图和基础交互实现。',
 			technologies: ['jQuery', 'Bootstrap', 'CSS3', 'Mini Program']
 		}
@@ -1200,7 +1179,7 @@
 		}
 	}
 
-	// 英雄区域
+	// 简介区域
 	.hero-section {
 		min-height: 100vh;
 		padding: 120px 0 60px;
@@ -1296,13 +1275,13 @@
 					&:nth-child(5) {
 						top: -15%;
 						left: 50%;
-						transform: translateX(-50%);
+						// transform: translateX(-50%);
 					}
 
 					&:nth-child(6) {
 						bottom: -15%;
-						left: 50%;
-						transform: translateX(-50%);
+						left: 55%;
+						// transform: translateX(-50%);
 					}
 				}
 			}
