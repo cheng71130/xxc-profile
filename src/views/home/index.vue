@@ -1,5 +1,5 @@
 <template>
-	<div class="portfolio-container dark-theme">
+	<div class="portfolio-container dark-theme animate__animated animate__fadeIn">
 		<!-- 背景效果 - 霓虹风格 -->
 		<div class="bg-effect">
 			<div class="bg-gradient"></div>
@@ -15,14 +15,14 @@
 					<span class="text-2xl font-bold tracking-wide neon-text">欢迎来到我的主页</span>
 				</div>
 				<div class="menu hidden md:flex">
-					<a
+					<span
 						v-for="(item, index) in navItems"
 						:key="index"
-						:href="item.link"
 						class="mx-3 text-base transition-colors duration-300 hover-glow"
+						@click="scrollTo(item.link)"
 					>
 						{{ item.text }}
-					</a>
+					</span>
 				</div>
 				<div class="md:hidden">
 					<el-button icon class="neon-btn" @click="mobileMenuVisible = !mobileMenuVisible">
@@ -45,15 +45,14 @@
 					</el-button>
 				</div>
 				<div class="flex flex-col">
-					<a
+					<span
 						v-for="(item, index) in navItems"
 						:key="index"
-						:href="item.link"
 						class="py-3 border-b border-glow hover-glow"
-						@click="mobileMenuVisible = false"
+						@click=";(mobileMenuVisible = false), scrollTo(item.link)"
 					>
 						{{ item.text }}
-					</a>
+					</span>
 				</div>
 			</div>
 		</div>
@@ -100,7 +99,7 @@
 				</div>
 			</div>
 			<div class="scroll-down pulse-glow" @click="scrollTo('#about')">
-				<el-icon class="animate-bounce mt-2">
+				<el-icon class="animate-bounce mt-2.2 ml-0.4">
 					<ArrowDown />
 				</el-icon>
 			</div>
@@ -263,7 +262,6 @@
 						v-for="(project, index) in filteredProjects"
 						:key="index"
 						data-aos="flip-up"
-						:data-aos-delay="index * 100"
 					>
 						<div class="project-image">
 							<img :src="project.image" :alt="project.title" class="w-full" />
@@ -345,9 +343,7 @@
 					<div class="md:w-1/2" data-aos="fade-right">
 						<div class="contact-info-wrapper glass-card-gradient">
 							<h3 class="text-2xl font-bold mb-6">欢迎了解我的前端开发项目</h3>
-							<p class="mb-8">
-								我有诸多项目经验可以与您分享，期待有机会向您展示我的技术能力和创新思维。
-							</p>
+							<p class="mb-8">我有诸多项目经验可以与您分享，期待有机会向您展示我的技术能力和创新思维。</p>
 							<div class="contact-info">
 								<div class="info-item flex items-center gap-6 mb-5">
 									<div class="info-icon neon-icon-blue">
@@ -467,9 +463,14 @@
 				<div class="text-center">
 					<div class="logo mb-4 neon-text-pulse">肖学成</div>
 					<div class="footer-links flex justify-center gap-6 mb-4">
-						<a v-for="(item, index) in navItems" :key="index" :href="item.link" class="footer-link hover-glow">
+						<span
+							v-for="(item, index) in navItems"
+							:key="index"
+							class="footer-link hover-glow"
+							@click="scrollTo(item.link)"
+						>
 							{{ item.text }}
-						</a>
+						</span>
 					</div>
 					<div class="copyright">&copy; {{ new Date().getFullYear() }} 个人前端开发者网站. 保留所有权利.</div>
 				</div>
@@ -887,6 +888,7 @@
 		transition: color 0.3s, text-shadow 0.3s;
 
 		&:hover {
+			cursor: pointer;
 			color: white;
 			text-shadow: $neon-blue-glow;
 		}
