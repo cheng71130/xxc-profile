@@ -82,7 +82,21 @@
 					<div class="md:w-1/2 flex justify-center" data-aos="fade-left">
 						<div class="profile-image">
 							<div class="image-glow-wrapper">
-								<img src="@/assets/home/xxc.jpg" alt="前端开发者照片" class="rounded-full" />
+								<el-skeleton v-if="loading" animated>
+									<template #template>
+										<div class="skeleton-wrapper rounded-full flex-center">
+											<el-skeleton-item variant="circle" class="skeleton-circle" />
+										</div>
+									</template>
+								</el-skeleton>
+								<img
+									v-show="!loading"
+									src="@/assets/home/xxc.jpg"
+									alt="前端开发者照片"
+									class="rounded-full"
+									@load="onImageLoaded"
+									ref="imageRef"
+								/>
 							</div>
 							<div class="tech-icons">
 								<div
@@ -488,6 +502,23 @@
 	import { ElMessage } from 'element-plus'
 	import AOS from 'aos'
 	import 'aos/dist/aos.css'
+
+	// 图片加载状态
+	const loading = ref(true)
+	const imageRef = ref(null)
+
+	// 图片加载完成时的处理函数
+	const onImageLoaded = () => {
+		loading.value = false
+	}
+
+	// 预加载图片
+	onMounted(() => {
+		// 如果图片已经缓存，立即隐藏骨架屏
+		if (imageRef.value && imageRef.value.complete) {
+			loading.value = false
+		}
+	})
 
 	// 导航菜单
 	const navItems = [

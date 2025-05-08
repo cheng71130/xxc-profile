@@ -219,10 +219,11 @@
 
 		<el-dialog
 			v-model="state.runResultDialog"
-			title="错误信息"
-			width="700"
+			title="执行中断"
+			width="800"
 			draggable
 			class="hideScrollbar animate__animated animate__fadeIn"
+			destroy-on-close
 		>
 			<!-- <template #header>
 				<span style="color: red"> 执行中断 </span>
@@ -230,7 +231,7 @@
 			<div class="runResultDiv">
 				<div class="resultTitle">{{ state.resultConsole }}</div>
 				<el-divider class="mt15 mb15"></el-divider>
-				<div class="resultContent animate__animated animate__fadeInUp">{{ state.resultInfo }}</div>
+				<div id="resultContent" class="resultContent first-line"></div>
 			</div>
 		</el-dialog>
 	</div>
@@ -252,6 +253,7 @@
 
 	import { register, getTeleport } from '@logicflow/vue-node-registry'
 	import vueNode from './node/vueNode.vue'
+	import TypeIt from 'typeit'
 	// import overwriteBezier from './edge/overwriteBezier';
 
 	import { processModelDetail, algorithmRes, processRes } from './mock/demo1'
@@ -385,9 +387,9 @@
 					text: '属性',
 					callback(node) {
 						alert(`
-          节点id：${node.id}
-          节点类型：${node.type}
-          节点坐标：(x: ${node.x}, y: ${node.y})`)
+	          节点id：${node.id}
+	          节点类型：${node.type}
+	          节点坐标：(x: ${node.x}, y: ${node.y})`)
 					}
 				},
 				{
@@ -431,11 +433,11 @@
 					text: '属性',
 					callback(edge) {
 						alert(`
-          边id：${edge.id}
-          边类型：${edge.type}
-          边坐标：(x: ${edge.x}, y: ${edge.y})
-          源节点id：${edge.sourceNodeId}
-          目标节点id：${edge.targetNodeId}`)
+	          边id：${edge.id}
+	          边类型：${edge.type}
+	          边坐标：(x: ${edge.x}, y: ${edge.y})
+	          源节点id：${edge.sourceNodeId}
+	          目标节点id：${edge.targetNodeId}`)
 					}
 				}
 			]
@@ -469,10 +471,10 @@
 
 		// 重写下载图片样式
 		state.lf.extension.snapshot.customCssRules = `
-.lf-canvas-overlay {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADUAAAA2CAIAAADoEEaJAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAEXRFWHRTb2Z0d2FyZQBTbmlwYXN0ZV0Xzt0AAACBSURBVGiB7dWxDcAgDAVRJ6JC1Oy/nhegzgQhxSnCxb0WkK7iX5kZhbWImHO+Ha+1eu+b939fuDcvK7CPsY+xj6ned2XmGON0xqsWEZvv2/34YB9jH2MfYx/jvrlvJ9nH2MfYx1Tvc9/ct5PsY+xj7GOq97lv7ttJ9jH2MfYx1fseLtlLY98Bn/oAAAAASUVORK5CYII=');
-}
-`
+	.lf-canvas-overlay {
+	  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADUAAAA2CAIAAADoEEaJAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAEXRFWHRTb2Z0d2FyZQBTbmlwYXN0ZV0Xzt0AAACBSURBVGiB7dWxDcAgDAVRJ6JC1Oy/nhegzgQhxSnCxb0WkK7iX5kZhbWImHO+Ha+1eu+b939fuDcvK7CPsY+xj6ned2XmGON0xqsWEZvv2/34YB9jH2MfYx/jvrlvJ9nH2MfYx1Tvc9/ct5PsY+xj7GOq97lv7ttJ9jH2MfYx1fseLtlLY98Bn/oAAAAASUVORK5CYII=');
+	}
+	`
 
 		// 左侧拖拽模板
 		dndPanelRef.value.addEventListener('mousedown', async (e) => {
@@ -745,7 +747,7 @@
 	const mockApiCallRandom = (ms) => {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
-				const isSuccess = Math.random() > 0.4 // 随机决定成功或失败
+				const isSuccess = Math.random() > 0.6 // 40% 的概率成功
 				if (isSuccess) {
 					resolve({ data: 'Sample data from API' })
 				} else {
@@ -758,7 +760,7 @@
 
 	const runFlowFake = async () => {
 		ElMessage({
-			message: 'Flow execution begins...'
+			message: '开始执行...'
 		})
 
 		const graphModel = state.lf.graphModel
@@ -791,6 +793,7 @@
 			try {
 				const res = await mockApiCallRandom(2000)
 				if (res.error) {
+					state.runResultDialog = true
 					// 中断
 					state.lf.setProperties(executingNode.id, {
 						status: 'fail'
@@ -798,15 +801,23 @@
 					state.lf.setProperties(executingEdge.id, {
 						status: 'fail'
 					})
-					ElMessage.error('Flow execution interrupted, please check where the problem occurred')
-					state.resultConsole = 'Persist and never give up'
-					state.resultInfo = `Life is a journey filled with ups and downs, challenges and triumphs. At times, the path may seem daunting, and the obstacles insurmountable. Yet, it is crucial to remember the importance of perseverance and the will to keep moving forward. Living is not merely about existing; it is about thriving despite the adversities we face.
-
-Every individual encounters moments of doubt and despair, where giving up seems like the easiest option. However, it is during these times that the true strength of character is revealed. Perseverance is the key to unlocking potential and achieving dreams. It is the unwavering determination to push through hardships and emerge stronger on the other side.`
+					ElMessage.error('执行中断，请根据提示查找问题或联系管理员')
+					state.resultConsole = '坚持，永不放弃'
+					const resultInfo1 = `生活是一段绚丽旅程 🧭，充满了起伏跌宕 📈📉、挑战 🧗‍♀️ 和胜利 🏆。有时，前方道路崎岖难行 😓，障碍似乎无法逾越 🏔️。`
+					const resultInfo2 = `然而，坚持不懈的精神 💪 和前行的意志 ➡️ 正是我们最宝贵的财富。生活不仅仅是简单的生存，而是在逆境中依然能够茁壮成长 🌱。`
+					const resultInfo3 = `每个人都会经历怀疑 🤔 和绝望 😞 的时刻，放弃看似是最容易的选择。但正是在这些时刻，我们内心真正的品格与力量才会熠熠生辉 ✨。坚持，是开启潜能与实现梦想的金钥匙 🔑。它是那份坚定不移的决心 🔥，推动我们穿越重重困难，最终在彼岸变得更加强大 💯 🌈！`
 					setTimeout(() => {
-						state.runResultDialog = true
-					}, 1000)
-
+						new TypeIt('#resultContent', {
+							speed: 75,
+							waitUntilVisible: true
+						})
+							.type(resultInfo1)
+							.pause(1500)
+							.type(resultInfo2)
+							.pause(1000)
+							.type(resultInfo3)
+							.go()
+					}, 300)
 					break
 				} else {
 					state.lf.setProperties(executingNode.id, {
@@ -831,7 +842,7 @@ Every individual encounters moments of doubt and despair, where giving up seems 
 						})
 					} else {
 						ElMessage({
-							message: 'Congratulations, the flow was executed successfully and the data is being generated',
+							message: '恭喜，流程已成功执行，正在生成数据...',
 							type: 'success',
 							plain: true,
 							showClose: true,
@@ -1136,13 +1147,22 @@ Every individual encounters moments of doubt and despair, where giving up seems 
 		padding: 20px 30px;
 		border-radius: 6px;
 		.resultTitle {
-			font-size: 26px;
+			font-size: 24px;
 			color: #333333;
 		}
 		.resultContent {
 			font-size: 16px;
-			line-height: 22px;
-			color: #ed3b3b;
+			line-height: 24px;
+			position: relative;
+			letter-spacing: 1px;
+			color: #383838;
+			padding-bottom: 10px;
+		}
+		.resultContent.first-line::before {
+			content: '';
+			display: inline-block;
+			width: 34px;
+			height: 0;
 		}
 	}
 </style>
