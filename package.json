@@ -14,7 +14,7 @@
   "main": "dist-electron/main.js",
   "build": {
     "appId": "com.yourapp.id",
-    "productName": "Your App Name",
+    "productName": "xxc_website",
     "directories": {
       "output": "release"
     },
@@ -23,18 +23,19 @@
       "dist-electron/**/*"
     ],
     "mac": {
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "icon": "public/electron/icon.png"
     },
     "win": {
-      "target": [
-        "nsis"
-      ]
+      "target": ["nsis"],
+       "icon": "public/electron/icon.png"
     },
     "linux": {
       "target": [
         "deb",
         "AppImage"
-      ]
+      ],
+      "icon": "public/electron/icon.png"
     }
   },
   "dependencies": {
@@ -58,6 +59,7 @@
     "@vitejs/plugin-vue": "^5.1.2",
     "@vue/tsconfig": "^0.7.0",
     "electron": "^36.2.1",
+    "electron-builder": "^26.0.12",
     "gh-pages": "^6.1.1",
     "less": "^4.2.0",
     "less-loader": "^11.1.3",
