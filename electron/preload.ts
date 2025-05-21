@@ -1,4 +1,4 @@
-// electron/preload.ts
+// 这里必须写commonjs模块  electron不支持es6模块
 const { contextBridge } = require('electron')
 
 // 在window对象上暴露API给渲染进程使用

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --open",
     "build": "vue-tsc -b && vite build",
-    "electron:dev": "vite --config vite.config.ts --mode=development & electron .",
+    "electron:dev": "vite --config vite.config.ts --mode=development --no-open & electron .",
     "electron:build": "vue-tsc && vite build && electron-builder",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
@@ -58,7 +58,6 @@
     "@vitejs/plugin-vue": "^5.1.2",
     "@vue/tsconfig": "^0.7.0",
     "electron": "^36.2.1",
-    "electron-vite": "^3.1.0",
     "gh-pages": "^6.1.1",
     "less": "^4.2.0",
     "less-loader": "^11.1.3",
