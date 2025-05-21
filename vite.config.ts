@@ -11,12 +11,19 @@ export default defineConfig(({}) => {
 		'@/': `${resolve(__dirname, 'src')}/`
 	}
 
-	return {
-		resolve: {
-			alias
-		},
-		plugins: [
-			vue(),
+	const plugins = [
+		vue(),
+		AutoImport({
+			// 可以自定义文件生成的位置，默认是根目录下，使用ts的建议放src目录下
+			dts: true,
+			imports: ['vue', 'vue-router']
+		}),
+		vueInspector(),
+		UnoCSS()
+	]
+
+	if (process.env.ELECTRON_ENABLE) {
+		plugins.push(
 			electron([
 				{
 					// 主进程入口
@@ -36,14 +43,14 @@ export default defineConfig(({}) => {
 						}
 					}
 				}
-			]),
-			AutoImport({
-				// 可以自定义文件生成的位置，默认是根目录下，使用ts的建议放src目录下
-				dts: true,
-				imports: ['vue', 'vue-router']
-			}),
-			vueInspector(),
-			UnoCSS()
-		]
+			])
+		)
+	}
+
+	return {
+		resolve: {
+			alias
+		},
+		plugins
 	}
 })

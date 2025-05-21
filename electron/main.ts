@@ -12,7 +12,7 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 function createWindow() {
 	// 创建浏览器窗口
 	const mainWindow = new BrowserWindow({
-		width: 1200,
+		width: 1400,
 		height: 800,
 		autoHideMenuBar: true, // 自动隐藏菜单栏（Windows上用户可通过Alt键临时显示）
 		webPreferences: {
@@ -27,7 +27,7 @@ function createWindow() {
 		// 开发环境 - 加载本地服务
 		mainWindow.loadURL('http://localhost:5173/')
 		// 打开开发工具
-		mainWindow.webContents.openDevTools()
+		// mainWindow.webContents.openDevTools()
 	} else {
 		// 生产环境 - 加载打包后的文件
 		mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
