@@ -9,10 +9,9 @@
 
 @use 'element-plus/theme-chalk/src/index.scss' as *;
 
-:root {  
-	--el-border-radius-base: 6px;      /* 基础圆角 */  
-  }  
-
+:root {
+	--el-border-radius-base: 6px; /* 基础圆角 */
+}
 
 .el-row > * {
 	height: 100%;

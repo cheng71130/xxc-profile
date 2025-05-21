@@ -22,7 +22,7 @@ export default defineConfig(({}) => {
 		UnoCSS()
 	]
 
-	if (process.env.ELECTRON_ENABLE) {
+	if (process.env.ELECTRON_ENABLE === 'true') {
 		plugins.push(
 			electron([
 				{
@@ -48,9 +48,15 @@ export default defineConfig(({}) => {
 	}
 
 	return {
-		resolve: {
-			alias
-		},
-		plugins
+		resolve: { alias },
+		plugins,
+		css: {
+			preprocessorOptions: {
+				scss: {
+					// 修复警告 Deprecation Warning [legacy-js-api]: The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+					api: 'modern'
+				}
+			}
+		}
 	}
 })
