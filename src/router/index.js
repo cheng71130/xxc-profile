@@ -21,6 +21,11 @@ const routes = [
 		name: 'Flow',
 		component: () => import('@/views/logicFlow/index.vue')
 	},
+	{
+		path: '/largeFileUpload',
+		name: 'largeFileUpload',
+		component: () => import('@/views/largeFileUpload/index.vue')
+	},
 ]
 
 const router = createRouter({

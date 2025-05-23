@@ -57,6 +57,10 @@ export default defineConfig(({}) => {
 					api: 'modern'
 				}
 			}
+		},
+		server: {
+			port: 5173,
+			cors: true
 		}
 	}
 })
