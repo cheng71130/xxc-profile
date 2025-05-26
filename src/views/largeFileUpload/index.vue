@@ -12,123 +12,111 @@
 			<div v-if="!currentFile" class="upload-placeholder">
 				<el-icon class="upload-icon"><Upload /></el-icon>
 				<div class="upload-text">
-					将文件拖到此处，或<span class="upload-button" @click="triggerFileInput">点击上传</span>
+					<span class="upload-button" @click="triggerFileInput">点击上传</span>或将文件拖到此处
 				</div>
 				<div class="upload-tip">支持任意类型文件，单个文件大小不超过10GB</div>
 				<input ref="fileInput" type="file" class="hidden-input" @change="handleFileChange" />
 			</div>
 
 			<div v-else class="upload-progress">
-				<!-- 文件处理中状态 -->
-				<div v-if="uploadStatus === 'preparing'" class="preparing-status">
-					<div class="preparing-icon">
-						<el-icon class="rotating"><Loading /></el-icon>
+				<div class="file-info">
+					<div class="file-name-wrapper">
+						<el-icon class="file-icon" v-if="isVideo(currentFile.name)"><VideoCamera /></el-icon>
+						<el-icon class="file-icon" v-else-if="isImage(currentFile.name)"><Picture /></el-icon>
+						<el-icon class="file-icon" v-else-if="isPdf(currentFile.name)"><Document /></el-icon>
+						<el-icon class="file-icon" v-else-if="isArchive(currentFile.name)"><Folder /></el-icon>
+						<el-icon class="file-icon" v-else><Files /></el-icon>
+						<div class="file-name">{{ currentFile.name }}</div>
 					</div>
-					<div class="preparing-text">
-						<div class="preparing-title">正在处理文件...</div>
-						<div class="preparing-desc">系统正在计算文件特征码，请稍候</div>
-						<div class="preparing-progress">
-							<div class="progress-indicator" :style="{ width: `${preparingProgress}%` }"></div>
-						</div>
-					</div>
+					<div class="file-size">{{ formatSize(currentFile.size) }}</div>
 				</div>
 
-				<!-- 上传中/暂停/成功/失败状态 -->
-				<div v-else>
-					<div class="file-info">
-						<div class="file-name-wrapper">
-							<el-icon class="file-icon"><Document /></el-icon>
-							<div class="file-name">{{ currentFile.name }}</div>
+				<div class="upload-stats">
+					<div class="progress-wrapper">
+						<div class="progress-bar">
+							<div
+								class="progress-inner"
+								:class="{
+									success: uploadStatus === 'success',
+									error: uploadStatus === 'error',
+									paused: uploadStatus === 'paused'
+								}"
+								:style="{ width: `${uploadProgress}%` }"
+							></div>
 						</div>
-						<div class="file-size">{{ formatSize(currentFile.size) }}</div>
+						<div class="progress-text">{{ uploadProgress }}%</div>
 					</div>
 
-					<div class="upload-stats">
-						<div class="progress-wrapper">
-							<div class="progress-bar">
-								<div
-									class="progress-inner"
-									:class="{
-										success: uploadStatus === 'success',
-										error: uploadStatus === 'error',
-										paused: uploadStatus === 'paused'
-									}"
-									:style="{ width: `${uploadProgress}%` }"
-								></div>
-							</div>
-							<div class="progress-text">{{ uploadProgress }}%</div>
+					<div class="upload-info-row">
+						<!-- 左侧：状态信息区域 -->
+						<div class="upload-status-info">
+							<!-- 上传中状态 -->
+							<template v-if="uploadStatus === 'uploading'">
+								<span class="upload-bytes">
+									<el-icon class="mr8"><Upload /></el-icon>
+									已上传：{{ formatSize(uploadController.uploadedBytes) }}/{{ formatSize(currentFile.size) }}
+								</span>
+								<span v-if="uploadSpeed" class="upload-speed"> 当前速度：{{ uploadSpeed }} </span>
+								<span v-if="remainingTime" class="upload-time"> 剩余时间：{{ remainingTime }} </span>
+								<span v-if="!hashCalculationComplete" class="hash-calculating">
+									(特征码计算中: {{ preparingProgress }}%)
+								</span>
+							</template>
+
+							<!-- 上传完成状态 -->
+							<template v-else-if="uploadStatus === 'success'">
+								<span class="success-message">
+									<el-icon><CircleCheckFilled /></el-icon> 上传成功
+								</span>
+							</template>
+
+							<!-- 上传错误状态 -->
+							<template v-else-if="uploadStatus === 'error'">
+								<span class="error-message">
+									<el-icon><CircleCloseFilled /></el-icon> 上传失败
+								</span>
+							</template>
+
+							<!-- 已暂停状态 -->
+							<template v-else-if="uploadStatus === 'paused'">
+								<span class="paused-message">
+									<el-icon><VideoPause /></el-icon> 已暂停
+								</span>
+							</template>
 						</div>
 
-						<div class="upload-info-row">
-							<!-- 左侧：状态信息区域 -->
-							<div class="upload-status-info">
-								<!-- 上传中状态 -->
-								<template v-if="uploadStatus === 'uploading'">
-									<span class="upload-bytes">
-										<el-icon class="mr8"><Upload /></el-icon>
-										已上传：{{ formatSize(uploadController.uploadedBytes) }}/{{ formatSize(currentFile.size) }}
-									</span>
-									<span v-if="uploadSpeed" class="upload-speed"> 当前速度：{{ uploadSpeed }} </span>
-									<span v-if="remainingTime" class="upload-time"> 剩余时间：{{ remainingTime }} </span>
-								</template>
-
-								<!-- 上传完成状态 -->
-								<template v-else-if="uploadStatus === 'success'">
-									<span class="success-message">
-										<el-icon><CircleCheckFilled /></el-icon> 上传成功
-									</span>
-								</template>
-
-								<!-- 上传错误状态 -->
-								<template v-else-if="uploadStatus === 'error'">
-									<span class="error-message">
-										<el-icon><CircleCloseFilled /></el-icon> 上传失败
-									</span>
-								</template>
-
-								<!-- 已暂停状态 -->
-								<template v-else-if="uploadStatus === 'paused'">
-									<span class="paused-message">
-										<el-icon><VideoPause /></el-icon> 已暂停
-									</span>
-								</template>
-							</div>
-
-							<!-- 右侧：操作按钮区域 -->
-							<!-- 上传中状态按钮 -->
-							<div v-if="uploadStatus === 'uploading'" class="action-buttons-group">
-								<button class="action-button icon-button pause-button" title="暂停" @click="pauseUpload">
-									<el-icon><VideoPause /></el-icon>
-								</button>
-								<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
-									<el-icon><CircleClose /></el-icon>
-								</button>
-							</div>
-
-							<!-- 暂停状态按钮 -->
-							<div v-else-if="uploadStatus === 'paused'" class="action-buttons-group">
-								<button class="action-button icon-button resume-button" title="继续" @click="resumeUpload">
-									<el-icon><VideoPlay /></el-icon>
-								</button>
-								<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
-									<el-icon><CircleClose /></el-icon>
-								</button>
-							</div>
-
-							<!-- 错误状态按钮 -->
-							<div v-else-if="uploadStatus === 'error'" class="action-buttons-group">
-								<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
-									<el-icon><CircleClose /></el-icon>
-								</button>
-							</div>
-
-							<!-- 成功状态按钮 -->
-							<div v-else-if="uploadStatus === 'success'" class="action-buttons-group">
-								<button class="action-button finish-button" @click="resetUploader">
-									<el-icon><RefreshRight /></el-icon> 更换文件
-								</button>
-							</div>
+						<!-- 右侧：操作按钮区域 -->
+						<!-- 上传中状态按钮 -->
+						<div v-if="uploadStatus === 'uploading'" class="action-buttons-group">
+							<button class="action-button icon-button pause-button" title="暂停" @click="pauseUpload">
+								<el-icon><VideoPause /></el-icon>
+							</button>
+							<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
+								<el-icon><CircleClose /></el-icon>
+							</button>
 						</div>
+
+						<!-- 暂停状态按钮 -->
+						<div v-else-if="uploadStatus === 'paused'" class="action-buttons-group">
+							<button class="action-button icon-button resume-button" title="继续" @click="resumeUpload">
+								<el-icon><VideoPlay /></el-icon>
+							</button>
+							<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
+								<el-icon><CircleClose /></el-icon>
+							</button>
+						</div>
+
+						<!-- 错误状态按钮 -->
+						<div v-else-if="uploadStatus === 'error'" class="action-buttons-group">
+							<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
+								<el-icon><CircleClose /></el-icon>
+							</button>
+						</div>
+
+						<!-- 成功状态按钮 -->
+						<!-- <div v-else-if="uploadStatus === 'success'" class="action-buttons-group">
+							<el-button type="primary" round size="small" @click="resetUploader">完成</el-button>
+						</div> -->
 					</div>
 				</div>
 			</div>
@@ -141,7 +129,8 @@
 			<div class="file-cards">
 				<div v-for="file in fileList" :key="file.name" class="file-card">
 					<div class="file-card-icon">
-						<el-icon v-if="isImage(file.name)"><Picture /></el-icon>
+						<el-icon v-if="isVideo(file.name)"><VideoCamera /></el-icon>
+						<el-icon v-else-if="isImage(file.name)"><Picture /></el-icon>
 						<el-icon v-else-if="isPdf(file.name)"><Document /></el-icon>
 						<el-icon v-else-if="isArchive(file.name)"><Folder /></el-icon>
 						<el-icon v-else><Files /></el-icon>
@@ -163,31 +152,17 @@
 				</div>
 			</div>
 		</div>
+
+		<div v-if="uploadStatus === 'success'" style="margin-top: 50px; text-align: center">
+			<el-button type="primary" @click="resetUploader">继续上传</el-button>
+		</div>
 	</div>
 </template>
 
 <script setup>
-	import { ref, reactive, onMounted, computed } from 'vue'
 	import { ElMessage, ElMessageBox } from 'element-plus'
-	import {
-		Upload,
-		Document,
-		Loading,
-		CircleCheckFilled,
-		CircleCloseFilled,
-		VideoPause,
-		VideoPlay,
-		Close,
-		Check,
-		Download,
-		Timer,
-		Picture,
-		Folder,
-		Files,
-		Connection,
-		CircleClose
-	} from '@element-plus/icons-vue'
-	import SparkMD5 from 'spark-md5'
+	import { ref, reactive, onMounted } from 'vue'
+	import HashWorker from './hash.worker.js?worker'
 
 	// 配置
 	const CHUNK_SIZE = 2 * 1024 * 1024 // 2MB分片大小
@@ -202,8 +177,9 @@
 	const uploadProgress = ref(0)
 	const uploadSpeed = ref('')
 	const remainingTime = ref('')
-	const uploadStatus = ref('') // 'preparing', 'uploading', 'paused', 'error', 'success'
+	const uploadStatus = ref('') // 'uploading', 'paused', 'error', 'success'
 	const preparingProgress = ref(0) // 计算文件hash时的进度
+	const hashCalculationComplete = ref(false) // 哈希计算是否完成的标记
 
 	// 上传控制状态
 	const uploadController = reactive({
@@ -222,6 +198,10 @@
 	})
 
 	// 文件类型判断
+	const isVideo = (filename) => {
+		return /\.(mp4|avi|mov|mkv|wmv)$/i.test(filename)
+	}
+
 	const isImage = (filename) => {
 		return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(filename)
 	}
@@ -279,23 +259,65 @@
 		}
 	}
 
+	// 使用Web Worker计算文件哈希
+	const calculateFileHash = (file) => {
+		return new Promise((resolve, reject) => {
+			// 检查浏览器是否支持Web Worker
+			if (typeof Worker === 'undefined') {
+				return reject(new Error('您的浏览器不支持Web Worker，请更换浏览器后重试'))
+			}
+
+			// 创建Web Worker
+			const worker = new HashWorker()
+
+			worker.onmessage = (e) => {
+				const data = e.data
+
+				if (data.type === 'progress') {
+					// 更新哈希计算进度
+					preparingProgress.value = data.percentage
+				} else if (data.type === 'complete') {
+					// 哈希计算完成
+					hashCalculationComplete.value = true
+					resolve(data.hash)
+					worker.terminate() // 终止worker
+				} else if (data.type === 'error') {
+					reject(new Error(data.message))
+					worker.terminate()
+				}
+			}
+
+			worker.onerror = (err) => {
+				reject(new Error('Worker错误: ' + err.message))
+				worker.terminate()
+			}
+
+			// 发送文件和配置给Worker
+			worker.postMessage({
+				file: file,
+				chunkSize: CHUNK_SIZE
+			})
+		})
+	}
+
 	// 准备上传
 	const prepareUpload = async (file) => {
 		currentFile.value = file
-		uploadStatus.value = 'preparing'
+		uploadStatus.value = 'uploading' // 直接进入上传状态
 		uploadProgress.value = 0
 		preparingProgress.value = 0
+		hashCalculationComplete.value = false
 
 		try {
-			// 计算文件hash
-			const fileHash = await calculateFileHash(file)
+			// 生成临时ID (用于立即开始上传)
+			const tempId = `temp-${Date.now()}-${file.name}`
 
-			// 重置上传控制器
+			// 初始化上传控制器，使用临时ID
 			Object.assign(uploadController, {
 				chunks: [],
 				chunkCount: Math.ceil(file.size / CHUNK_SIZE),
 				uploadedChunks: 0,
-				fileHash,
+				fileHash: tempId, // 临时使用时间戳ID
 				fileName: file.name,
 				isPaused: false,
 				uploadingChunks: new Set(),
@@ -313,7 +335,7 @@
 
 				uploadController.chunks.push({
 					index: i,
-					hash: `${i}-${fileHash}`,
+					hash: `${i}-${tempId}`, // 使用临时ID
 					chunk,
 					size: chunk.size,
 					uploaded: false,
@@ -321,49 +343,31 @@
 				})
 			}
 
-			// 开始上传
-			uploadStatus.value = 'uploading'
+			// 启动哈希计算，但不等待它完成
+			calculateFileHash(file)
+				.then((fileHash) => {
+					// 哈希计算完成后更新
+					console.log('文件哈希计算完成:', fileHash)
+					uploadController.fileHash = fileHash
+
+					// 更新所有分片的hash (对于尚未上传的分片)
+					uploadController.chunks.forEach((chunk) => {
+						if (!chunk.uploaded) {
+							chunk.hash = `${chunk.index}-${fileHash}`
+						}
+					})
+				})
+				.catch((error) => {
+					console.error('哈希计算失败:', error)
+					// 哈希计算失败不影响上传过程，继续使用临时ID
+				})
+
+			// 立即开始上传
 			startUpload()
 		} catch (error) {
 			ElMessage.error('准备上传失败：' + error.message)
 			uploadStatus.value = 'error'
 		}
-	}
-
-	// 计算文件hash，同时更新准备进度
-	const calculateFileHash = (file) => {
-		return new Promise((resolve, reject) => {
-			const chunks = Math.ceil(file.size / CHUNK_SIZE)
-			let currentChunk = 0
-			const spark = new SparkMD5.ArrayBuffer()
-			const fileReader = new FileReader()
-
-			const loadNext = () => {
-				const start = currentChunk * CHUNK_SIZE
-				const end = Math.min(file.size, start + CHUNK_SIZE)
-				fileReader.readAsArrayBuffer(file.slice(start, end))
-			}
-
-			fileReader.onload = (e) => {
-				spark.append(e.target.result)
-				currentChunk++
-
-				// 更新准备进度
-				preparingProgress.value = Math.floor((currentChunk / chunks) * 100)
-
-				if (currentChunk < chunks) {
-					loadNext()
-				} else {
-					resolve(spark.end())
-				}
-			}
-
-			fileReader.onerror = () => {
-				reject(new Error('文件读取失败'))
-			}
-
-			loadNext()
-		})
 	}
 
 	// 开始上传
@@ -373,8 +377,36 @@
 		uploadController.lastUpdateTime = Date.now()
 		uploadStatus.value = 'uploading'
 
+		// 初始阶段显示"计算中..."
+		uploadSpeed.value = '计算中...'
+		remainingTime.value = '计算中...'
+
 		// 上传尚未上传的分片
 		processNextChunks()
+
+		// 快速更新 - 300ms后进行第一次计算
+		setTimeout(() => {
+			if (uploadController.uploadedBytes > 0) {
+				const timePassed = (Date.now() - uploadController.startTime) / 1000
+				if (timePassed > 0) {
+					const initialSpeed = uploadController.uploadedBytes / timePassed
+					uploadSpeed.value = formatSize(initialSpeed) + '/s'
+
+					const remainingBytes = currentFile.value.size - uploadController.uploadedBytes
+					const secondsRemaining = Math.ceil(remainingBytes / initialSpeed)
+
+					if (secondsRemaining < 60) {
+						remainingTime.value = `${secondsRemaining}秒`
+					} else if (secondsRemaining < 3600) {
+						remainingTime.value = `${Math.floor(secondsRemaining / 60)}分${secondsRemaining % 60}秒`
+					} else {
+						remainingTime.value = `${Math.floor(secondsRemaining / 3600)}时${Math.floor(
+							(secondsRemaining % 3600) / 60
+						)}分`
+					}
+				}
+			}
+		}, 300)
 
 		// 定时更新上传速度和剩余时间
 		const updateIntervalId = setInterval(() => {
@@ -547,9 +579,8 @@
 
 	// 重置上传器
 	const resetUploader = () => {
-		// 修复：安全地重置文件输入框
+		// 安全地重置文件输入框
 		if (fileInput.value) {
-			// 使用更安全的方式重置文件输入框
 			const newFileInput = document.createElement('input')
 			newFileInput.type = 'file'
 			newFileInput.className = 'hidden-input'
@@ -568,6 +599,7 @@
 		remainingTime.value = ''
 		uploadStatus.value = ''
 		preparingProgress.value = 0
+		hashCalculationComplete.value = false
 
 		Object.assign(uploadController, {
 			chunks: [],
@@ -616,6 +648,7 @@
 	.file-uploader-container {
 		width: 100%;
 		max-width: 900px;
+		padding-top: 100px;
 		margin: 0 auto;
 		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 
@@ -624,10 +657,10 @@
 			border-radius: 12px;
 			padding: 30px;
 			margin-bottom: 30px;
-			margin-top: 100px;
 			transition: all 0.3s;
 			background-color: #f9f9f9;
 			box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+			min-height: 290px;
 
 			&.is-dragover {
 				border-color: var(--el-color-primary);
@@ -682,65 +715,6 @@
 			.upload-progress {
 				padding: 10px 0;
 
-				.preparing-status {
-					display: flex;
-					align-items: center;
-					padding: 20px;
-					background-color: white;
-					border-radius: 10px;
-					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
-					.preparing-icon {
-						font-size: 36px;
-						margin-right: 24px;
-						color: var(--el-color-primary);
-
-						.rotating {
-							animation: rotate 1.2s linear infinite;
-						}
-
-						@keyframes rotate {
-							from {
-								transform: rotate(0deg);
-							}
-							to {
-								transform: rotate(360deg);
-							}
-						}
-					}
-
-					.preparing-text {
-						flex: 1;
-
-						.preparing-title {
-							font-size: 18px;
-							font-weight: 600;
-							margin-bottom: 8px;
-							color: #303133;
-						}
-
-						.preparing-desc {
-							font-size: 14px;
-							color: #606266;
-							margin-bottom: 16px;
-						}
-
-						.preparing-progress {
-							height: 6px;
-							background-color: #ebeef5;
-							border-radius: 100px;
-							overflow: hidden;
-
-							.progress-indicator {
-								height: 100%;
-								background-color: var(--el-color-primary);
-								border-radius: 100px;
-								transition: width 0.3s ease;
-							}
-						}
-					}
-				}
-
 				.file-info {
 					display: flex;
 					justify-content: space-between;
@@ -779,65 +753,65 @@
 					}
 				}
 
-				.progress-wrapper {
-					display: flex;
-					align-items: center;
-					margin: 20px 0 8px;
-
-					.progress-bar {
-						flex: 1;
-						height: 10px;
-						background-color: #ebeef5;
-						border-radius: 100px;
-						overflow: hidden;
-						margin-right: 12px;
-
-						.progress-inner {
-							height: 100%;
-							background: linear-gradient(90deg, var(--el-color-primary), #52b7ff);
-							border-radius: 100px;
-							transition: width 0.3s ease;
-
-							&.success {
-								background: linear-gradient(90deg, #67c23a, #85ce61);
-							}
-
-							&.error {
-								background: linear-gradient(90deg, #f56c6c, #f78989);
-							}
-
-							&.paused {
-								background: linear-gradient(90deg, #e6a23c, #f3b760);
-							}
-						}
-					}
-
-					.progress-text {
-						font-size: 14px;
-						font-weight: 600;
-						color: #606266;
-						min-width: 45px;
-						text-align: right;
-					}
-				}
-
 				.upload-stats {
 					display: flex;
 					flex-direction: column;
-					gap: 4px;
+					gap: 12px;
 					margin: 16px 0;
 					color: #606266;
 					font-size: 14px;
 					background-color: white;
-					padding: 12px 16px 20px;
+					padding: 25px 16px;
 					border-radius: 8px;
 					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+					.progress-wrapper {
+						display: flex;
+						align-items: center;
+
+						.progress-bar {
+							flex: 1;
+							height: 10px;
+							background-color: #ebeef5;
+							border-radius: 100px;
+							overflow: hidden;
+							margin-right: 12px;
+
+							.progress-inner {
+								height: 100%;
+								background: linear-gradient(90deg, var(--el-color-primary), #52b7ff);
+								border-radius: 100px;
+								transition: width 0.3s ease;
+
+								&.success {
+									background: linear-gradient(90deg, #67c23a, #85ce61);
+								}
+
+								&.error {
+									background: linear-gradient(90deg, #f56c6c, #f78989);
+								}
+
+								&.paused {
+									background: linear-gradient(90deg, #e6a23c, #f3b760);
+								}
+							}
+						}
+
+						.progress-text {
+							font-size: 14px;
+							font-weight: 600;
+							color: #606266;
+							min-width: 45px;
+							text-align: right;
+						}
+					}
 
 					.upload-info-row {
 						display: flex;
 						justify-content: space-between;
 						align-items: center;
 						gap: 12px;
+						min-height: 28px;
 					}
 
 					.upload-status-info {
@@ -845,6 +819,14 @@
 						flex-wrap: wrap;
 						align-items: center;
 						gap: 12px;
+
+						.hash-calculating {
+							font-size: 12px;
+							color: #909399;
+							background-color: #f4f4f5;
+							padding: 2px 6px;
+							border-radius: 4px;
+						}
 					}
 
 					.success-message,
@@ -853,6 +835,8 @@
 						display: flex;
 						align-items: center;
 						font-weight: 500;
+						padding: 4px 10px;
+						border-radius: 8px;
 
 						.el-icon {
 							margin-right: 8px;
@@ -860,14 +844,17 @@
 					}
 
 					.success-message {
+						background-color: #f0f9eb;
 						color: #67c23a;
 					}
 
 					.error-message {
+						background-color: #fef0f0;
 						color: #f56c6c;
 					}
 
 					.paused-message {
+						background-color: #fdf6ec;
 						color: #e6a23c;
 					}
 
@@ -921,14 +908,6 @@
 						}
 
 						&.resume-button {
-							// background-color: var(--el-color-primary);
-							// color: white;
-
-							// &:hover {
-							// 	background-color: #66b1ff;
-							// 	transform: translateY(-2px);
-							// }
-
 							background-color: #ecf5ff;
 							color: var(--el-color-primary);
 
@@ -944,27 +923,6 @@
 
 							&:hover {
 								background-color: #fde2e2;
-								transform: translateY(-2px);
-							}
-						}
-
-						&.finish-button {
-							display: flex;
-							align-items: center;
-							justify-content: center;
-							background-color: var(--el-color-primary-light-9);
-							color: var(--el-color-primary);
-							padding: 2px 8px;
-							border-radius: 8px;
-							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-							.el-icon {
-								margin-right: 8px;
-							}
-
-							&:hover {
-								background-color: var(--el-color-primary);
-								color: white;
 								transform: translateY(-2px);
 							}
 						}
