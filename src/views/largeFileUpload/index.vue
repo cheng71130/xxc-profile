@@ -58,42 +58,77 @@
 							</div>
 							<div class="progress-text">{{ uploadProgress }}%</div>
 						</div>
-						<div v-if="uploadStatus === 'success'" class="success-message">
-							<el-icon><CircleCheckFilled /></el-icon> 上传成功
-						</div>
-						<div v-else-if="uploadStatus === 'error'" class="error-message">
-							<el-icon><CircleCloseFilled /></el-icon> 上传失败
-						</div>
-						<div v-else-if="uploadStatus === 'paused'" class="paused-message">
-							<el-icon><VideoPause /></el-icon> 已暂停
-						</div>
-						<div v-else style="display: flex; justify-content: space-between">
-							<span v-if="uploadSpeed" class="upload-speed">
-								<el-icon><Upload /></el-icon> {{ uploadSpeed }}
-							</span>
-							<span v-if="remainingTime" class="upload-time">
-								<el-icon><Timer /></el-icon> {{ remainingTime }}
-							</span>
-						</div>
-					</div>
 
-					<div class="upload-actions">
-						<button v-if="uploadStatus === 'uploading'" class="action-button pause-button" @click="pauseUpload">
-							<el-icon><VideoPause /></el-icon> 暂停
-						</button>
-						<button v-if="uploadStatus === 'paused'" class="action-button resume-button" @click="resumeUpload">
-							<el-icon><VideoPlay /></el-icon> 继续
-						</button>
-						<button
-							v-if="['paused', 'uploading', 'error'].includes(uploadStatus)"
-							class="action-button cancel-button"
-							@click="cancelUpload"
-						>
-							<el-icon><Close /></el-icon> 取消
-						</button>
-						<button v-if="uploadStatus === 'success'" class="action-button finish-button" @click="resetUploader">
-							<el-icon><Check /></el-icon> 完成
-						</button>
+						<div class="upload-info-row">
+							<!-- 左侧：状态信息区域 -->
+							<div class="upload-status-info">
+								<!-- 上传中状态 -->
+								<template v-if="uploadStatus === 'uploading'">
+									<span class="upload-bytes">
+										<el-icon class="mr8"><Upload /></el-icon>
+										已上传：{{ formatSize(uploadController.uploadedBytes) }}/{{ formatSize(currentFile.size) }}
+									</span>
+									<span v-if="uploadSpeed" class="upload-speed"> 当前速度：{{ uploadSpeed }} </span>
+									<span v-if="remainingTime" class="upload-time"> 剩余时间：{{ remainingTime }} </span>
+								</template>
+
+								<!-- 上传完成状态 -->
+								<template v-else-if="uploadStatus === 'success'">
+									<span class="success-message">
+										<el-icon><CircleCheckFilled /></el-icon> 上传成功
+									</span>
+								</template>
+
+								<!-- 上传错误状态 -->
+								<template v-else-if="uploadStatus === 'error'">
+									<span class="error-message">
+										<el-icon><CircleCloseFilled /></el-icon> 上传失败
+									</span>
+								</template>
+
+								<!-- 已暂停状态 -->
+								<template v-else-if="uploadStatus === 'paused'">
+									<span class="paused-message">
+										<el-icon><VideoPause /></el-icon> 已暂停
+									</span>
+								</template>
+							</div>
+
+							<!-- 右侧：操作按钮区域 -->
+							<!-- 上传中状态按钮 -->
+							<div v-if="uploadStatus === 'uploading'" class="action-buttons-group">
+								<button class="action-button icon-button pause-button" title="暂停" @click="pauseUpload">
+									<el-icon><VideoPause /></el-icon>
+								</button>
+								<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
+									<el-icon><CircleClose /></el-icon>
+								</button>
+							</div>
+
+							<!-- 暂停状态按钮 -->
+							<div v-else-if="uploadStatus === 'paused'" class="action-buttons-group">
+								<button class="action-button icon-button resume-button" title="继续" @click="resumeUpload">
+									<el-icon><VideoPlay /></el-icon>
+								</button>
+								<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
+									<el-icon><CircleClose /></el-icon>
+								</button>
+							</div>
+
+							<!-- 错误状态按钮 -->
+							<div v-else-if="uploadStatus === 'error'" class="action-buttons-group">
+								<button class="action-button icon-button cancel-button" title="取消" @click="cancelUpload">
+									<el-icon><CircleClose /></el-icon>
+								</button>
+							</div>
+
+							<!-- 成功状态按钮 -->
+							<div v-else-if="uploadStatus === 'success'" class="action-buttons-group">
+								<button class="action-button finish-button" @click="resetUploader">
+									<el-icon><RefreshRight /></el-icon> 更换文件
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -148,7 +183,9 @@
 		Timer,
 		Picture,
 		Folder,
-		Files
+		Files,
+		Connection,
+		CircleClose
 	} from '@element-plus/icons-vue'
 	import SparkMD5 from 'spark-md5'
 
@@ -745,7 +782,7 @@
 				.progress-wrapper {
 					display: flex;
 					align-items: center;
-					margin: 20px 0;
+					margin: 20px 0 8px;
 
 					.progress-bar {
 						flex: 1;
@@ -786,9 +823,8 @@
 
 				.upload-stats {
 					display: flex;
-                    flex-direction: column;
-                    gap:4px;
-					justify-content: space-between;
+					flex-direction: column;
+					gap: 4px;
 					margin: 16px 0;
 					color: #606266;
 					font-size: 14px;
@@ -797,13 +833,26 @@
 					border-radius: 8px;
 					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
+					.upload-info-row {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						gap: 12px;
+					}
+
+					.upload-status-info {
+						display: flex;
+						flex-wrap: wrap;
+						align-items: center;
+						gap: 12px;
+					}
+
 					.success-message,
 					.error-message,
 					.paused-message {
 						display: flex;
 						align-items: center;
-						width: 100%;
-						justify-content: center;
+						font-weight: 500;
 
 						.el-icon {
 							margin-right: 8px;
@@ -822,37 +871,43 @@
 						color: #e6a23c;
 					}
 
+					.upload-bytes,
 					.upload-speed,
 					.upload-time {
 						display: flex;
 						align-items: center;
-
-						.el-icon {
-							margin-right: 6px;
-						}
+						font-weight: 500;
 					}
-				}
 
-				.upload-actions {
-					display: flex;
-					justify-content: center;
-					gap: 16px;
-					margin-top: 24px;
+					.upload-bytes {
+						color: var(--el-color-primary);
+					}
+
+					.action-buttons-group {
+						display: flex;
+						gap: 12px;
+					}
 
 					.action-button {
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						padding: 10px 20px;
+						border: none;
 						border-radius: 8px;
 						font-size: 14px;
 						font-weight: 500;
 						cursor: pointer;
 						transition: all 0.2s;
-						border: none;
 
-						.el-icon {
-							margin-right: 6px;
+						&.icon-button {
+							width: 20px;
+							height: 20px;
+							border-radius: 50%;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+							.el-icon {
+								font-size: 20px;
+							}
 						}
 
 						&.pause-button {
@@ -861,15 +916,25 @@
 
 							&:hover {
 								background-color: #d9ecff;
+								transform: translateY(-2px);
 							}
 						}
 
 						&.resume-button {
-							background-color: var(--el-color-primary);
-							color: white;
+							// background-color: var(--el-color-primary);
+							// color: white;
+
+							// &:hover {
+							// 	background-color: #66b1ff;
+							// 	transform: translateY(-2px);
+							// }
+
+							background-color: #ecf5ff;
+							color: var(--el-color-primary);
 
 							&:hover {
-								background-color: #66b1ff;
+								background-color: #d9ecff;
+								transform: translateY(-2px);
 							}
 						}
 
@@ -879,15 +944,28 @@
 
 							&:hover {
 								background-color: #fde2e2;
+								transform: translateY(-2px);
 							}
 						}
 
 						&.finish-button {
-							background-color: #f0f9eb;
-							color: #67c23a;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							background-color: var(--el-color-primary-light-9);
+							color: var(--el-color-primary);
+							padding: 2px 8px;
+							border-radius: 8px;
+							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+							.el-icon {
+								margin-right: 8px;
+							}
 
 							&:hover {
-								background-color: #e1f3d8;
+								background-color: var(--el-color-primary);
+								color: white;
+								transform: translateY(-2px);
 							}
 						}
 					}
