@@ -10,6 +10,7 @@
 				<p>{{ item.description }}</p>
 			</div>
 		</el-main>
+		<el-button type="primary" plain @click="router.push('/CAD')">CAD</el-button>
 		<el-button type="primary" plain @click="router.push('/largeFileUpload')">大文件上传</el-button>
 	</el-container>
 	<div v-if="!allImagesLoaded" class="load-container">

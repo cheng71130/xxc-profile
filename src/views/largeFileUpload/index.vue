@@ -37,6 +37,7 @@
 							<div
 								class="progress-inner"
 								:class="{
+									uploading: uploadStatus === 'uploading',
 									success: uploadStatus === 'success',
 									error: uploadStatus === 'error',
 									paused: uploadStatus === 'paused'
@@ -165,9 +166,18 @@
 	import HashWorker from './hash.worker.js?worker'
 
 	// 配置
-	const CHUNK_SIZE = 2 * 1024 * 1024 // 2MB分片大小
+	const BASE_CHUNK_SIZE = 1 * 1024 * 1024 // 基础分片大小1MB
 	const MAX_CONCURRENT_UPLOADS = 3 // 最大并发上传数
+	const MAX_RETRY = 3 // 最大重试次数
 	const API_BASE_URL = 'http://localhost:3000' // API基础URL
+
+	// 优化大文件的分片策略
+	const getOptimalChunkSize = (fileSize) => {
+		if (fileSize < 100 * 1024 * 1024) return 1 * 1024 * 1024 // <100MB: 1MB
+		if (fileSize < 1024 * 1024 * 1024) return 2 * 1024 * 1024 // <1GB: 2MB
+		if (fileSize < 5 * 1024 * 1024 * 1024) return 4 * 1024 * 1024 // <5GB: 4MB
+		return 8 * 1024 * 1024 // >5GB: 8MB
+	}
 
 	// 引用和状态
 	const fileInput = ref(null)
@@ -188,9 +198,10 @@
 		uploadedChunks: 0,
 		fileHash: '',
 		fileName: '',
-		chunkSize: CHUNK_SIZE,
+		chunkSize: BASE_CHUNK_SIZE,
 		isPaused: false,
 		uploadingChunks: new Set(),
+		retryingChunks: new Map(), // 记录正在重试的分片 Map<chunkIndex, retryCount>
 		startTime: 0,
 		uploadedBytes: 0,
 		previousUploadedBytes: 0,
@@ -295,9 +306,62 @@
 			// 发送文件和配置给Worker
 			worker.postMessage({
 				file: file,
-				chunkSize: CHUNK_SIZE
+				chunkSize: uploadController.chunkSize
 			})
 		})
+	}
+
+	// 检查文件是否已存在（秒传功能）
+	const checkFileExists = async (fileHash, fileName, fileSize) => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/check-file`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					fileHash,
+					fileName,
+					size: fileSize
+				})
+			})
+
+			const result = await response.json()
+			return result
+		} catch (error) {
+			console.error('检查文件是否存在失败:', error)
+			return { code: -1, exists: false }
+		}
+	}
+
+	// 文件完整性校验（静默执行）
+	const verifyFileIntegrity = async (fileHash, fileName) => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/verify`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					fileHash,
+					fileName
+				})
+			})
+
+			const result = await response.json()
+
+			if (result.code === 0 && result.verified) {
+				console.log('文件完整性校验通过')
+				return true
+			} else {
+				console.warn('文件完整性校验失败')
+				ElMessage.warning('文件可能存在异常，建议重新上传')
+				return false
+			}
+		} catch (error) {
+			console.error('文件完整性校验失败:', error)
+			return true // 校验失败不影响使用
+		}
 	}
 
 	// 准备上传
@@ -309,18 +373,24 @@
 		hashCalculationComplete.value = false
 
 		try {
+			// 根据文件大小优化分片大小
+			const optimalChunkSize = getOptimalChunkSize(file.size)
+			console.log(`文件大小: ${formatSize(file.size)}, 使用分片大小: ${formatSize(optimalChunkSize)}`)
+
 			// 生成临时ID (用于立即开始上传)
 			const tempId = `temp-${Date.now()}-${file.name}`
 
 			// 初始化上传控制器，使用临时ID
 			Object.assign(uploadController, {
 				chunks: [],
-				chunkCount: Math.ceil(file.size / CHUNK_SIZE),
+				chunkCount: Math.ceil(file.size / optimalChunkSize),
 				uploadedChunks: 0,
 				fileHash: tempId, // 临时使用时间戳ID
 				fileName: file.name,
+				chunkSize: optimalChunkSize,
 				isPaused: false,
 				uploadingChunks: new Set(),
+				retryingChunks: new Map(),
 				startTime: Date.now(),
 				uploadedBytes: 0,
 				previousUploadedBytes: 0,
@@ -329,8 +399,8 @@
 
 			// 创建分片
 			for (let i = 0; i < uploadController.chunkCount; i++) {
-				const start = i * CHUNK_SIZE
-				const end = Math.min(file.size, start + CHUNK_SIZE)
+				const start = i * optimalChunkSize
+				const end = Math.min(file.size, start + optimalChunkSize)
 				const chunk = file.slice(start, end)
 
 				uploadController.chunks.push({
@@ -345,10 +415,20 @@
 
 			// 启动哈希计算，但不等待它完成
 			calculateFileHash(file)
-				.then((fileHash) => {
+				.then(async (fileHash) => {
 					// 哈希计算完成后更新
 					console.log('文件哈希计算完成:', fileHash)
 					uploadController.fileHash = fileHash
+
+					// 检查文件是否已存在（秒传功能）
+					const checkResult = await checkFileExists(fileHash, file.name, file.size)
+					if (checkResult.code === 0 && checkResult.exists) {
+						uploadStatus.value = 'success'
+						uploadProgress.value = 100
+						ElMessage.success('文件已存在，秒传成功！')
+						fetchFileList()
+						return
+					}
 
 					// 更新所有分片的hash (对于尚未上传的分片)
 					uploadController.chunks.forEach((chunk) => {
@@ -469,8 +549,8 @@
 		}
 	}
 
-	// 上传单个分片
-	const uploadChunk = async (chunk) => {
+	// 上传单个分片（带重试机制）
+	const uploadChunk = async (chunk, retryCount = 0) => {
 		if (uploadController.isPaused) return
 
 		uploadController.uploadingChunks.add(chunk.index)
@@ -484,7 +564,9 @@
 
 			const response = await fetch(`${API_BASE_URL}/upload`, {
 				method: 'POST',
-				body: formData
+				body: formData,
+				// 添加超时控制
+				signal: AbortSignal.timeout(30000) // 30秒超时
 			})
 
 			const result = await response.json()
@@ -493,7 +575,8 @@
 				throw new Error(result.message || '上传分片失败')
 			}
 
-			// 更新状态
+			// 成功：清除重试记录并更新状态
+			uploadController.retryingChunks.delete(chunk.index)
 			chunk.uploaded = true
 			uploadController.uploadedChunks++
 			uploadController.uploadedBytes += chunk.size
@@ -505,13 +588,30 @@
 			uploadController.uploadingChunks.delete(chunk.index)
 			processNextChunks()
 		} catch (error) {
-			console.error('上传分片失败:', error)
 			uploadController.uploadingChunks.delete(chunk.index)
 
+			// 重试机制
+			if (retryCount < MAX_RETRY && !uploadController.isPaused) {
+				// 记录重试状态
+				uploadController.retryingChunks.set(chunk.index, retryCount + 1)
+
+				console.log(`分片 ${chunk.index} 上传失败，进行第 ${retryCount + 1} 次重试:`, error.message)
+
+				// 指数退避策略：1秒、2秒、4秒
+				const delay = Math.pow(2, retryCount) * 1000
+				await new Promise((resolve) => setTimeout(resolve, delay))
+
+				// 递归重试
+				return uploadChunk(chunk, retryCount + 1)
+			}
+
+			// 重试次数用完或者被暂停，才真正失败
+			uploadController.retryingChunks.delete(chunk.index)
+			console.error(`分片 ${chunk.index} 重试 ${MAX_RETRY} 次后仍失败:`, error)
+
 			if (!uploadController.isPaused) {
-				// 如果上传失败且不是暂停状态，设置为错误状态
 				uploadStatus.value = 'error'
-				ElMessage.error('分片上传失败：' + error.message)
+				ElMessage.error(`分片 ${chunk.index} 上传失败：${error.message}`)
 			}
 		}
 	}
@@ -537,8 +637,12 @@
 				throw new Error(result.message || '合并文件失败')
 			}
 
+			// 先显示上传成功
 			uploadStatus.value = 'success'
 			ElMessage.success('文件上传成功')
+
+			// 后台静默校验文件完整性
+			verifyFileIntegrity(uploadController.fileHash, uploadController.fileName)
 
 			// 刷新文件列表
 			fetchFileList()
@@ -607,8 +711,10 @@
 			uploadedChunks: 0,
 			fileHash: '',
 			fileName: '',
+			chunkSize: BASE_CHUNK_SIZE,
 			isPaused: false,
 			uploadingChunks: new Set(),
+			retryingChunks: new Map(),
 			startTime: 0,
 			uploadedBytes: 0,
 			previousUploadedBytes: 0,
@@ -636,6 +742,15 @@
 	const downloadFile = (file) => {
 		const url = `${API_BASE_URL}/uploads/${file.name}`
 		window.open(url, '_blank')
+	}
+
+	// 获取当前重试信息（用于调试，可选）
+	const getRetryInfo = () => {
+		if (uploadController.retryingChunks.size > 0) {
+			const retryingList = Array.from(uploadController.retryingChunks.entries())
+			return `正在重试分片: ${retryingList.map(([index, count]) => `${index}(${count}/${MAX_RETRY})`).join(', ')}`
+		}
+		return ''
 	}
 
 	// 组件挂载时获取文件列表
@@ -782,6 +897,29 @@
 								background: linear-gradient(90deg, var(--el-color-primary), #52b7ff);
 								border-radius: 100px;
 								transition: width 0.3s ease;
+								position: relative;
+								overflow: hidden;
+
+								// 添加流光效果
+								&.uploading::before {
+									content: '';
+									position: absolute;
+									top: 0;
+									left: -100%;
+									width: 100%;
+									height: 100%;
+									background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+									animation: shimmer 2s infinite;
+								}
+
+								@keyframes shimmer {
+									0% {
+										left: -100%;
+									}
+									100% {
+										left: 100%;
+									}
+								}
 
 								&.success {
 									background: linear-gradient(90deg, #67c23a, #85ce61);

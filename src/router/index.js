@@ -26,6 +26,11 @@ const routes = [
 		name: 'largeFileUpload',
 		component: () => import('@/views/largeFileUpload/index.vue')
 	},
+	{
+		path: '/CAD',
+		name: 'CAD',
+		component: () => import('@/views/CAD/index.vue')
+	},
 ]
 
 const router = createRouter({
