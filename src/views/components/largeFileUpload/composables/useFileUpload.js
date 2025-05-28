@@ -1,10 +1,11 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UPLOAD_CONFIG, UPLOAD_STATUS } from '../utils/constants.js'
 import { getOptimalChunkSize } from '../utils/fileUtils.js'
 import uploadApi from '../utils/uploadApi.js'
 import { useFileHash } from './useFileHash.js'
 import { useUploadProgress } from './useUploadProgress.js'
+import { useUploadPersistence } from './useUploadPersistence.js'
 import { formatSize, formatTime } from '../utils/fileUtils.js'
 
 export function useFileUpload() {
@@ -36,6 +37,110 @@ export function useFileUpload() {
 		resetProgress
 	} = useUploadProgress()
 
+	// 使用持久化管理
+	const {
+		saveUploadState,
+		getUploadState,
+		removeUploadState,
+		cleanExpiredUploads,
+		showRestoreDialog,
+		setupBeforeUnload
+	} = useUploadPersistence()
+
+	// 页面离开前保存状态的清理函数
+	let cleanupBeforeUnload = null
+
+	// 获取当前上传状态（用于持久化）
+	const getCurrentUploadState = () => {
+		if (!currentFile.value || uploadStatus.value === UPLOAD_STATUS.IDLE) {
+			return null
+		}
+
+		return {
+			fileHash: uploadController.fileHash,
+			fileName: uploadController.fileName,
+			fileSize: currentFile.value.size,
+			chunkCount: uploadController.chunkCount,
+			chunkSize: uploadController.chunkSize,
+			uploadedChunks: uploadController.chunks.filter((chunk) => chunk.uploaded).map((chunk) => chunk.index),
+			status: uploadStatus.value,
+			progress: uploadProgress.value
+		}
+	}
+
+	// 从持久化状态恢复上传
+	const restoreFromPersistentState = async (persistentState, file) => {
+		try {
+			console.log('恢复上传状态:', persistentState.fileName)
+
+			// 重置状态
+			resetProgress()
+			resetHash()
+
+			// 恢复文件信息
+			currentFile.value = file
+			uploadStatus.value = UPLOAD_STATUS.UPLOADING
+
+			// 重新计算文件哈希（确保文件一致性）
+			console.log('重新验证文件哈希...')
+			const optimalChunkSize = getOptimalChunkSize(file.size)
+			const fileHash = await calculateFileHash(file, optimalChunkSize)
+
+			// 验证文件哈希是否一致
+			if (fileHash !== persistentState.fileHash) {
+				ElMessage.warning('文件已被修改，无法恢复上传')
+				removeUploadState(persistentState.fileHash)
+				uploadStatus.value = UPLOAD_STATUS.IDLE
+				return false
+			}
+
+			// 恢复上传控制器状态
+			Object.assign(uploadController, {
+				fileHash: fileHash,
+				fileName: file.name,
+				chunkSize: optimalChunkSize,
+				chunkCount: persistentState.chunkCount,
+				uploadedChunks: persistentState.uploadedChunks.length,
+				isPaused: false,
+				uploadingChunks: new Set(),
+				retryingChunks: new Map()
+			})
+
+			// 重新创建分片
+			createChunks(file, optimalChunkSize, fileHash)
+
+			// 标记已上传的分片
+			persistentState.uploadedChunks.forEach((chunkIndex) => {
+				if (uploadController.chunks[chunkIndex]) {
+					uploadController.chunks[chunkIndex].uploaded = true
+				}
+			})
+
+			// 更新进度显示
+			const uploadedBytes = uploadController.chunks.filter((c) => c.uploaded).reduce((total, c) => total + c.size, 0)
+
+			updateUploadedBytes(uploadedBytes, uploadController.chunkCount, uploadController.uploadedChunks)
+
+			ElMessage.success(
+				`恢复上传: ${persistentState.fileName} (${Math.floor(
+					(persistentState.uploadedChunks.length / persistentState.chunkCount) * 100
+				)}%)`
+			)
+
+			// 开始上传
+			startUpload()
+
+			return true
+		} catch (error) {
+			console.error('恢复上传状态失败:', error)
+			ElMessage.error('恢复上传失败: ' + error.message)
+			removeUploadState(persistentState.fileHash)
+			uploadStatus.value = UPLOAD_STATUS.IDLE
+			return false
+		}
+	}
+
+	// 修改 prepareUpload 方法，加入持久化检查
 	const prepareUpload = async (file) => {
 		currentFile.value = file
 		uploadStatus.value = UPLOAD_STATUS.UPLOADING
@@ -47,6 +152,26 @@ export function useFileUpload() {
 
 			// 同步等待哈希计算完成
 			const fileHash = await calculateFileHash(file, optimalChunkSize)
+
+			// 检查是否有这个文件的持久化状态
+			const persistentState = getUploadState(fileHash)
+
+			if (persistentState) {
+				console.log('发现持久化状态，询问是否恢复...')
+
+				// 询问是否恢复这个特定文件
+				const shouldRestore = await showRestoreDialog(persistentState)
+
+				if (shouldRestore) {
+					const restored = await restoreFromPersistentState(persistentState, file)
+					if (restored) {
+						return // 恢复成功，直接返回
+					}
+				} else {
+					// 用户选择不恢复，清除该状态
+					removeUploadState(fileHash)
+				}
+			}
 
 			// 检查秒传
 			const checkResult = await uploadApi.checkFileExists(fileHash, file.name, file.size)
@@ -63,7 +188,7 @@ export function useFileUpload() {
 				chunks: [],
 				chunkCount: Math.ceil(file.size / optimalChunkSize),
 				uploadedChunks: 0,
-				fileHash: fileHash, // 直接使用计算出的哈希
+				fileHash: fileHash,
 				fileName: file.name,
 				chunkSize: optimalChunkSize,
 				isPaused: false,
@@ -106,10 +231,15 @@ export function useFileUpload() {
 		})
 	}
 
+	// 修改 startUpload 方法，加入持久化监听
 	const startUpload = () => {
 		uploadController.isPaused = false
 		uploadStatus.value = UPLOAD_STATUS.UPLOADING
 		startProgressTracking(currentFile.value.size)
+
+		// 设置页面离开监听
+		cleanupBeforeUnload = setupBeforeUnload(getCurrentUploadState)
+
 		processNextChunks()
 	}
 
@@ -132,6 +262,7 @@ export function useFileUpload() {
 		}
 	}
 
+	// 修改 uploadChunk 方法，加入持久化保存
 	const uploadChunk = async (chunk, retryCount = 0) => {
 		if (uploadController.isPaused) return
 
@@ -160,6 +291,11 @@ export function useFileUpload() {
 				uploadController.uploadedChunks
 			)
 
+			// 定期保存状态（每上传5个分片保存一次，避免频繁写入）
+			if (uploadController.uploadedChunks % 5 === 0) {
+				saveUploadState(getCurrentUploadState())
+			}
+
 			uploadController.uploadingChunks.delete(chunk.index)
 			processNextChunks()
 		} catch (error) {
@@ -182,11 +318,14 @@ export function useFileUpload() {
 
 			if (!uploadController.isPaused) {
 				uploadStatus.value = UPLOAD_STATUS.ERROR
+				// 保存当前状态以便恢复
+				saveUploadState(getCurrentUploadState())
 				ElMessage.error(`分片 ${chunk.index} 上传失败：${error.message}`)
 			}
 		}
 	}
 
+	// 修改 mergeChunks 方法，完成后清除持久化状态
 	const mergeChunks = async () => {
 		try {
 			const result = await uploadApi.mergeChunks(
@@ -201,38 +340,67 @@ export function useFileUpload() {
 
 			uploadStatus.value = UPLOAD_STATUS.SUCCESS
 			stopProgressTracking()
-			ElMessage.success('文件上传成功')
 
-			// 后台静默校验
-			// uploadApi.verifyFile(uploadController.fileHash, uploadController.fileName)
-			//   .then(result => {
-			//     if (result.code === 0 && result.verified) {
-			//       console.log('文件完整性校验通过')
-			//     } else {
-			//       ElMessage.warning('文件可能存在异常，建议重新上传')
-			//     }
-			//   })
+			// 上传完成，清除持久化状态
+			removeUploadState(uploadController.fileHash)
+
+			// 清理页面离开监听
+			if (cleanupBeforeUnload) {
+				cleanupBeforeUnload()
+				cleanupBeforeUnload = null
+			}
+
+			ElMessage.success('文件上传成功')
 		} catch (error) {
 			uploadStatus.value = UPLOAD_STATUS.ERROR
+			// 保存当前状态以便恢复
+			saveUploadState(getCurrentUploadState())
 			ElMessage.error('合并文件失败：' + error.message)
 		}
 	}
 
+	// 修改 pauseUpload 方法，暂停时保存状态
 	const pauseUpload = () => {
 		uploadController.isPaused = true
 		uploadStatus.value = UPLOAD_STATUS.PAUSED
 		stopProgressTracking()
+
+		// 保存当前状态
+		saveUploadState(getCurrentUploadState())
+
+		// 保持页面离开监听（因为暂停状态下离开页面也要提示）
+		if (!cleanupBeforeUnload) {
+			cleanupBeforeUnload = setupBeforeUnload(getCurrentUploadState)
+		}
 	}
 
+	// 修改 resumeUpload 方法
 	const resumeUpload = () => {
 		uploadController.isPaused = false
 		uploadStatus.value = UPLOAD_STATUS.UPLOADING
 		startProgressTracking(currentFile.value.size)
+
+		// 重新设置页面离开监听
+		cleanupBeforeUnload = setupBeforeUnload(getCurrentUploadState)
+
 		processNextChunks()
 	}
 
+	// 修改 cancelUpload 方法，取消时清除持久化状态
 	const cancelUpload = () => {
 		uploadController.isPaused = true
+
+		// 清除持久化状态
+		if (uploadController.fileHash) {
+			removeUploadState(uploadController.fileHash)
+		}
+
+		// 清理页面离开监听（取消时不需要监听）
+		if (cleanupBeforeUnload) {
+			cleanupBeforeUnload()
+			cleanupBeforeUnload = null
+		}
+
 		resetUploader()
 	}
 
@@ -241,6 +409,12 @@ export function useFileUpload() {
 		uploadStatus.value = UPLOAD_STATUS.IDLE
 		resetProgress()
 		resetHash()
+
+		// 清理页面离开监听
+		if (cleanupBeforeUnload) {
+			cleanupBeforeUnload()
+			cleanupBeforeUnload = null
+		}
 
 		Object.assign(uploadController, {
 			chunks: [],
@@ -254,6 +428,18 @@ export function useFileUpload() {
 			retryingChunks: new Map()
 		})
 	}
+
+	// 组件挂载时清理过期记录
+	onMounted(() => {
+		cleanExpiredUploads()
+	})
+
+	// 组件卸载时清理
+	onUnmounted(() => {
+		if (cleanupBeforeUnload) {
+			cleanupBeforeUnload()
+		}
+	})
 
 	return {
 		// 状态
