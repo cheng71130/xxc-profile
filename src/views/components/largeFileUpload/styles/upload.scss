@@ -1,0 +1,435 @@
+.file-uploader-container {
+  width: 100%;
+  max-width: 900px;
+  padding-top: 100px;
+  margin: 0 auto;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
+  .upload-area {
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: all 0.3s;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    min-height: 290px;
+
+    &.is-dragover {
+      border-color: var(--el-color-primary);
+      background-color: rgba(64, 158, 255, 0.05);
+      box-shadow: 0 2px 16px rgba(64, 158, 255, 0.15);
+    }
+
+    .upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+
+      .upload-icon {
+        font-size: 60px;
+        color: var(--el-color-primary);
+        margin-bottom: 20px;
+        opacity: 0.8;
+      }
+
+      .upload-text {
+        font-size: 18px;
+        color: #606266;
+        margin-bottom: 16px;
+
+        .upload-button {
+          color: var(--el-color-primary);
+          font-weight: 600;
+          cursor: pointer;
+          padding: 2px 6px;
+          border-radius: 4px;
+          margin: 0 4px;
+          transition: all 0.2s;
+
+          &:hover {
+            background-color: var(--el-color-primary-light-9);
+          }
+        }
+      }
+
+      .upload-tip {
+        font-size: 14px;
+        color: #909399;
+      }
+
+      .hidden-input {
+        display: none;
+      }
+    }
+
+    .upload-progress {
+      padding: 10px 0;
+
+      .file-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        background-color: white;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+        .file-name-wrapper {
+          display: flex;
+          align-items: center;
+          max-width: 80%;
+
+          .file-icon {
+            font-size: 24px;
+            margin-right: 12px;
+            color: var(--el-color-primary);
+          }
+
+          .file-name {
+            font-weight: 500;
+            word-break: break-all;
+            font-size: 16px;
+            color: #303133;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .file-size {
+          color: #909399;
+          font-size: 14px;
+        }
+      }
+
+      .upload-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 16px 0;
+        color: #606266;
+        font-size: 14px;
+        background-color: white;
+        padding: 25px 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        .progress-wrapper {
+          display: flex;
+          align-items: center;
+
+          .progress-bar {
+            flex: 1;
+            height: 10px;
+            background-color: #ebeef5;
+            border-radius: 100px;
+            overflow: hidden;
+            margin-right: 12px;
+
+            .progress-inner {
+              height: 100%;
+              background: linear-gradient(90deg, var(--el-color-primary), #52b7ff);
+              border-radius: 100px;
+              transition: width 0.3s ease;
+              position: relative;
+              overflow: hidden;
+
+              &.uploading::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+                animation: shimmer 2s infinite;
+              }
+
+              @keyframes shimmer {
+                0% { left: -100%; }
+                100% { left: 100%; }
+              }
+
+              &.success {
+                background: linear-gradient(90deg, #67c23a, #85ce61);
+              }
+
+              &.error {
+                background: linear-gradient(90deg, #f56c6c, #f78989);
+              }
+
+              &.paused {
+                background: linear-gradient(90deg, #e6a23c, #f3b760);
+              }
+            }
+          }
+
+          .progress-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #606266;
+            min-width: 45px;
+            text-align: right;
+          }
+        }
+
+        .upload-info-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          min-height: 28px;
+        }
+      }
+    }
+  }
+
+  // 状态显示样式
+  .status-display {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+
+    .hash-calculating {
+      font-size: 12px;
+      color: #909399;
+      background-color: #f4f4f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .success-message,
+    .error-message,
+    .paused-message {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 8px;
+
+      .el-icon {
+        margin-right: 8px;
+      }
+    }
+
+    .success-message {
+      background-color: #f0f9eb;
+      color: #67c23a;
+    }
+
+    .error-message {
+      background-color: #fef0f0;
+      color: #f56c6c;
+    }
+
+    .paused-message {
+      background-color: #fdf6ec;
+      color: #e6a23c;
+    }
+
+    .upload-bytes,
+    .upload-speed,
+    .upload-time {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    .upload-bytes {
+      color: var(--el-color-primary);
+    }
+  }
+
+  // 操作按钮样式
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+
+    .action-button {
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.icon-button {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        .el-icon {
+          font-size: 20px;
+        }
+      }
+
+      &.pause-button,
+      &.resume-button {
+        background-color: #ecf5ff;
+        color: var(--el-color-primary);
+
+        &:hover {
+          background-color: #d9ecff;
+          transform: translateY(-2px);
+        }
+      }
+
+      &.cancel-button {
+        background-color: #fef0f0;
+        color: #f56c6c;
+
+        &:hover {
+          background-color: #fde2e2;
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  // 文件列表样式
+  .file-list-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+    .file-list-title {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #303133;
+      font-size: 18px;
+      font-weight: 600;
+      position: relative;
+      padding-left: 16px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background-color: var(--el-color-primary);
+        border-radius: 2px;
+      }
+    }
+
+    .file-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+
+      .file-card {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: all 0.2s;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+          .file-card-actions {
+            opacity: 1;
+          }
+        }
+
+        .file-card-icon {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 12px;
+
+          .el-icon {
+            font-size: 40px;
+            color: var(--el-color-primary);
+          }
+        }
+
+        .file-card-content {
+          flex: 1;
+
+          .file-card-name {
+            font-weight: 500;
+            font-size: 15px;
+            color: #303133;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .file-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+            color: #909399;
+
+            .file-card-size {
+              background-color: var(--el-color-primary-light-9);
+              padding: 2px 8px;
+              border-radius: 4px;
+              display: inline-block;
+              width: fit-content;
+              color: var(--el-color-primary);
+            }
+          }
+        }
+
+        .file-card-actions {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          opacity: 0;
+          transition: opacity 0.2s;
+
+          .card-button {
+            background-color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--el-color-primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+
+            &:hover {
+              background-color: var(--el-color-primary);
+              color: white;
+              transform: scale(1.05);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .upload-complete {
+    margin-top: 50px;
+    text-align: center;
+  }
+
+  // 工具类
+  .mr-2 {
+    margin-right: 8px;
+  }
+}
