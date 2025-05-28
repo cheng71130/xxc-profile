@@ -75,8 +75,8 @@ export function useUploadProgress() {
 
 	const resetProgress = () => {
 		uploadProgress.value = 0
-		uploadSpeed.value = ''
-		remainingTime.value = ''
+		uploadSpeed.value = '计算中...'
+		remainingTime.value = '计算中...'
 		stopProgressTracking()
 
 		Object.assign(progressStats, {
@@ -91,7 +91,7 @@ export function useUploadProgress() {
 		uploadProgress,
 		uploadSpeed,
 		remainingTime,
-		progressStats, // 确保导出 progressStats
+		progressStats,
 		startProgressTracking,
 		updateUploadedBytes,
 		stopProgressTracking,

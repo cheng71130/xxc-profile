@@ -44,16 +44,26 @@ export function useFileUpload() {
 
 		try {
 			const optimalChunkSize = getOptimalChunkSize(file.size)
-			console.log(`文件大小: ${formatSize(file.size)}, 使用分片大小: ${formatSize(optimalChunkSize)}`)
 
-			const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+			// 同步等待哈希计算完成
+			const fileHash = await calculateFileHash(file, optimalChunkSize)
+
+			// 检查秒传
+			const checkResult = await uploadApi.checkFileExists(fileHash, file.name, file.size)
+			if (checkResult.code === 0 && checkResult.exists) {
+				uploadStatus.value = UPLOAD_STATUS.SUCCESS
+				uploadProgress.value = 100
+				stopProgressTracking()
+				ElMessage.success('文件已存在，秒传成功！')
+				return
+			}
 
 			// 初始化控制器
 			Object.assign(uploadController, {
 				chunks: [],
 				chunkCount: Math.ceil(file.size / optimalChunkSize),
 				uploadedChunks: 0,
-				fileHash: tempId,
+				fileHash: fileHash, // 直接使用计算出的哈希
 				fileName: file.name,
 				chunkSize: optimalChunkSize,
 				isPaused: false,
@@ -62,33 +72,9 @@ export function useFileUpload() {
 			})
 
 			// 创建分片
-			createChunks(file, optimalChunkSize, tempId)
+			createChunks(file, optimalChunkSize, fileHash)
 
-			// 启动哈希计算（异步）
-			calculateFileHash(file, optimalChunkSize)
-				.then(async (fileHash) => {
-					console.log('文件哈希计算完成:', fileHash)
-					uploadController.fileHash = fileHash
-
-					// 检查秒传
-					const checkResult = await uploadApi.checkFileExists(fileHash, file.name, file.size)
-					if (checkResult.code === 0 && checkResult.exists) {
-						uploadStatus.value = UPLOAD_STATUS.SUCCESS
-						uploadProgress.value = 100
-						stopProgressTracking()
-						ElMessage.success('文件已存在，秒传成功！')
-						return
-					}
-
-					// 更新分片hash
-					updateChunksHash(fileHash)
-				})
-				.catch((error) => {
-					console.error('哈希计算失败:', error)
-					ElMessage.warning('文件特征码计算失败，但不影响上传')
-				})
-
-			// 立即开始上传
+			// 开始上传
 			startUpload()
 		} catch (error) {
 			ElMessage.error('准备上传失败：' + error.message)
@@ -279,6 +265,7 @@ export function useFileUpload() {
 		preparingProgress,
 		hashCalculationComplete,
 		uploadController,
+		progressStats,
 
 		// 方法
 		prepareUpload,

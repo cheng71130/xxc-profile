@@ -9,7 +9,7 @@
 			:remaining-time="remainingTime"
 			:preparing-progress="preparingProgress"
 			:hash-complete="hashCalculationComplete"
-			:uploaded-bytes="progressStats?.uploadedBytes || 0"
+			:uploaded-bytes="progressStats.uploadedBytes"
 			@upload="handleUpload"
 			@pause="pauseUpload"
 			@resume="resumeUpload"
@@ -33,7 +33,6 @@
 	import { useFileList } from './composables/useFileList.js'
 	import uploadApi from './utils/uploadApi.js'
 
-	// 解构时确保所有必要的属性都被导出
 	const {
 		currentFile,
 		uploadStatus,
@@ -42,7 +41,7 @@
 		remainingTime,
 		preparingProgress,
 		hashCalculationComplete,
-		progressStats, // 确保 progressStats 被正确导出
+		progressStats, 
 		prepareUpload,
 		pauseUpload,
 		resumeUpload,
