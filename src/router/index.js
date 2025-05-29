@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
 	{
+		path: '/',
+		redirect: '/home'
+	},
+	{
 		path: '/home',
 		name: 'Home',
 		component: () => import('@/views/home/index.vue')
@@ -12,14 +16,19 @@ const routes = [
 		component: () => import('@/views/visualizationScreen/index.vue')
 	},
 	{
-		path: '/map-cn',
-		name: 'Map',
-		component: () => import('@/views/map/index.vue')
+		path: '/mine',
+		name: 'Mine',
+		component: () => import('@/views/mine/index.vue')
 	},
 	{
 		path: '/flowDemo',
 		name: 'Flow',
 		component: () => import('@/views/logicFlow/index.vue')
+	},
+	{
+		path: '/gallery',
+		name: 'Gallery',
+		component: () => import('@/views/gallery/index.vue')
 	},
 	{
 		path: '/largeFileUpload',
@@ -29,8 +38,9 @@ const routes = [
 	{
 		path: '/CAD',
 		name: 'CAD',
+		// component: () => import('@/views/CAD_txt/index.vue')
 		component: () => import('@/views/CAD/index.vue')
-	},
+	}
 ]
 
 const router = createRouter({

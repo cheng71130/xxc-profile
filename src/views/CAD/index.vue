@@ -1,590 +1,615 @@
 <template>
-	<div class="cad-container">
-		<!-- 导入按钮 -->
-		<div class="import-section" v-if="!pageLoaded">
-			<el-card class="import-card">
-				<h2 class="text-xl font-bold mb-4">导入CAD页面配置</h2>
-				<el-upload class="upload-demo" :before-upload="handleFileUpload" :show-file-list="false" accept=".txt" drag>
-					<el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-					<div class="el-upload__text">将txt配置文件拖到此处，或<em>点击上传</em></div>
-					<template #tip>
-						<div class="el-upload__tip">只支持 .txt 格式的配置文件</div>
-					</template>
-				</el-upload>
-			</el-card>
+	<div class="cad-container h-screen flex flex-col">
+		<!-- 顶部菜单栏 -->
+		<div class="menu-bar">
+			<el-menu mode="horizontal" class="menu-items">
+				<el-menu-item index="1">文件</el-menu-item>
+				<el-menu-item index="2">编辑</el-menu-item>
+				<el-menu-item index="3">视图</el-menu-item>
+				<el-menu-item index="4">插入</el-menu-item>
+				<el-menu-item index="5">格式</el-menu-item>
+				<el-menu-item index="6">工具</el-menu-item>
+				<el-menu-item index="7">绘图</el-menu-item>
+				<el-menu-item index="8">标注</el-menu-item>
+				<el-menu-item index="9">修改</el-menu-item>
+				<el-menu-item index="10">窗口</el-menu-item>
+				<el-menu-item index="11">帮助</el-menu-item>
+			</el-menu>
+
+			<!-- 右侧用户信息 -->
+			<div class="user-info">
+				<span>insofworksCAD2025</span>
+				<el-avatar size="small" class="ml-2">U</el-avatar>
+			</div>
 		</div>
 
-		<!-- CAD主界面 -->
-		<div v-else class="cad-main">
-			<!-- 顶部菜单栏 -->
-			<div class="top-header">
-				<div class="menu-bar flex items-center">
-					<div class="logo px-2">
-						<span class="text-blue-500 font-bold">{{ config.appName }}</span>
-					</div>
-					<el-menu mode="horizontal" class="flex-1" :default-active="activeMenu">
-						<el-menu-item v-for="(item, index) in config.menuItems" :key="index" :index="String(index + 1)">
-							{{ item }}
-						</el-menu-item>
-					</el-menu>
-					<div class="user-info flex items-center px-4">
-						<el-button type="primary" size="small">登录</el-button>
-					</div>
+		<!-- 工具栏 -->
+		<div class="toolbar">
+			<div class="toolbar-section">
+				<el-button-group>
+					<el-button size="small" icon="Document">新建</el-button>
+					<el-button size="small" icon="FolderOpened">打开</el-button>
+					<el-button size="small" icon="DocumentCopy">保存</el-button>
+				</el-button-group>
+			</div>
+
+			<div class="toolbar-section">
+				<el-button-group>
+					<el-button size="small" icon="Back">撤销</el-button>
+					<el-button size="small" icon="Right">重做</el-button>
+				</el-button-group>
+			</div>
+
+			<div class="toolbar-section">
+				<el-button-group>
+					<el-button size="small" icon="Minus">线条</el-button>
+					<el-button size="small" icon="FullScreen">矩形</el-button>
+					<el-button size="small" icon="CirclePlus">圆形</el-button>
+					<el-button size="small" icon="Position">移动</el-button>
+					<el-button size="small" icon="CopyDocument">复制</el-button>
+					<el-button size="small" icon="Delete">删除</el-button>
+				</el-button-group>
+			</div>
+
+			<div class="toolbar-section">
+				<el-button-group>
+					<el-button size="small" icon="ZoomIn">放大</el-button>
+					<el-button size="small" icon="ZoomOut">缩小</el-button>
+					<el-button size="small" icon="Refresh">适合窗口</el-button>
+				</el-button-group>
+			</div>
+		</div>
+
+		<!-- 主要内容区域 -->
+		<div class="main-content flex-1 flex">
+			<!-- 左侧项目树 -->
+			<div class="sidebar">
+				<div class="sidebar-header">
+					<span>项目</span>
+					<el-button size="small" text icon="More" />
 				</div>
 
-				<!-- 工具栏 -->
-				<div class="toolbar flex items-center px-2 py-1 border-b">
-					<div class="tool-groups flex items-center gap-4">
-						<template v-for="(group, gIndex) in config.toolGroups" :key="gIndex">
-							<div class="tool-group flex items-center gap-1">
-								<el-button
-									v-for="tool in group"
-									:key="tool.name"
-									:icon="getIcon(tool.icon)"
-									size="small"
-									:title="tool.name"
-								/>
-							</div>
-							<el-divider v-if="gIndex < config.toolGroups.length - 1" direction="vertical" />
-						</template>
-					</div>
+				<el-tree
+					:data="projectTreeData"
+					:props="{ children: 'children', label: 'label' }"
+					default-expand-all
+					class="project-tree"
+				>
+					<template #default="{ node, data }">
+						<span class="tree-node">
+							<el-icon class="mr-1">
+								<component :is="data.icon" />
+							</el-icon>
+							{{ data.label }}
+						</span>
+					</template>
+				</el-tree>
+			</div>
+
+			<!-- 中间绘图区域 -->
+			<div class="drawing-area flex-1 relative">
+				<!-- 3D视图容器 -->
+				<div ref="threejsContainer" class="threejs-container"></div>
+
+				<!-- 加载提示 -->
+				<div v-if="isLoading" class="loading-overlay">
+					<el-loading-spinner />
+					<span>正在加载模型...</span>
+				</div>
+
+				<!-- 错误提示 -->
+				<div v-if="loadError" class="error-overlay">
+					<el-icon><Warning /></el-icon>
+					<span>模型加载失败: {{ loadError }}</span>
+					<el-button size="small" @click="retryLoad">重新加载</el-button>
 				</div>
 			</div>
 
-			<!-- 主体内容区 -->
-			<div class="main-content flex">
-				<!-- 左侧边栏 -->
-				<div class="left-sidebar">
-					<el-tabs v-model="activeTab" class="h-full">
-						<el-tab-pane v-for="tab in config.sidebarTabs" :key="tab.key" :label="tab.label" :name="tab.key">
-							<div v-if="tab.key === 'parts'" class="tree-container p-2">
-								<el-tree :data="treeData" :props="defaultProps" default-expand-all>
-									<template #default="{ node, data }">
-										<span class="custom-tree-node">
-											<el-icon v-if="data.type === 'folder'"><FolderOpened /></el-icon>
-											<el-icon v-else-if="data.type === 'part'"><Document /></el-icon>
-											<span class="ml-1">{{ node.label }}</span>
-										</span>
-									</template>
-								</el-tree>
-							</div>
-							<div v-else class="p-2">{{ tab.label }}内容</div>
-						</el-tab-pane>
-					</el-tabs>
+			<!-- 右侧属性面板 -->
+			<div class="properties-panel">
+				<div class="panel-header">
+					<span>属性</span>
 				</div>
-
-				<!-- 中间CAD视图区 -->
-				<div class="cad-viewport flex-1" :style="{ background: '#e8e8e8' }">
-					<div class="viewport-container">
-						<!-- 3D视图区域 -->
-						<div class="viewport-3d">
-							<div class="cad-object">
-								<div
-									class="panel-3d"
-									:style="{
-										width: config.view3d.width + 'px',
-										height: config.view3d.height + 'px',
-										background: config.view3d.color,
-										transform: `rotateY(${config.view3d.rotateY}deg) rotateX(${config.view3d.rotateX}deg)`
-									}"
-								></div>
-							</div>
-						</div>
-
-						<!-- 右侧工具栏 -->
-						<div class="right-toolbar">
-							<el-button
-								v-for="tool in config.rightTools"
-								:key="tool.name"
-								:icon="getIcon(tool.icon)"
-								circle
-								size="small"
-								:title="tool.name"
-							/>
-						</div>
-
-						<!-- 坐标轴指示器 -->
-						<div class="axis-indicator" v-if="config.showAxis">
-							<div class="axis-cube">
-								<div class="axis x-axis" :style="{ background: config.axisColors.x }">X</div>
-								<div class="axis y-axis" :style="{ background: config.axisColors.y }">Y</div>
-								<div class="axis z-axis" :style="{ background: config.axisColors.z }">Z</div>
-							</div>
-						</div>
-					</div>
+				<div class="panel-content">
+					<el-form label-position="top" size="small">
+						<el-form-item label="对象类型">
+							<el-input value="实体" readonly />
+						</el-form-item>
+						<el-form-item label="材质">
+							<el-select placeholder="选择材质">
+								<el-option label="金属" value="metal" />
+								<el-option label="塑料" value="plastic" />
+							</el-select>
+						</el-form-item>
+						<el-form-item label="颜色">
+							<el-color-picker />
+						</el-form-item>
+					</el-form>
 				</div>
 			</div>
+		</div>
 
-			<!-- 底部状态栏 -->
-			<div class="status-bar flex items-center justify-between px-4 py-1">
-				<div class="status-left flex items-center gap-4">
-					<span v-for="status in config.statusLeft" :key="status" class="text-xs">{{ status }}</span>
-				</div>
-				<div class="status-right">
-					<span class="text-xs">{{ config.statusRight }}</span>
-				</div>
+		<!-- 底部状态栏 -->
+		<div class="status-bar">
+			<div class="status-left">
+				<span>就绪</span>
+			</div>
+			<div class="status-right">
+				<span>坐标: X:0.00 Y:0.00 Z:0.00</span>
+				<span class="ml-4">比例: 1:1</span>
+				<span class="ml-4">MMGS</span>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-	import { ref, shallowRef } from 'vue'
-	import {
-		DocumentCopy,
-		FolderOpened,
-		Download,
-		Back,
-		Right,
-		ZoomIn,
-		ZoomOut,
-		FullScreen,
-		View,
-		Refresh,
-		Camera,
-		Setting,
-		Document,
-		UploadFilled
-	} from '@element-plus/icons-vue'
-	import { ElMessage } from 'element-plus'
+	import { ref, onMounted, onUnmounted } from 'vue'
+	import * as THREE from 'three'
+	import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
+	import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
-	const pageLoaded = ref(false)
-	const activeMenu = ref('1')
-	const activeTab = ref('parts')
-	const treeData = ref([])
+	// 响应式数据
+	const threejsContainer = ref(null)
+	const isLoading = ref(false)
+	const loadError = ref('')
 
-	const config = ref({
-		appName: 'CrownCAD',
-		version: 'insofworks2025',
-		themeColor: '#409EFF',
-		menuItems: [],
-		toolGroups: [],
-		sidebarTabs: [],
-		view3d: {
-			width: 400,
-			height: 500,
-			color: '#808080',
-			rotateY: -20,
-			rotateX: 10,
-			showGrid: true
+	// Three.js 相关变量
+	let scene, camera, renderer, controls, animationId
+
+	// 项目树数据
+	const projectTreeData = ref([
+		{
+			label: '零件 1',
+			icon: 'Folder',
+			children: [
+				{
+					label: '实体 1',
+					icon: 'DataLine',
+					children: [
+						{ label: '图层 0', icon: 'DataLine' },
+						{ label: '实体', icon: 'DataLine' }
+					]
+				}
+			]
 		},
-		rightTools: [],
-		showAxis: true,
-		axisColors: {
-			x: '#ff4444',
-			y: '#44ff44',
-			z: '#4444ff'
+		{
+			label: '曲面 1',
+			icon: 'Folder',
+			children: [
+				{
+					label: '实体 1',
+					icon: 'DataLine',
+					children: [
+						{ label: '图层 0', icon: 'DataLine' },
+						{ label: '实体', icon: 'DataLine' }
+					]
+				}
+			]
 		},
-		statusLeft: [],
-		statusRight: ''
+		{
+			label: '曲线 1',
+			icon: 'Folder',
+			children: [
+				{
+					label: '实体 1',
+					icon: 'DataLine',
+					children: [
+						{ label: '图层 0', icon: 'DataLine' },
+						{ label: '实体', icon: 'DataLine' }
+					]
+				}
+			]
+		}
+	])
+
+	// 初始化Three.js场景
+	const initThreeJS = () => {
+		const container = threejsContainer.value
+		if (!container) return
+
+		// 创建场景
+		scene = new THREE.Scene()
+		scene.background = new THREE.Color(0x2c3e50)
+
+		// 创建相机 - 优化近远平面设置
+		const width = container.clientWidth
+		const height = container.clientHeight
+		camera = new THREE.PerspectiveCamera(75, width / height, 0.01, 10000)
+		camera.position.set(5, 5, 5)
+
+		// 创建渲染器
+		renderer = new THREE.WebGLRenderer({ antialias: true })
+		renderer.setSize(width, height)
+		renderer.shadowMap.enabled = true
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap
+		container.appendChild(renderer.domElement)
+
+		// 添加控制器 - 优化控制参数
+		controls = new OrbitControls(camera, renderer.domElement)
+		controls.enableDamping = true
+		controls.dampingFactor = 0.05
+		controls.target.set(0, 0, 0)
+
+		// 优化缩放设置，防止模型消失
+		controls.minDistance = 0.1 // 最小缩放距离
+		controls.maxDistance = 1000 // 最大缩放距离
+		controls.enableZoom = true
+		controls.zoomSpeed = 1.0
+
+		// 添加光源
+		const ambientLight = new THREE.AmbientLight(0x404040, 0.6)
+		scene.add(ambientLight)
+
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+		directionalLight.position.set(10, 10, 5)
+		directionalLight.castShadow = true
+		scene.add(directionalLight)
+
+		// 加载OBJ模型
+		loadOBJModel()
+
+		// 开始渲染循环
+		animate()
+	}
+
+	// 加载OBJ模型
+	const loadOBJModel = () => {
+		isLoading.value = true
+		loadError.value = ''
+
+		const loader = new OBJLoader()
+		const modelPath = '/model/Base.obj' // 修正文件名
+
+		loader.load(
+			modelPath,
+			(object) => {
+				console.log('OBJ模型加载成功')
+
+				// 清除之前的模型
+				const existingModel = scene.getObjectByName('loadedModel')
+				if (existingModel) {
+					scene.remove(existingModel)
+				}
+
+				// 设置模型材质
+				object.traverse((child) => {
+					if (child.isMesh) {
+						child.material = new THREE.MeshLambertMaterial({
+							color: 0x95a5a6,
+							side: THREE.DoubleSide
+						})
+						child.castShadow = true
+						child.receiveShadow = true
+					}
+				})
+
+				// 计算模型包围盒
+				const box = new THREE.Box3().setFromObject(object)
+				const center = box.getCenter(new THREE.Vector3())
+				const size = box.getSize(new THREE.Vector3())
+
+				// 将模型居中
+				object.position.x = -center.x
+				object.position.y = -center.y
+				object.position.z = -center.z
+				object.name = 'loadedModel'
+
+				// 优化相机设置
+				const maxDim = Math.max(size.x, size.y, size.z)
+
+				if (maxDim > 0) {
+					// 设置合适的近远平面
+					camera.near = maxDim * 0.001 // 更小的近平面
+					camera.far = maxDim * 100 // 合适的远平面
+					camera.updateProjectionMatrix()
+
+					// 计算合适的相机距离
+					const fov = camera.fov * (Math.PI / 180)
+					let cameraDistance = maxDim / (2 * Math.tan(fov / 2))
+					cameraDistance *= 1.5 // 稍微远一点看全貌
+
+					// 设置相机位置
+					camera.position.set(cameraDistance, cameraDistance, cameraDistance)
+					camera.lookAt(0, 0, 0)
+
+					// 更新控制器设置
+					controls.target.set(0, 0, 0)
+					controls.minDistance = maxDim * 0.1 // 基于模型大小设置最小距离
+					controls.maxDistance = maxDim * 10 // 基于模型大小设置最大距离
+					controls.update()
+				}
+
+				scene.add(object)
+				isLoading.value = false
+			},
+			(progress) => {
+				if (progress.lengthComputable) {
+					const percentComplete = (progress.loaded / progress.total) * 100
+					console.log('加载进度:', percentComplete.toFixed(2) + '%')
+				}
+			},
+			(error) => {
+				console.error('OBJ模型加载失败:', error)
+				isLoading.value = false
+				loadError.value = error.message || '未知错误'
+				createFallbackModel()
+			}
+		)
+	}
+
+	// 创建备用模型
+	const createFallbackModel = () => {
+		const geometry = new THREE.BoxGeometry(2, 2, 2)
+		const material = new THREE.MeshLambertMaterial({ color: 0x95a5a6 })
+		const cube = new THREE.Mesh(geometry, material)
+		cube.castShadow = true
+		cube.receiveShadow = true
+		cube.name = 'fallbackModel'
+		scene.add(cube)
+	}
+
+	// 重新加载模型
+	const retryLoad = () => {
+		loadError.value = ''
+		const existingModel = scene.getObjectByName('loadedModel') || scene.getObjectByName('fallbackModel')
+		if (existingModel) {
+			scene.remove(existingModel)
+		}
+		loadOBJModel()
+	}
+
+	// 动画循环
+	const animate = () => {
+		animationId = requestAnimationFrame(animate)
+		controls.update()
+		renderer.render(scene, camera)
+	}
+
+	// 处理窗口大小变化
+	const handleResize = () => {
+		if (!camera || !renderer || !threejsContainer.value) return
+
+		const container = threejsContainer.value
+		const width = container.clientWidth
+		const height = container.clientHeight
+
+		camera.aspect = width / height
+		camera.updateProjectionMatrix()
+		renderer.setSize(width, height)
+	}
+
+	// 清理Three.js资源
+	const cleanup = () => {
+		if (animationId) {
+			cancelAnimationFrame(animationId)
+		}
+
+		if (renderer) {
+			renderer.dispose()
+			if (threejsContainer.value && renderer.domElement) {
+				threejsContainer.value.removeChild(renderer.domElement)
+			}
+		}
+
+		if (controls) {
+			controls.dispose()
+		}
+
+		window.removeEventListener('resize', handleResize)
+	}
+
+	// 生命周期钩子
+	onMounted(() => {
+		initThreeJS()
+		window.addEventListener('resize', handleResize)
 	})
 
-	const defaultProps = {
-		children: 'children',
-		label: 'label'
-	}
-
-	// 图标映射
-	const iconMap = {
-		DocumentCopy: DocumentCopy,
-		FolderOpened: FolderOpened,
-		Download: Download,
-		Back: Back,
-		Right: Right,
-		ZoomIn: ZoomIn,
-		ZoomOut: ZoomOut,
-		FullScreen: FullScreen,
-		View: View,
-		Refresh: Refresh,
-		Camera: Camera,
-		Setting: Setting,
-		Document: Document
-	}
-
-	const getIcon = (iconName) => {
-		return iconMap[iconName] || Document
-	}
-
-	// 解析配置文件
-	const parseConfig = (content) => {
-		const lines = content.split('\n')
-		const result = {
-			menuItems: [],
-			toolGroups: [],
-			sidebarTabs: [],
-			view3d: {},
-			rightTools: [],
-			axisColors: {},
-			statusLeft: [],
-			treeStructure: []
-		}
-
-		let currentSection = ''
-
-		lines.forEach((line) => {
-			line = line.trim()
-			if (!line || line.startsWith('#')) return
-
-			if (line.startsWith('[') && line.endsWith(']')) {
-				currentSection = line.slice(1, -1)
-				return
-			}
-
-			if (line.includes('=')) {
-				const [key, value] = line.split('=').map((s) => s.trim())
-
-				switch (currentSection) {
-					case '基本信息':
-						if (key === '应用名称') result.appName = value
-						if (key === '版本') result.version = value
-						if (key === '主题色') result.themeColor = value
-						break
-
-					case '菜单配置':
-						if (key === '菜单项') result.menuItems = value.split(',')
-						break
-
-					case '工具栏':
-						if (key.startsWith('工具组')) {
-							const tools = value.split(',').map((t) => {
-								const [name, icon] = t.split('|')
-								return { name, icon }
-							})
-							result.toolGroups.push(tools)
-						}
-						break
-
-					case '侧边栏标签':
-						if (key.startsWith('标签')) {
-							const [label, key] = value.split('|')
-							result.sidebarTabs.push({ label, key })
-						}
-						break
-
-					case '3D视图配置':
-						if (key === '面板宽度') result.view3d.width = parseInt(value)
-						if (key === '面板高度') result.view3d.height = parseInt(value)
-						if (key === '面板颜色') result.view3d.color = value
-						if (key === '旋转Y') result.view3d.rotateY = parseInt(value)
-						if (key === '旋转X') result.view3d.rotateX = parseInt(value)
-						if (key === '显示网格') result.view3d.showGrid = value === 'true'
-						break
-
-					case '右侧工具':
-						if (key === '工具按钮') {
-							result.rightTools = value.split(',').map((t) => {
-								const [name, icon] = t.split('|')
-								return { name, icon }
-							})
-						}
-						break
-
-					case '坐标轴':
-						if (key === '显示坐标轴') result.showAxis = value === 'true'
-						if (key === 'X轴颜色') result.axisColors.x = value
-						if (key === 'Y轴颜色') result.axisColors.y = value
-						if (key === 'Z轴颜色') result.axisColors.z = value
-						break
-
-					case '状态栏':
-						if (key === '左侧状态') result.statusLeft = value.split(',')
-						if (key === '右侧状态') result.statusRight = value
-						break
-				}
-			} else if (currentSection === '零件树结构') {
-				const [level, type, label] = line.split('|')
-				result.treeStructure.push({ level: parseInt(level), type, label })
-			}
-		})
-
-		return result
-	}
-
-	// 构建树形结构
-	const buildTree = (items) => {
-		const tree = []
-		const stack = []
-
-		items.forEach((item) => {
-			const node = {
-				label: item.label,
-				type: item.type,
-				children: item.type === 'folder' || item.type === 'part' ? [] : undefined
-			}
-
-			while (stack.length >= item.level) {
-				stack.pop()
-			}
-
-			if (stack.length === 0) {
-				tree.push(node)
-			} else {
-				const parent = stack[stack.length - 1]
-				if (!parent.children) parent.children = []
-				parent.children.push(node)
-			}
-
-			if (item.type === 'folder' || item.type === 'part') {
-				stack.push(node)
-			}
-		})
-
-		return tree
-	}
-
-	// 处理文件上传
-	const handleFileUpload = (file) => {
-		const reader = new FileReader()
-
-		reader.onload = (e) => {
-			try {
-				const content = e.target.result
-				const parsedConfig = parseConfig(content)
-
-				// 更新配置
-				Object.assign(config.value, parsedConfig)
-
-				// 构建树形结构
-				treeData.value = buildTree(parsedConfig.treeStructure)
-
-				// 设置默认活动标签
-				if (config.value.sidebarTabs.length > 0) {
-					activeTab.value = config.value.sidebarTabs[0].key
-				}
-
-				pageLoaded.value = true
-				ElMessage.success('配置文件导入成功！')
-			} catch (error) {
-				ElMessage.error('配置文件解析失败：' + error.message)
-			}
-		}
-
-		reader.readAsText(file)
-		return false // 阻止默认上传行为
-	}
+	onUnmounted(() => {
+		cleanup()
+	})
 </script>
 
 <style scoped lang="scss">
 	.cad-container {
-		width: 100vw;
-		height: 100vh;
-		display: flex;
-		flex-direction: column;
-		background-color: #f5f5f5;
+		background: #f5f5f5;
+		font-family: 'Microsoft YaHei', sans-serif;
+	}
 
-		.import-section {
-			width: 100%;
+	.menu-bar {
+		background: #ffffff;
+		border-bottom: 1px solid #e4e7ed;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0;
+		height: 44px;
+
+		.menu-items {
+			border-bottom: none;
+			background: transparent;
+			flex: 1;
 			height: 100%;
+			padding-left: 16px;
+		}
+
+		.el-menu-item {
+			height: 44px;
+			line-height: 44px;
+			padding: 0 20px;
+			font-size: 14px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: #f0f2f5;
-
-			.import-card {
-				width: 500px;
-
-				::v-deep(.el-upload) {
-					width: 100%;
-
-					.el-upload-dragger {
-						width: 100%;
-						height: 200px;
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-						justify-content: center;
-
-						.el-icon--upload {
-							font-size: 67px;
-							color: #c0c4cc;
-							margin-bottom: 16px;
-						}
-					}
-				}
-			}
 		}
 
-		.cad-main {
+		.el-menu-item.is-active {
+			background: var(--el-color-primary-light-9) !important;
+		}
+
+		.user-info {
+			display: flex;
+			align-items: center;
+			font-size: 13px;
+			color: #606266;
+			height: 100%;
+			padding: 0 16px;
+		}
+	}
+
+	.toolbar {
+		background: #fafafa;
+		border-bottom: 1px solid #e4e7ed;
+		padding: 8px 16px;
+		display: flex;
+		gap: 16px;
+		flex-wrap: wrap;
+		align-items: center;
+
+		.toolbar-section {
+			display: flex;
+			align-items: center;
+		}
+	}
+
+	.main-content {
+		height: calc(100vh - 136px);
+	}
+
+	.sidebar {
+		width: 240px;
+		background: #ffffff;
+		border-right: 1px solid #e4e7ed;
+		display: flex;
+		flex-direction: column;
+
+		.sidebar-header {
+			padding: 12px 16px;
+			border-bottom: 1px solid #e4e7ed;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			font-weight: 500;
+			font-size: 14px;
+			height: 48px;
+		}
+
+		.project-tree {
+			flex: 1;
+			padding: 8px;
+			background: transparent;
+
+			.tree-node {
+				display: flex;
+				align-items: center;
+				font-size: 13px;
+			}
+		}
+	}
+
+	.drawing-area {
+		position: relative;
+		overflow: hidden;
+
+		.threejs-container {
 			width: 100%;
 			height: 100%;
-			display: flex;
-			flex-direction: column;
+
+			canvas {
+				display: block;
+			}
 		}
 
-		.top-header {
-			background: white;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		.loading-overlay,
+		.error-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(44, 62, 80, 0.8);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			color: white;
+			font-size: 14px;
+			z-index: 10;
 
-			.menu-bar {
-				border-bottom: 1px solid #e0e0e0;
-
-				::v-deep(.el-menu) {
-					border: none;
-
-					.el-menu-item {
-						height: 40px;
-						line-height: 40px;
-						font-size: 13px;
-					}
-				}
+			.el-loading-spinner,
+			.el-icon {
+				margin-bottom: 16px;
 			}
 
-			.toolbar {
-				background: #fafafa;
+			.el-button {
+				margin-top: 16px;
+			}
+		}
+	}
 
-				.tool-group {
-					::v-deep(.el-button) {
-						padding: 4px 8px;
-					}
-				}
+	.properties-panel {
+		width: 280px;
+		background: #ffffff;
+		border-left: 1px solid #e4e7ed;
+
+		.panel-header {
+			padding: 12px 16px;
+			border-bottom: 1px solid #e4e7ed;
+			font-weight: 500;
+			font-size: 14px;
+			height: 48px;
+			display: flex;
+			align-items: center;
+		}
+
+		.panel-content {
+			padding: 16px;
+		}
+	}
+
+	.status-bar {
+		height: 32px;
+		background: #fafafa;
+		border-top: 1px solid #e4e7ed;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 16px;
+		font-size: 12px;
+		color: #606266;
+
+		.status-right {
+			display: flex;
+			align-items: center;
+		}
+	}
+
+	// 响应式设计
+	@media (max-width: 1200px) {
+		.sidebar {
+			width: 200px;
+		}
+
+		.properties-panel {
+			width: 240px;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.toolbar {
+			.toolbar-section {
+				margin-bottom: 8px;
 			}
 		}
 
 		.main-content {
-			flex: 1;
-			overflow: hidden;
-
-			.left-sidebar {
-				width: 280px;
-				background: white;
-				border-right: 1px solid #e0e0e0;
-
-				::v-deep(.el-tabs) {
-					.el-tabs__header {
-						margin: 0;
-					}
-
-					.el-tabs__content {
-						padding: 0;
-						height: calc(100% - 40px);
-						overflow: auto;
-					}
-				}
-
-				.custom-tree-node {
-					display: flex;
-					align-items: center;
-					font-size: 13px;
-				}
-			}
-
-			.cad-viewport {
-				position: relative;
-
-				.viewport-container {
-					width: 100%;
-					height: 100%;
-					position: relative;
-
-					.viewport-3d {
-						width: 100%;
-						height: 100%;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						perspective: 1000px;
-
-						.cad-object {
-							transform-style: preserve-3d;
-
-							.panel-3d {
-								border: 2px solid #666;
-								box-shadow: 0 0 20px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.1);
-								position: relative;
-								transition: transform 0.3s ease;
-
-								&::before {
-									content: '';
-									position: absolute;
-									top: 50%;
-									left: 0;
-									right: 0;
-									height: 1px;
-									background: rgba(255, 255, 255, 0.2);
-								}
-
-								&::after {
-									content: '';
-									position: absolute;
-									top: 0;
-									bottom: 0;
-									left: 50%;
-									width: 1px;
-									background: rgba(255, 255, 255, 0.2);
-								}
-							}
-						}
-					}
-
-					.right-toolbar {
-						position: absolute;
-						right: 20px;
-						top: 20px;
-						display: flex;
-						flex-direction: column;
-						gap: 8px;
-
-						::v-deep(.el-button) {
-							background: white;
-							border-color: #dcdfe6;
-
-							&:hover {
-								background: #f5f7fa;
-							}
-						}
-					}
-
-					.axis-indicator {
-						position: absolute;
-						bottom: 20px;
-						left: 20px;
-
-						.axis-cube {
-							width: 80px;
-							height: 80px;
-							position: relative;
-							transform-style: preserve-3d;
-
-							.axis {
-								position: absolute;
-								width: 30px;
-								height: 30px;
-								display: flex;
-								align-items: center;
-								justify-content: center;
-								font-size: 14px;
-								font-weight: bold;
-								border-radius: 50%;
-								color: white;
-
-								&.x-axis {
-									bottom: 0;
-									left: 0;
-								}
-
-								&.y-axis {
-									top: 0;
-									left: 50%;
-									transform: translateX(-50%);
-								}
-
-								&.z-axis {
-									bottom: 30%;
-									right: 0;
-								}
-							}
-						}
-					}
-				}
-			}
+			flex-direction: column;
 		}
 
-		.status-bar {
-			background: white;
-			border-top: 1px solid #e0e0e0;
-			height: 24px;
-			font-size: 12px;
-			color: #666;
+		.sidebar,
+		.properties-panel {
+			width: 100%;
+			height: 200px;
 		}
 	}
 </style>
