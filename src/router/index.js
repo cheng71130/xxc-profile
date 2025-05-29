@@ -30,16 +30,20 @@ const routes = [
 		name: 'Gallery',
 		component: () => import('@/views/gallery/index.vue')
 	},
-	{
-		path: '/largeFileUpload',
-		name: 'largeFileUpload',
-		component: () => import('@/views/components/largeFileUpload/index.vue')
-	},
+	// {
+	// 	path: '/largeFileUpload',
+	// 	name: 'largeFileUpload',
+	// 	component: () => import('@/views/components/largeFileUpload/index.vue')
+	// },
 	{
 		path: '/CAD',
 		name: 'CAD',
-		// component: () => import('@/views/CAD_txt/index.vue')
 		component: () => import('@/views/CAD/index.vue')
+	},
+	{
+		path: '/CAD_txt',
+		name: 'CAD_txt',
+		component: () => import('@/views/CAD_txt/index.vue')
 	}
 ]
 

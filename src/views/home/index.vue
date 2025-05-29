@@ -13,8 +13,6 @@
 			</div>
 			<showMoreBtn @click="router.push('/gallery')"/>
 		</el-main>
-		<!-- <el-button type="primary" plain @click="router.push('/CAD')">CAD</el-button>
-		<el-button type="primary" plain @click="router.push('/largeFileUpload')">大文件上传</el-button> -->
 	</el-container>
 	<div v-if="!allImagesLoaded" class="load-container">
 		<div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
