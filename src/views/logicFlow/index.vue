@@ -6,12 +6,12 @@
 					<SvgIcon name="back" size="24" />
 				</template>
 				<template #content>
-					<div class="f-start" style="gap: 5px">
+					<div class="flex items-center justify-start gap-1.25">
 						<span class="name1">logicFlow</span>
 						<SvgIcon name="flow2" size="22" />
 						<span> - </span>
 						<span class="name2">xxcDemo</span>
-						<!-- <el-skeleton v-if="state.canvasLoading" animated class="f-center">
+						<!-- <el-skeleton v-if="state.canvasLoading" animated class="flex items-center justify-center gap-2.5">
 							<template #template>
 								<el-skeleton-item variant="h1" />
 							</template>
@@ -27,7 +27,7 @@
 					<el-scrollbar>
 						<!-- 左边栏 -->
 						<div class="dndPanel" ref="dndPanelRef">
-							<div class="f-start" style="gap: 0">
+							<div class="flex items-center justify-start">
 								<el-input
 									class="myInput"
 									ref="inputRef"
@@ -47,7 +47,7 @@
 							</div>
 							<el-divider style="margin: 10px 0"></el-divider>
 							<div class="modelDiv">
-								<div class="f-start mb10 ml2">
+								<div class="flex items-center justify-start gap-2.5 mb10 ml2">
 									<div class="vertical-line"></div>
 									<div class="title">矩形节点</div>
 								</div>
@@ -82,7 +82,7 @@
 							</div>
 							<el-divider class="mt1" />
 							<div class="modelDiv mt20">
-								<div class="f-start mb10 ml2">
+								<div class="flex items-center justify-start gap-2.5 mb10 ml2">
 									<div class="vertical-line" style="border-color: #ff9500"></div>
 									<div class="title">vue自定义节点</div>
 								</div>
@@ -121,7 +121,7 @@
 			</left-right-collapse>
 			<el-card class="cardRight" shadow="always" :body-style="{ padding: 0 }" v-loading="state.canvasLoading">
 				<!-- 画布 -->
-				<div class="h100" ref="LogicFlowContainer"></div>
+				<div class="h-full" ref="LogicFlowContainer"></div>
 				<TeleportContainer />
 				<!-- 控制面板 -->
 				<div class="controlPanel">

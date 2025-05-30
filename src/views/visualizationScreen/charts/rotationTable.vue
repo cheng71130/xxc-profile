@@ -1,5 +1,5 @@
 <template>
-	<dv-scroll-board :config="config" class="h100 w100" />
+	<dv-scroll-board :config="config" class="h-full w-full" />
 	<div class="highlight"></div>
 </template>
 <script setup>

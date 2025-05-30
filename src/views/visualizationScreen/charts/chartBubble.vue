@@ -1,5 +1,5 @@
 <template>
-	<div ref="chart" class="h100 w100"></div>
+	<div ref="chart" class="h-full w-full"></div>
 </template>
 <script setup>
 	import * as echarts from 'echarts'
@@ -74,11 +74,11 @@
 									fontSize: 20
 								},
 								b: {
-                                    fontSize: 30
+									fontSize: 30
 								}
 							},
 
-							position: 'inside',
+							position: 'inside'
 							// color: '#fff',
 							// fontSize: 24
 						}

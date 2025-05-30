@@ -20,26 +20,6 @@ body,
 	position: relative;
 }
 
-/* 宽高 100%
-------------------------------- */
-.w100 {
-	width: 100% !important;
-}
-.h100 {
-	height: 100% !important;
-}
-.vh100 {
-	height: 100vh !important;
-}
-.max100vh {
-	max-height: 100vh !important;
-}
-.min100vh {
-	min-height: 100vh !important;
-}
-
-/* 外边距、内边距全局样式
-------------------------------- */
 @for $i from 1 through 35 {
 	.mt#{$i} {
 		margin-top: #{$i}px !important;
@@ -65,43 +45,6 @@ body,
 	.pl#{$i} {
 		padding-left: #{$i}px !important;
 	}
-}
-
-// -------------------------------------------------------------
-
-.f-center {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 10px;
-}
-
-.f-spaceBetween {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 10px;
-}
-
-.f-start {
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 10px;
-}
-
-.f-end {
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
-	gap: 10px;
-}
-
-.f-column {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	gap: 10px;
 }
 
 /* 自定义滚动条样式 */
