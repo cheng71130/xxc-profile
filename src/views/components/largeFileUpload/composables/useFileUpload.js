@@ -153,6 +153,16 @@ export function useFileUpload() {
 			// 同步等待哈希计算完成
 			const fileHash = await calculateFileHash(file, optimalChunkSize)
 
+			// 检查秒传
+			const checkResult = await uploadApi.checkFileExists(fileHash, file.name, file.size)
+			if (checkResult.code === 0 && checkResult.exists) {
+				uploadStatus.value = UPLOAD_STATUS.SUCCESS
+				uploadProgress.value = 100
+				stopProgressTracking()
+				ElMessage.success('文件已存在，秒传成功！')
+				return
+			}
+
 			// 检查是否有这个文件的持久化状态
 			const persistentState = getUploadState(fileHash)
 
@@ -171,16 +181,6 @@ export function useFileUpload() {
 					// 用户选择不恢复，清除该状态
 					removeUploadState(fileHash)
 				}
-			}
-
-			// 检查秒传
-			const checkResult = await uploadApi.checkFileExists(fileHash, file.name, file.size)
-			if (checkResult.code === 0 && checkResult.exists) {
-				uploadStatus.value = UPLOAD_STATUS.SUCCESS
-				uploadProgress.value = 100
-				stopProgressTracking()
-				ElMessage.success('文件已存在，秒传成功！')
-				return
 			}
 
 			// 初始化控制器
@@ -246,12 +246,15 @@ export function useFileUpload() {
 	const processNextChunks = () => {
 		if (uploadController.isPaused) return
 
+		// 筛选待上传分片
 		const pendingChunks = uploadController.chunks.filter(
 			(chunk) => !chunk.uploaded && !uploadController.uploadingChunks.has(chunk.index)
 		)
 
+		// 计算可用槽位
 		const availableSlots = UPLOAD_CONFIG.MAX_CONCURRENT_UPLOADS - uploadController.uploadingChunks.size
 
+		// 填充上传队列
 		for (let i = 0; i < Math.min(availableSlots, pendingChunks.length); i++) {
 			uploadChunk(pendingChunks[i])
 		}
