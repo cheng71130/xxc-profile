@@ -48,19 +48,19 @@ body,
 }
 
 /* 自定义滚动条样式 */
-::-webkit-scrollbar {
-	width: 12px;
-}
+// ::-webkit-scrollbar {
+// 	width: 12px;
+// }
 
-::-webkit-scrollbar-track {
-	background: #061720;
-	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-}
+// ::-webkit-scrollbar-track {
+// 	background: #061720;
+// 	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+// }
 
-::-webkit-scrollbar-thumb {
-	background: linear-gradient(45deg, #ff00ff, #00ffff);
-	border-radius: 10px;
-	box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
-	border: 2px solid transparent;
-	background-clip: content-box;
-}
+// ::-webkit-scrollbar-thumb {
+// 	background: linear-gradient(45deg, #ff00ff, #00ffff);
+// 	border-radius: 10px;
+// 	box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+// 	border: 2px solid transparent;
+// 	background-clip: content-box;
+// }
