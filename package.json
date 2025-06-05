@@ -54,6 +54,7 @@
 		"element-plus": "^2.7.6",
 		"spark-md5": "^3.0.2",
 		"three": "^0.174.0",
+		"three-viewport-gizmo": "^2.2.0",
 		"typeit": "^8.8.7",
 		"vue": "^3.4.37",
 		"vue-router": "^4.2.5"

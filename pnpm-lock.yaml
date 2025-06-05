@@ -50,6 +50,9 @@ importers:
       three:
         specifier: ^0.174.0
         version: 0.174.0
+      three-viewport-gizmo:
+        specifier: ^2.2.0
+        version: 2.2.0(three@0.174.0)
       typeit:
         specifier: ^8.8.7
         version: 8.8.7
@@ -2932,6 +2935,11 @@ packages:
     resolution: {integrity: sha512-yEPUmWve+VA78bI71BW70Dh0TuV4HHd+I5SHOAfS1+QBOmvmCiiffgjR8ryyEd3KIfvPGFqoADt8LdQ6XpXIvg==}
     engines: {node: '>=10'}
     hasBin: true
+
+  three-viewport-gizmo@2.2.0:
+    resolution: {integrity: sha512-Jo9Liur1rUmdKk75FZumLU/+hbF+RtJHi1qsKZpntjKlCYScK6tjbYoqvJ9M+IJphrlQJF5oReFW7Sambh0N4Q==}
+    peerDependencies:
+      three: '>=0.162.0 <1.0.0'
 
   three@0.174.0:
     resolution: {integrity: sha512-p+WG3W6Ov74alh3geCMkGK9NWuT62ee21cV3jEnun201zodVF4tCE5aZa2U122/mkLRmhJJUQmLLW1BH00uQJQ==}
@@ -6418,6 +6426,10 @@ snapshots:
       acorn: 8.14.1
       commander: 2.20.3
       source-map-support: 0.5.21
+
+  three-viewport-gizmo@2.2.0(three@0.174.0):
+    dependencies:
+      three: 0.174.0
 
   three@0.174.0: {}
 

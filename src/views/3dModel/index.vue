@@ -196,6 +196,7 @@
 	import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 	import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+	import { ViewportGizmo } from 'three-viewport-gizmo'
 
 	// 响应式数据
 	const containerRef = ref(null)
@@ -215,7 +216,7 @@
 	const fileUrlMap = ref(new Map())
 
 	// Three.js 相关变量
-	let scene, camera, renderer, controls
+	let scene, camera, renderer, controls, gizmo
 	let animationId = null
 	let modelGroup = null
 	let lights = []
@@ -724,6 +725,9 @@
 		}
 		controls.panSpeed = 0.7
 
+		gizmo = new ViewportGizmo(camera, renderer, { className: 'viewport-gizmo' })
+		gizmo.attachControls(controls)
+
 		setupLights()
 		animate()
 	}
@@ -906,6 +910,9 @@
 		if (renderer && scene && camera) {
 			renderer.render(scene, camera)
 		}
+		if (gizmo) {
+			gizmo.render()
+		}
 	}
 
 	// 处理窗口大小变化
@@ -916,6 +923,7 @@
 		camera.aspect = width / height
 		camera.updateProjectionMatrix()
 		renderer.setSize(width, height)
+		gizmo.update()
 	}
 
 	// 清理资源
@@ -928,6 +936,9 @@
 		}
 		if (controls) {
 			controls.dispose()
+		}
+		if (gizmo) {
+			gizmo.dispose()
 		}
 		clearFileUrls()
 		scene?.traverse((object) => {
@@ -1321,7 +1332,6 @@
 
 	// Canvas样式
 	:deep(canvas) {
-		display: block;
 		cursor: grab;
 
 		&:active {
@@ -1406,5 +1416,13 @@
 		&.is-checked .el-switch__core {
 			background-color: #4f46e5;
 		}
+	}
+</style>
+
+<style lang="scss">
+	.viewport-gizmo {
+		top: unset !important;
+		bottom: 30px;
+		background-color: #9c9b9b27;
 	}
 </style>
