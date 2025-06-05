@@ -167,18 +167,114 @@
 						/>
 					</div>
 
-					<!-- 模型显示控制 -->
+					<!-- 当前加载的模型列表 -->
 					<div v-if="loadedModels.length > 0" class="control-section">
 						<div class="section-label">
 							<el-icon class="label-icon"><View /></el-icon>
-							<span>模型显示</span>
+							<span>当前模型</span>
 							<el-tag size="small" class="model-count-tag">{{ loadedModels.length }}</el-tag>
 						</div>
-						<div class="model-controls">
-							<div v-for="(model, index) in loadedModels" :key="index" class="model-control-item">
-								<el-switch v-model="model.visible" @change="toggleModelVisibility(model)" size="small" />
-								<span class="model-control-name">{{ model.name }}</span>
+						<div class="current-model-list">
+							<div
+								v-for="(model, index) in loadedModels"
+								:key="index"
+								class="current-model-item"
+								:class="{ selected: selectedModel?.name === model.name }"
+								@click="selectModelFromList(model)"
+							>
+								<div class="model-indicator" :style="{ backgroundColor: getModelDisplayColor(model) }"></div>
+								<span class="model-name">{{ model.name }}</span>
+								<el-icon class="model-arrow"><ArrowRight /></el-icon>
 							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 右侧模型设置面板 -->
+		<div v-if="selectedModel" class="settings-panel absolute top-6 right-6 z-5">
+			<div class="settings-card">
+				<div class="settings-header">
+					<div class="header-content">
+						<div class="header-icon">
+							<el-icon><Tools /></el-icon>
+						</div>
+						<div class="header-text">
+							<h3 class="header-title">{{ selectedModel.name }}</h3>
+							<!-- <p class="header-subtitle">{{ selectedModel.name }}</p> -->
+						</div>
+					</div>
+					<el-button @click="deselectModel" size="small" type="info" circle class="close-button">
+						<el-icon><Close /></el-icon>
+					</el-button>
+				</div>
+
+				<div class="settings-content">
+					<!-- 显示控制 -->
+					<div class="setting-section">
+						<div class="setting-label">
+							<el-icon class="setting-icon"><View /></el-icon>
+							<span>显示设置</span>
+						</div>
+						<div class="setting-control">
+							<el-switch
+								v-model="selectedModel.visible"
+								@change="toggleSelectedModelVisibility"
+								size="default"
+								active-text="显示"
+								inactive-text="隐藏"
+							/>
+						</div>
+					</div>
+
+					<!-- 颜色控制 -->
+					<div class="setting-section">
+						<div class="setting-label">
+							<el-icon class="setting-icon"><Brush /></el-icon>
+							<span>颜色设置</span>
+						</div>
+						<div class="setting-control">
+							<div class="color-controls">
+								<el-color-picker
+									v-model="selectedModelColor"
+									@change="onModelColorChange"
+									:predefine="predefinedColors"
+									show-alpha
+								/>
+								<el-button @click="resetModelColor" type="info" class="reset-color-btn"> 重置 </el-button>
+							</div>
+						</div>
+					</div>
+
+					<!-- 透明度控制 -->
+					<div class="setting-section">
+						<div class="setting-label">
+							<el-icon class="setting-icon"><MagicStick /></el-icon>
+							<span>透明度</span>
+						</div>
+						<div class="setting-control">
+							<el-slider
+								v-model="selectedModelOpacity"
+								:min="0"
+								:max="1"
+								:step="0.1"
+								@change="onModelOpacityChange"
+								:show-tooltip="true"
+								:format-tooltip="(val) => `${Math.round(val * 100)}%`"
+							/>
+						</div>
+					</div>
+
+					<!-- 操作按钮 -->
+					<div class="setting-section">
+						<div class="setting-label">
+							<el-icon class="setting-icon"><Operation /></el-icon>
+							<span>操作</span>
+						</div>
+						<div class="setting-actions">
+							<el-button @click="focusOnModel" type="primary" icon="ZoomIn" class="action-btn"> 聚焦 </el-button>
+							<el-button @click="deleteModel" type="danger" icon="Delete" class="action-btn"> 删除 </el-button>
 						</div>
 					</div>
 				</div>
@@ -191,7 +287,7 @@
 </template>
 
 <script setup>
-	import { ElMessage } from 'element-plus'
+	import { ElMessage, ElMessageBox } from 'element-plus'
 	import * as THREE from 'three'
 	import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 	import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
@@ -208,6 +304,9 @@
 	const lightIntensity = ref(1.5)
 	const selectedFolder = ref('R2000iC-165F')
 	const modelConfigs = ref([])
+	// 鼠标状态跟踪
+	const mouseDownPos = ref({ x: 0, y: 0 })
+	const isDragging = ref(false)
 
 	// 导入方式和本地文件夹相关
 	const importType = ref('preset')
@@ -215,12 +314,43 @@
 	const localModelFiles = ref([])
 	const fileUrlMap = ref(new Map())
 
+	// 模型选择和交互相关
+	const selectedModel = ref(null)
+	const hoveredModel = ref(null)
+	const selectedModelColor = ref('#ffffff')
+	const selectedModelOpacity = ref(1)
+
+	// 预定义颜色
+	const predefinedColors = [
+		'#ff4500',
+		'#ff8c00',
+		'#ffd700',
+		'#90ee90',
+		'#00ced1',
+		'#1e90ff',
+		'#c71585',
+		'#ff1493',
+		'#dda0dd',
+		'#98fb98'
+	]
+
 	// Three.js 相关变量
 	let scene, camera, renderer, controls, gizmo
 	let animationId = null
 	let modelGroup = null
 	let lights = []
 	let modelCenter = new THREE.Vector3(0, 0, 0)
+	let raycaster = new THREE.Raycaster()
+	let mouse = new THREE.Vector2()
+
+	// 模型原始材质存储
+	const originalMaterials = new Map()
+	const highlightMaterial = new THREE.MeshPhongMaterial({
+		color: 0x90ee90, // 浅绿色
+		transparent: true,
+		opacity: 0.8,
+		emissive: 0x004400
+	})
 
 	// 可用的预设模型文件夹配置
 	const availableFolders = ref([
@@ -246,6 +376,23 @@
 		}
 	])
 
+	// 获取模型显示颜色
+	const getModelDisplayColor = (model) => {
+		if (!model.object) return '#888888'
+
+		let color = '#888888'
+		model.object.traverse((child) => {
+			if (child.isMesh && child.material) {
+				const material = Array.isArray(child.material) ? child.material[0] : child.material
+				if (material.color) {
+					color = `#${material.color.getHexString()}`
+					return false // 找到第一个颜色就返回
+				}
+			}
+		})
+		return color
+	}
+
 	// 获取模型项样式类
 	const getModelItemClass = (status) => {
 		return {
@@ -259,6 +406,7 @@
 	// 导入方式改变处理
 	const onImportTypeChange = (type) => {
 		clearCurrentModels()
+		deselectModel()
 		if (type === 'local') {
 			clearLocalFolderData()
 		}
@@ -267,6 +415,375 @@
 	// 选择本地文件夹
 	const selectLocalFolder = () => {
 		folderInputRef.value?.click()
+	}
+
+	// 从列表中选择模型
+	const selectModelFromList = (model) => {
+		selectModel(model)
+	}
+
+	// 选择模型
+	const selectModel = (model) => {
+		// 如果点击的是已选中的模型，不做任何操作
+		if (selectedModel.value === model) {
+			return
+		}
+
+		// 先清除之前的选中状态
+		if (selectedModel.value) {
+			restoreModelMaterial(selectedModel.value)
+		}
+
+		selectedModel.value = model
+
+		// 应用选中效果（颜色加深）
+		applySelectedEffect(model)
+
+		// 更新选中模型的颜色和透明度
+		selectedModelColor.value = getModelDisplayColor(model)
+		selectedModelOpacity.value = getModelOpacity(model)
+	}
+
+	// 取消选择模型
+	const deselectModel = () => {
+		if (selectedModel.value) {
+			restoreModelMaterial(selectedModel.value)
+			selectedModel.value = null
+		}
+	}
+
+	// 获取模型透明度
+	const getModelOpacity = (model) => {
+		if (!model.object) return 1
+
+		let opacity = 1
+		model.object.traverse((child) => {
+			if (child.isMesh && child.material) {
+				const material = Array.isArray(child.material) ? child.material[0] : child.material
+				if (material.opacity !== undefined) {
+					opacity = material.opacity
+					return false
+				}
+			}
+		})
+		return opacity
+	}
+
+	// 应用选中效果
+	const applySelectedEffect = (model) => {
+		if (!model.object) return
+
+		model.object.traverse((child) => {
+			if (child.isMesh && child.material) {
+				// 只在第一次选中时保存原始材质
+				if (!originalMaterials.has(child.uuid)) {
+					const originalMat = Array.isArray(child.material)
+						? child.material.map((mat) => mat.clone())
+						: child.material.clone()
+					originalMaterials.set(child.uuid, originalMat)
+				}
+
+				// 从原始材质创建加深的材质
+				const originalMat = originalMaterials.get(child.uuid)
+				if (Array.isArray(originalMat)) {
+					child.material = originalMat.map((mat) => {
+						const newMat = mat.clone()
+						if (newMat.color) {
+							newMat.color.multiplyScalar(0.7)
+						}
+						return newMat
+					})
+				} else {
+					const newMat = originalMat.clone()
+					if (newMat.color) {
+						newMat.color.multiplyScalar(0.7)
+					}
+					child.material = newMat
+				}
+			}
+		})
+	}
+
+	// 应用悬停效果
+	const applyHoverEffect = (model) => {
+		if (!model.object || model === selectedModel.value) return
+
+		model.object.traverse((child) => {
+			if (child.isMesh) {
+				// 保存原始材质
+				if (!originalMaterials.has(child.uuid)) {
+					const originalMat = Array.isArray(child.material)
+						? child.material.map((mat) => mat.clone())
+						: child.material.clone()
+					originalMaterials.set(child.uuid, originalMat)
+				}
+
+				// 应用高亮材质
+				child.material = highlightMaterial
+			}
+		})
+	}
+
+	// 恢复模型材质
+	const restoreModelMaterial = (model) => {
+		if (!model.object) return
+
+		model.object.traverse((child) => {
+			if (child.isMesh && originalMaterials.has(child.uuid)) {
+				const originalMat = originalMaterials.get(child.uuid)
+				if (Array.isArray(originalMat)) {
+					child.material = originalMat.map((mat) => mat.clone())
+				} else {
+					child.material = originalMat.clone()
+				}
+			}
+		})
+	}
+
+	// 鼠标按下处理
+	const onMouseDown = (event) => {
+		if (!containerRef.value) return
+
+		const rect = containerRef.value.getBoundingClientRect()
+		mouseDownPos.value = {
+			x: event.clientX - rect.left,
+			y: event.clientY - rect.top
+		}
+		isDragging.value = false
+	}
+
+	// 鼠标移动处理
+	const onMouseMove = (event) => {
+		if (!containerRef.value) return
+
+		const rect = containerRef.value.getBoundingClientRect()
+		mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+		mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+		raycaster.setFromCamera(mouse, camera)
+		const intersects = raycaster.intersectObjects(modelGroup.children, true)
+
+		// 清除之前的悬停效果
+		if (hoveredModel.value) {
+			restoreModelMaterial(hoveredModel.value)
+			hoveredModel.value = null
+		}
+
+		if (intersects.length > 0) {
+			// 找到对应的模型
+			const intersectedObject = intersects[0].object
+			let targetModel = null
+
+			for (const model of loadedModels.value) {
+				if (model.object && (model.object === intersectedObject || model.object.children.includes(intersectedObject))) {
+					targetModel = model
+					break
+				}
+
+				// 递归查找
+				let found = false
+				model.object?.traverse((child) => {
+					if (child === intersectedObject) {
+						targetModel = model
+						found = true
+					}
+				})
+				if (found) break
+			}
+
+			if (targetModel && targetModel !== selectedModel.value) {
+				hoveredModel.value = targetModel
+				applyHoverEffect(targetModel)
+				containerRef.value.style.cursor = 'pointer'
+			}
+		} else {
+			containerRef.value.style.cursor = 'grab'
+		}
+	}
+
+	// 鼠标点击处理
+	const onMouseClick = (event) => {
+		if (!containerRef.value) return
+
+		const rect = containerRef.value.getBoundingClientRect()
+		const currentPos = {
+			x: event.clientX - rect.left,
+			y: event.clientY - rect.top
+		}
+
+		// 计算鼠标移动距离
+		const deltaX = Math.abs(currentPos.x - mouseDownPos.value.x)
+		const deltaY = Math.abs(currentPos.y - mouseDownPos.value.y)
+		const moveDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
+		// 如果移动距离大于5像素，认为是拖拽，不处理点击
+		if (moveDistance > 5) {
+			return
+		}
+
+		mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+		mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+		raycaster.setFromCamera(mouse, camera)
+		const intersects = raycaster.intersectObjects(modelGroup.children, true)
+
+		if (intersects.length > 0) {
+			// 找到对应的模型的逻辑保持不变...
+			const intersectedObject = intersects[0].object
+			let targetModel = null
+
+			for (const model of loadedModels.value) {
+				if (model.object && (model.object === intersectedObject || model.object.children.includes(intersectedObject))) {
+					targetModel = model
+					break
+				}
+
+				let found = false
+				model.object?.traverse((child) => {
+					if (child === intersectedObject) {
+						targetModel = model
+						found = true
+					}
+				})
+				if (found) break
+			}
+
+			if (targetModel) {
+				selectModel(targetModel)
+			}
+		} else {
+			deselectModel()
+		}
+	}
+
+	// 切换选中模型可见性
+	const toggleSelectedModelVisibility = () => {
+		if (selectedModel.value) {
+			selectedModel.value.object.visible = selectedModel.value.visible
+		}
+	}
+
+	// 模型颜色改变
+	const onModelColorChange = (color) => {
+		if (!selectedModel.value || !color) return
+
+		selectedModel.value.object.traverse((child) => {
+			if (child.isMesh && child.material) {
+				const materials = Array.isArray(child.material) ? child.material : [child.material]
+				materials.forEach((material) => {
+					if (material.color) {
+						material.color.setHex(color.replace('#', '0x'))
+					}
+				})
+			}
+		})
+	}
+
+	// 模型透明度改变
+	const onModelOpacityChange = (opacity) => {
+		if (!selectedModel.value) return
+
+		selectedModel.value.object.traverse((child) => {
+			if (child.isMesh && child.material) {
+				const materials = Array.isArray(child.material) ? child.material : [child.material]
+				materials.forEach((material) => {
+					material.transparent = opacity < 1
+					material.opacity = opacity
+				})
+			}
+		})
+	}
+
+	// 重置模型颜色
+	const resetModelColor = () => {
+		if (!selectedModel.value) return
+
+		// 恢复原始材质
+		restoreModelMaterial(selectedModel.value)
+
+		// 重新应用选中效果
+		setTimeout(() => {
+			applySelectedEffect(selectedModel.value)
+			selectedModelColor.value = getModelDisplayColor(selectedModel.value)
+		}, 10)
+	}
+
+	// 聚焦到模型
+	const focusOnModel = () => {
+		if (!selectedModel.value?.object) return
+
+		const box = new THREE.Box3().setFromObject(selectedModel.value.object)
+		const center = box.getCenter(new THREE.Vector3())
+		const size = box.getSize(new THREE.Vector3())
+
+		const maxDim = Math.max(size.x, size.y, size.z)
+		const fov = camera.fov * (Math.PI / 180)
+		let cameraDistance = Math.abs(maxDim / 2 / Math.tan(fov / 2))
+		cameraDistance *= 2
+
+		camera.position.set(center.x + cameraDistance, center.y + cameraDistance, center.z + cameraDistance)
+		camera.lookAt(center.x, center.y, center.z)
+		controls.target.set(center.x, center.y, center.z)
+		controls.update()
+	}
+
+	// 删除模型
+	const deleteModel = async () => {
+		if (!selectedModel.value) return
+
+		try {
+			await ElMessageBox.confirm(`确定要删除模型 "${selectedModel.value.name}" 吗？`, '确认删除', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			})
+
+			// 从场景中移除
+			if (selectedModel.value.object) {
+				// 确保从正确的父对象中移除
+				if (selectedModel.value.object.parent) {
+					selectedModel.value.object.parent.remove(selectedModel.value.object)
+				} else {
+					modelGroup.remove(selectedModel.value.object)
+				}
+
+				// 清理资源
+				selectedModel.value.object.traverse((child) => {
+					if (child.geometry) child.geometry.dispose()
+					if (child.material) {
+						if (Array.isArray(child.material)) {
+							child.material.forEach((mat) => mat.dispose())
+						} else {
+							child.material.dispose()
+						}
+					}
+					// 清理原始材质缓存
+					if (originalMaterials.has(child.uuid)) {
+						originalMaterials.delete(child.uuid)
+					}
+				})
+			}
+
+			// 从加载的模型列表中移除
+			const index = loadedModels.value.findIndex((m) => m === selectedModel.value)
+			if (index > -1) {
+				loadedModels.value.splice(index, 1)
+			}
+			// 清空选中状态
+			selectedModel.value = null
+
+			// 清理原始材质缓存
+			selectedModel.value.object?.traverse((child) => {
+				if (originalMaterials.has(child.uuid)) {
+					originalMaterials.delete(child.uuid)
+				}
+			})
+
+			ElMessage.success(`模型 "${selectedModel.value.name}" 已删除`)
+			selectedModel.value = null
+		} catch (error) {
+			// 用户取消删除
+		}
 	}
 
 	// 本地文件夹选择处理
@@ -388,12 +905,15 @@
 	// 文件夹改变时的处理
 	const onFolderChange = (folderValue) => {
 		clearCurrentModels()
+		deselectModel()
 	}
 
 	// 清空当前模型
 	const clearCurrentModels = () => {
 		modelConfigs.value = []
 		loadedModels.value = []
+		deselectModel()
+		originalMaterials.clear()
 
 		if (modelGroup) {
 			while (modelGroup.children.length > 0) {
@@ -498,7 +1018,6 @@
 					if (config.mtl) {
 						try {
 							materials = await this.loadMTLFromUrl(mtlLoader, config.mtl)
-							// console.log(`${config.name} 预设MTL 加载成功`)
 						} catch (mtlError) {
 							console.warn(`${config.name} 预设MTL 加载失败，使用默认材质:`, mtlError)
 						}
@@ -527,7 +1046,6 @@
 					if (config.mtlFile) {
 						try {
 							materials = await this.loadMTLFromFile(mtlLoader, config.mtlFile, selectedLocalFolder.value.urlMap)
-							// console.log(`${config.name} 本地MTL 加载成功`)
 						} catch (mtlError) {
 							console.warn(`${config.name} 本地MTL 加载失败，使用默认材质:`, mtlError)
 						}
@@ -728,8 +1246,17 @@
 		gizmo = new ViewportGizmo(camera, renderer, { className: 'viewport-gizmo' })
 		gizmo.attachControls(controls)
 
+		// 添加鼠标事件监听
+		containerRef.value.addEventListener('mousemove', onMouseMove)
+		containerRef.value.addEventListener('click', onMouseClick)
+
 		setupLights()
 		animate()
+
+		// 添加鼠标事件监听
+		containerRef.value.addEventListener('mousedown', onMouseDown)
+		containerRef.value.addEventListener('mousemove', onMouseMove)
+		containerRef.value.addEventListener('click', onMouseClick)
 	}
 
 	// 设置光照系统
@@ -805,6 +1332,8 @@
 
 		modelConfigs.value.forEach((config) => (config.status = 'pending'))
 		loadedModels.value = []
+		deselectModel()
+		originalMaterials.clear()
 
 		if (modelGroup) {
 			while (modelGroup.children.length > 0) {
@@ -834,7 +1363,6 @@
 					modelGroup.add(modelData.object)
 					loadedModels.value.push(modelData)
 					successfulModels++
-					// console.log(`${config.name} 加载成功`)
 				} catch (error) {
 					console.error(`${config.name} 加载失败:`, error)
 					ElMessage.warning(`模型 "${config.name}" 加载失败`)
@@ -931,6 +1459,13 @@
 		if (animationId) {
 			cancelAnimationFrame(animationId)
 		}
+
+		// 移除事件监听
+		if (containerRef.value) {
+			containerRef.value.removeEventListener('mousemove', onMouseMove)
+			containerRef.value.removeEventListener('click', onMouseClick)
+		}
+
 		if (renderer) {
 			renderer.dispose()
 		}
@@ -941,6 +1476,8 @@
 			gizmo.dispose()
 		}
 		clearFileUrls()
+		originalMaterials.clear()
+
 		scene?.traverse((object) => {
 			if (object.geometry) {
 				object.geometry.dispose()
@@ -953,6 +1490,13 @@
 				}
 			}
 		})
+
+		// 移除事件监听
+		if (containerRef.value) {
+			containerRef.value.removeEventListener('mousedown', onMouseDown)
+			containerRef.value.removeEventListener('mousemove', onMouseMove)
+			containerRef.value.removeEventListener('click', onMouseClick)
+		}
 	}
 
 	// 组件挂载
@@ -1283,7 +1827,7 @@
 						border: none;
 					}
 
-					.model-controls {
+					.current-model-list {
 						max-height: 300px;
 						overflow-y: auto;
 						padding-right: 4px;
@@ -1297,22 +1841,165 @@
 							border-radius: 2px;
 						}
 
-						.model-control-item {
+						.current-model-item {
 							display: flex;
 							align-items: center;
 							gap: 12px;
-							padding: 8px 0;
-							border-bottom: 1px solid #f3f4f6;
+							padding: 10px 12px;
+							border-radius: 8px;
+							cursor: pointer;
+							transition: all 0.2s;
+							border: 1px solid transparent;
 
-							&:last-child {
-								border-bottom: none;
+							&:hover {
+								background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+								border-color: #e2e8f0;
+								transform: translateX(2px);
 							}
 
-							.model-control-name {
+							&.selected {
+								background: linear-gradient(135deg, #ddd6fe, #e0e7ff);
+								border-color: #4f46e5;
+								box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+							}
+
+							.model-indicator {
+								width: 12px;
+								height: 12px;
+								border-radius: 50%;
+								border: 2px solid white;
+								box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+							}
+
+							.model-name {
 								font-size: 13px;
 								color: #4b5563;
 								flex: 1;
+								font-weight: 500;
 							}
+
+							.model-arrow {
+								color: #9ca3af;
+								font-size: 14px;
+								transition: all 0.2s;
+							}
+
+							&:hover .model-arrow {
+								color: #4f46e5;
+								transform: translateX(2px);
+							}
+
+							&.selected .model-arrow {
+								color: #4f46e5;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.settings-panel {
+		.settings-card {
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(12px);
+			border-radius: 16px;
+			padding: 0;
+			min-width: 300px;
+			max-width: 320px;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.3);
+			overflow: hidden;
+
+			.settings-header {
+				background: linear-gradient(135deg, #f1b204, #eb971b);
+				color: white;
+				padding: 16px 20px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+
+				.header-content {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+
+					.header-icon {
+						font-size: 18px;
+					}
+
+					.header-text {
+						.header-title {
+							margin: 0;
+							font-size: 16px;
+							font-weight: 600;
+							letter-spacing: -0.025em;
+						}
+
+						.header-subtitle {
+							margin: 0;
+							font-size: 12px;
+							opacity: 0.9;
+							font-weight: 400;
+						}
+					}
+				}
+
+				.close-button {
+					background: rgba(255, 255, 255, 0.2);
+					border: none;
+					color: white;
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.3);
+						color: white;
+					}
+				}
+			}
+
+			.settings-content {
+				padding: 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 20px;
+
+				.setting-section {
+					.setting-label {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						margin-bottom: 12px;
+						font-size: 14px;
+						font-weight: 600;
+						color: #374151;
+
+						.setting-icon {
+							font-size: 16px;
+							color: #6b7280;
+						}
+					}
+
+					.setting-control {
+						.color-controls {
+							display: flex;
+							align-items: center;
+							gap: 12px;
+
+							.reset-color-btn {
+								height: 32px;
+								width: 50px;
+							}
+						}
+					}
+
+					.setting-actions {
+						display: flex;
+
+						.action-btn {
+							width: 100%;
+							height: 36px;
+							border-radius: 8px;
+							font-weight: 500;
 						}
 					}
 				}
@@ -1387,6 +2074,28 @@
 				box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 			}
 		}
+
+		&.el-button--success {
+			background: linear-gradient(135deg, #10b981, #059669);
+			border: none;
+
+			&:hover {
+				background: linear-gradient(135deg, #047857, #065f46);
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+			}
+		}
+
+		&.el-button--danger {
+			background: linear-gradient(135deg, #ef4444, #dc2626);
+			border: none;
+
+			&:hover {
+				background: linear-gradient(135deg, #dc2626, #b91c1c);
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+			}
+		}
 	}
 
 	:deep(.el-slider) {
@@ -1415,6 +2124,19 @@
 	:deep(.el-switch) {
 		&.is-checked .el-switch__core {
 			background-color: #4f46e5;
+		}
+
+		.el-switch__label {
+			font-size: 13px;
+			font-weight: 500;
+		}
+	}
+
+	:deep(.el-color-picker) {
+		.el-color-picker__trigger {
+			border-radius: 6px;
+			width: 36px;
+			height: 32px;
 		}
 	}
 </style>
