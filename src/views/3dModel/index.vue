@@ -1,5 +1,5 @@
 <template>
-	<div class="model-viewer w-full h-screen relative">
+	<div class="w-full h-screen relative">
 		<!-- 加载进度显示 -->
 		<div v-if="loading" class="loading-overlay flex items-center justify-center absolute inset-0 z-10">
 			<div class="loading-container">
@@ -202,7 +202,6 @@
 						</div>
 						<div class="header-text">
 							<h3 class="header-title">{{ selectedModel.name }}</h3>
-							<!-- <p class="header-subtitle">{{ selectedModel.name }}</p> -->
 						</div>
 					</div>
 					<el-button @click="deselectModel" size="small" type="info" circle class="close-button">
@@ -240,29 +239,9 @@
 									v-model="selectedModelColor"
 									@change="onModelColorChange"
 									:predefine="predefinedColors"
-									show-alpha
 								/>
 								<el-button @click="resetModelColor" type="info" class="reset-color-btn"> 重置 </el-button>
 							</div>
-						</div>
-					</div>
-
-					<!-- 透明度控制 -->
-					<div class="setting-section">
-						<div class="setting-label">
-							<el-icon class="setting-icon"><MagicStick /></el-icon>
-							<span>透明度</span>
-						</div>
-						<div class="setting-control">
-							<el-slider
-								v-model="selectedModelOpacity"
-								:min="0"
-								:max="1"
-								:step="0.1"
-								@change="onModelOpacityChange"
-								:show-tooltip="true"
-								:format-tooltip="(val) => `${Math.round(val * 100)}%`"
-							/>
 						</div>
 					</div>
 
@@ -293,6 +272,7 @@
 	import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 	import { ViewportGizmo } from 'three-viewport-gizmo'
+	import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 
 	// 响应式数据
 	const containerRef = ref(null)
@@ -318,7 +298,6 @@
 	const selectedModel = ref(null)
 	const hoveredModel = ref(null)
 	const selectedModelColor = ref('#ffffff')
-	const selectedModelOpacity = ref(1)
 
 	// 预定义颜色
 	const predefinedColors = [
@@ -345,6 +324,7 @@
 
 	// 模型原始材质存储
 	const originalMaterials = new Map()
+	const customColorMaterials = new Map() // 存储自定义颜色材质
 	const highlightMaterial = new THREE.MeshPhongMaterial({
 		color: 0x90ee90, // 浅绿色
 		transparent: true,
@@ -380,17 +360,64 @@
 	const getModelDisplayColor = (model) => {
 		if (!model.object) return '#888888'
 
-		let color = '#888888'
+		// 优先检查是否有自定义颜色
+		if (customColorMaterials.has(model.name)) {
+			const customMaterial = customColorMaterials.get(model.name)
+			return `#${customMaterial.color.getHexString()}`
+		}
+
+		// 统计颜色分布
+		const colorStats = new Map() // 颜色 -> { count: mesh数量, vertices: 顶点数 }
+
 		model.object.traverse((child) => {
 			if (child.isMesh && child.material) {
-				const material = Array.isArray(child.material) ? child.material[0] : child.material
-				if (material.color) {
-					color = `#${material.color.getHexString()}`
-					return false // 找到第一个颜色就返回
-				}
+				const materials = Array.isArray(child.material) ? child.material : [child.material]
+
+				materials.forEach((material) => {
+					if (material.color) {
+						const hexColor = material.color.getHexString()
+						const vertexCount = child.geometry ? child.geometry.attributes.position?.count || 0 : 0
+
+						if (colorStats.has(hexColor)) {
+							const stats = colorStats.get(hexColor)
+							stats.count += 1
+							stats.vertices += vertexCount
+						} else {
+							colorStats.set(hexColor, {
+								count: 1,
+								vertices: vertexCount
+							})
+						}
+					}
+				})
 			}
 		})
-		return color
+
+		if (colorStats.size === 0) return '#888888'
+
+		// 按顶点数判断（更精确）
+		let maxVertices = 0
+		let dominantColor = '#888888'
+
+		for (const [color, stats] of colorStats) {
+			if (stats.vertices > maxVertices) {
+				maxVertices = stats.vertices
+				dominantColor = color
+			}
+		}
+
+		// 如果顶点数都是0，则按mesh数量判断
+		if (maxVertices === 0) {
+			let maxCount = 0
+			for (const [color, stats] of colorStats) {
+				if (stats.count > maxCount) {
+					maxCount = stats.count
+					dominantColor = color
+				}
+			}
+		}
+
+		return `#${dominantColor}`
 	}
 
 	// 获取模型项样式类
@@ -436,12 +463,11 @@
 
 		selectedModel.value = model
 
-		// 应用选中效果（颜色加深）
+		// 应用选中效果
 		applySelectedEffect(model)
 
-		// 更新选中模型的颜色和透明度
+		// 更新选中模型的颜色
 		selectedModelColor.value = getModelDisplayColor(model)
-		selectedModelOpacity.value = getModelOpacity(model)
 	}
 
 	// 取消选择模型
@@ -452,30 +478,13 @@
 		}
 	}
 
-	// 获取模型透明度
-	const getModelOpacity = (model) => {
-		if (!model.object) return 1
-
-		let opacity = 1
-		model.object.traverse((child) => {
-			if (child.isMesh && child.material) {
-				const material = Array.isArray(child.material) ? child.material[0] : child.material
-				if (material.opacity !== undefined) {
-					opacity = material.opacity
-					return false
-				}
-			}
-		})
-		return opacity
-	}
-
 	// 应用选中效果
 	const applySelectedEffect = (model) => {
 		if (!model.object) return
 
 		model.object.traverse((child) => {
 			if (child.isMesh && child.material) {
-				// 只在第一次选中时保存原始材质
+				// 保存原始材质
 				if (!originalMaterials.has(child.uuid)) {
 					const originalMat = Array.isArray(child.material)
 						? child.material.map((mat) => mat.clone())
@@ -483,30 +492,69 @@
 					originalMaterials.set(child.uuid, originalMat)
 				}
 
-				// 从原始材质创建加深的材质
-				const originalMat = originalMaterials.get(child.uuid)
-				if (Array.isArray(originalMat)) {
-					child.material = originalMat.map((mat) => {
-						const newMat = mat.clone()
-						if (newMat.color) {
-							newMat.color.multiplyScalar(0.7)
-						}
-						return newMat
-					})
+				// 获取基础材质
+				let baseMaterial
+				if (customColorMaterials.has(model.name)) {
+					baseMaterial = customColorMaterials.get(model.name)
 				} else {
-					const newMat = originalMat.clone()
-					if (newMat.color) {
-						newMat.color.multiplyScalar(0.7)
-					}
-					child.material = newMat
+					const originalMat = originalMaterials.get(child.uuid)
+					baseMaterial = Array.isArray(originalMat) ? originalMat[0] : originalMat
 				}
+
+				// 创建选中效果材质
+				const selectedMaterial = baseMaterial.clone()
+				if (selectedMaterial.color) {
+					// 方法1: 颜色变亮 + 发光
+					// selectedMaterial.color.multiplyScalar(1.4) // 变亮40%
+					// selectedMaterial.emissive.setRGB(
+					// 	baseMaterial.color.r * 0.2,
+					// 	baseMaterial.color.g * 0.2,
+					// 	baseMaterial.color.b * 0.2
+					// )
+
+					// 方法2: 如果效果不明显，可以尝试这个更强烈的效果
+					// selectedMaterial.color.lerp(new THREE.Color(0xffffff), 0.3) // 向白色混合
+					selectedMaterial.emissive.setRGB(0.1, 0.1, 0.1) // 整体发光
+				}
+				child.material = selectedMaterial
+			}
+		})
+	}
+
+	// 应用选中 + 悬停效果
+	const applySelectedHoverEffect = (model) => {
+		if (!model.object) return
+
+		model.object.traverse((child) => {
+			if (child.isMesh && child.material) {
+				// 获取基础材质
+				let baseMaterial
+				if (customColorMaterials.has(model.name)) {
+					baseMaterial = customColorMaterials.get(model.name)
+				} else {
+					const originalMat = originalMaterials.get(child.uuid)
+					baseMaterial = Array.isArray(originalMat) ? originalMat[0] : originalMat
+				}
+
+				// 创建选中+悬停效果材质（最强高亮）
+				const selectedHoverMaterial = baseMaterial.clone()
+				if (selectedHoverMaterial.color) {
+					selectedHoverMaterial.color.multiplyScalar(1.2) // 变亮20%
+					selectedHoverMaterial.emissive.setRGB(
+						baseMaterial.color.r * 0.3,
+						baseMaterial.color.g * 0.3,
+						baseMaterial.color.b * 0.3
+					)
+				}
+
+				child.material = selectedHoverMaterial
 			}
 		})
 	}
 
 	// 应用悬停效果
 	const applyHoverEffect = (model) => {
-		if (!model.object || model === selectedModel.value) return
+		if (!model.object) return
 
 		model.object.traverse((child) => {
 			if (child.isMesh) {
@@ -529,12 +577,18 @@
 		if (!model.object) return
 
 		model.object.traverse((child) => {
-			if (child.isMesh && originalMaterials.has(child.uuid)) {
-				const originalMat = originalMaterials.get(child.uuid)
-				if (Array.isArray(originalMat)) {
-					child.material = originalMat.map((mat) => mat.clone())
-				} else {
-					child.material = originalMat.clone()
+			if (child.isMesh) {
+				// 优先使用自定义颜色材质
+				if (customColorMaterials.has(model.name)) {
+					child.material = customColorMaterials.get(model.name).clone()
+				} else if (originalMaterials.has(child.uuid)) {
+					// 否则恢复原始材质
+					const originalMat = originalMaterials.get(child.uuid)
+					if (Array.isArray(originalMat)) {
+						child.material = originalMat.map((mat) => mat.clone())
+					} else {
+						child.material = originalMat.clone()
+					}
 				}
 			}
 		})
@@ -565,7 +619,13 @@
 
 		// 清除之前的悬停效果
 		if (hoveredModel.value) {
-			restoreModelMaterial(hoveredModel.value)
+			if (hoveredModel.value === selectedModel.value) {
+				// 如果悬停的是选中模型，恢复到选中状态
+				applySelectedEffect(hoveredModel.value)
+			} else {
+				// 如果悬停的是非选中模型，恢复到正常状态
+				restoreModelMaterial(hoveredModel.value)
+			}
 			hoveredModel.value = null
 		}
 
@@ -580,7 +640,6 @@
 					break
 				}
 
-				// 递归查找
 				let found = false
 				model.object?.traverse((child) => {
 					if (child === intersectedObject) {
@@ -591,9 +650,19 @@
 				if (found) break
 			}
 
-			if (targetModel && targetModel !== selectedModel.value) {
+			if (targetModel) {
 				hoveredModel.value = targetModel
+
+				// if (targetModel === selectedModel.value) {
+				// 	// 选中模型的悬停效果：在选中效果基础上再加高亮
+				// 	applySelectedHoverEffect(targetModel)
+				// } else {
+				// 	// 非选中模型的悬停效果
+				// 	applyHoverEffect(targetModel)
+				// }
+
 				applyHoverEffect(targetModel)
+
 				containerRef.value.style.cursor = 'pointer'
 			}
 		} else {
@@ -663,40 +732,51 @@
 		}
 	}
 
-	// 模型颜色改变
+	// 模型颜色改变 - 修复颜色更改问题
 	const onModelColorChange = (color) => {
 		if (!selectedModel.value || !color) return
 
+		// 创建新的简单材质，忽略MTL复杂属性
+		const newColor = new THREE.Color(color)
+		const customMaterial = new THREE.MeshPhongMaterial({
+			color: newColor,
+			shininess: 30,
+			specular: 0x222222,
+			transparent: false,
+			opacity: 1
+		})
+
+		// 保存自定义材质
+		customColorMaterials.set(selectedModel.value.name, customMaterial)
+
+		// 应用新材质到模型的所有网格
 		selectedModel.value.object.traverse((child) => {
-			if (child.isMesh && child.material) {
-				const materials = Array.isArray(child.material) ? child.material : [child.material]
-				materials.forEach((material) => {
-					if (material.color) {
-						material.color.setHex(color.replace('#', '0x'))
-					}
-				})
+			if (child.isMesh) {
+				// 如果还没有保存原始材质，先保存
+				if (!originalMaterials.has(child.uuid)) {
+					const originalMat = Array.isArray(child.material)
+						? child.material.map((mat) => mat.clone())
+						: child.material.clone()
+					originalMaterials.set(child.uuid, originalMat)
+				}
+
+				// 应用新的颜色材质
+				child.material = customMaterial.clone()
 			}
 		})
-	}
 
-	// 模型透明度改变
-	const onModelOpacityChange = (opacity) => {
-		if (!selectedModel.value) return
-
-		selectedModel.value.object.traverse((child) => {
-			if (child.isMesh && child.material) {
-				const materials = Array.isArray(child.material) ? child.material : [child.material]
-				materials.forEach((material) => {
-					material.transparent = opacity < 1
-					material.opacity = opacity
-				})
-			}
-		})
+		// 重新应用选中效果
+		// setTimeout(() => {
+		// 	applySelectedEffect(selectedModel.value)
+		// }, 10)
 	}
 
 	// 重置模型颜色
 	const resetModelColor = () => {
 		if (!selectedModel.value) return
+
+		// 清除自定义颜色材质
+		customColorMaterials.delete(selectedModel.value.name)
 
 		// 恢复原始材质
 		restoreModelMaterial(selectedModel.value)
@@ -738,6 +818,8 @@
 				type: 'warning'
 			})
 
+			const modelName = selectedModel.value.name
+
 			// 从场景中移除
 			if (selectedModel.value.object) {
 				// 确保从正确的父对象中移除
@@ -764,22 +846,18 @@
 				})
 			}
 
+			// 清理自定义颜色材质
+			if (customColorMaterials.has(modelName)) {
+				customColorMaterials.delete(modelName)
+			}
+
 			// 从加载的模型列表中移除
 			const index = loadedModels.value.findIndex((m) => m === selectedModel.value)
 			if (index > -1) {
 				loadedModels.value.splice(index, 1)
 			}
-			// 清空选中状态
-			selectedModel.value = null
 
-			// 清理原始材质缓存
-			selectedModel.value.object?.traverse((child) => {
-				if (originalMaterials.has(child.uuid)) {
-					originalMaterials.delete(child.uuid)
-				}
-			})
-
-			ElMessage.success(`模型 "${selectedModel.value.name}" 已删除`)
+			ElMessage.success(`模型 "${modelName}" 已删除`)
 			selectedModel.value = null
 		} catch (error) {
 			// 用户取消删除
@@ -914,6 +992,7 @@
 		loadedModels.value = []
 		deselectModel()
 		originalMaterials.clear()
+		customColorMaterials.clear()
 
 		if (modelGroup) {
 			while (modelGroup.children.length > 0) {
@@ -1207,14 +1286,19 @@
 	// 初始化Three.js场景
 	const initThreeJS = () => {
 		scene = new THREE.Scene()
-		scene.background = new THREE.Color(0xf0f0f0)
+		scene.background = new THREE.Color(0xffffff)
 
 		modelGroup = new THREE.Group()
 		scene.add(modelGroup)
 
+		// const axesHelper = new THREE.AxesHelper(100)
+		// scene.add(axesHelper)
+
 		const aspect = containerRef.value.clientWidth / containerRef.value.clientHeight
 		camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000)
-		camera.position.set(5, 5, 5)
+		camera.position.set(8, -8, 6)
+		camera.up.set(0, 0, 1)
+		camera.lookAt(0, 0, 0)
 
 		renderer = new THREE.WebGLRenderer({
 			antialias: true,
@@ -1334,6 +1418,7 @@
 		loadedModels.value = []
 		deselectModel()
 		originalMaterials.clear()
+		customColorMaterials.clear()
 
 		if (modelGroup) {
 			while (modelGroup.children.length > 0) {
@@ -1356,6 +1441,20 @@
 		let successfulModels = 0
 
 		try {
+			scene.background = new THREE.Color(0xbbbbbb)
+			const environment = new RoomEnvironment()
+			const pmremGenerator = new THREE.PMREMGenerator(renderer)
+			scene.environment = pmremGenerator.fromScene(environment).texture
+			environment.dispose()
+
+			const grid = new THREE.GridHelper(500, 10, 0xffffff, 0xffffff)
+			grid.material.opacity = 0.5
+			grid.material.depthWrite = false
+			grid.material.transparent = true
+			// 将网格从XZ平面旋转到XY平面
+			grid.rotateX(Math.PI / 2)
+			scene.add(grid)
+
 			for (const config of modelConfigs.value) {
 				try {
 					loadingText.value = `正在加载： ${config.name}`
@@ -1392,15 +1491,23 @@
 					modelCenter.copy(center)
 				}
 
+				// 修复：保持CAD视角方向，只调整距离
 				const fov = camera.fov * (Math.PI / 180)
 				const maxDimAfterScale = Math.max(size.x, size.y, size.z)
 				let cameraDistance = Math.abs(maxDimAfterScale / 2 / Math.tan(fov / 2))
 				cameraDistance *= 1.8
 
-				camera.position.set(center.x + cameraDistance, center.y + cameraDistance, center.z + cameraDistance)
+				// 保持固定的CAD视角方向 (8, -8, 6)
+				const direction = new THREE.Vector3(8, -8, 6).normalize()
+
+				// 设置新位置：模型中心 + 方向 * 距离
+				camera.position.copy(center).add(direction.multiplyScalar(cameraDistance))
+
+				// 关键：保持CAD设置
+				camera.up.set(0, 0, 1)
 				camera.lookAt(center.x, center.y, center.z)
 
-				controls.target.set(center.x, center.y, center.z)
+				controls.target.copy(center)
 				controls.update()
 
 				setupLights()
@@ -1477,6 +1584,7 @@
 		}
 		clearFileUrls()
 		originalMaterials.clear()
+		customColorMaterials.clear()
 
 		scene?.traverse((object) => {
 			if (object.geometry) {
@@ -1515,630 +1623,8 @@
 	})
 </script>
 
-<style scoped lang="scss">
-	.model-viewer {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	}
-
-	.loading-overlay {
-		background: rgba(0, 0, 0, 0.85);
-		backdrop-filter: blur(8px);
-	}
-
-	.loading-container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 400px;
-	}
-
-	.loading-card {
-		background: linear-gradient(145deg, #ffffff, #f8fafc);
-		border-radius: 20px;
-		padding: 32px;
-		min-width: 360px;
-		max-width: 480px;
-		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-
-		.loading-header {
-			text-align: center;
-			margin-bottom: 24px;
-
-			.loading-icon {
-				margin-bottom: 16px;
-
-				.spinner {
-					width: 46px;
-					height: 46px;
-					border: 4px solid #e5e7eb;
-					border-top: 4px solid #3b82f6;
-					border-radius: 50%;
-					animation: spin 1s linear infinite;
-					margin: 0 auto;
-				}
-			}
-
-			.loading-title {
-				margin: 0;
-				font-size: 20px;
-				font-weight: 600;
-				color: #1f2937;
-				letter-spacing: -0.025em;
-			}
-		}
-
-		.progress-section {
-			margin-bottom: 24px;
-
-			.progress-text {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				margin-top: 12px;
-
-				.progress-percentage {
-					font-size: 14px;
-					font-weight: 600;
-					color: #3b82f6;
-				}
-
-				.progress-description {
-					font-size: 13px;
-					color: #6b7280;
-					flex: 1;
-					text-align: right;
-					margin-left: 16px;
-				}
-			}
-		}
-
-		.model-list {
-			.list-header {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				margin-bottom: 12px;
-				padding-bottom: 8px;
-				border-bottom: 1px solid #e5e7eb;
-
-				.list-title {
-					font-size: 14px;
-					font-weight: 600;
-					color: #374151;
-				}
-
-				.list-count {
-					font-size: 12px;
-					color: #6b7280;
-					background: #f3f4f6;
-					padding: 2px 8px;
-					border-radius: 12px;
-				}
-			}
-
-			.list-content {
-				max-height: 200px;
-				overflow-y: auto;
-				padding-right: 4px;
-
-				&::-webkit-scrollbar {
-					width: 4px;
-				}
-
-				&::-webkit-scrollbar-thumb {
-					background: #d1d5db;
-					border-radius: 2px;
-				}
-
-				.model-item {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					padding: 6px 0;
-					transition: all 0.2s;
-
-					.model-status-icon {
-						display: flex;
-						align-items: center;
-						width: 20px;
-
-						.status-icon {
-							width: 16px;
-							height: 16px;
-						}
-					}
-
-					.model-name {
-						font-size: 13px;
-						color: #4b5563;
-						flex: 1;
-					}
-
-					&.status-loading {
-						.status-icon {
-							color: #3b82f6;
-							animation: spin 1.5s infinite;
-						}
-						.model-name {
-							color: #3b82f6;
-						}
-					}
-
-					&.status-success {
-						.status-icon {
-							color: #10b981;
-						}
-						.model-name {
-							color: #065f46;
-						}
-					}
-
-					&.status-error {
-						.status-icon {
-							color: #ef4444;
-						}
-						.model-name {
-							color: #dc2626;
-						}
-					}
-
-					&.status-pending {
-						.status-icon {
-							color: #9ca3af;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	.control-panel {
-		.control-card {
-			background: rgba(255, 255, 255, 0.95);
-			backdrop-filter: blur(12px);
-			border-radius: 16px;
-			padding: 0;
-			min-width: 320px;
-			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-			border: 1px solid rgba(255, 255, 255, 0.3);
-			overflow: hidden;
-
-			.card-header {
-				background: linear-gradient(135deg, #4f46e5, #7c3aed);
-				color: white;
-				padding: 16px 20px;
-				display: flex;
-				align-items: center;
-				gap: 12px;
-
-				.header-icon {
-					display: flex;
-					align-items: center;
-					font-size: 18px;
-				}
-
-				.header-title {
-					margin: 0;
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: -0.025em;
-				}
-			}
-
-			.card-content {
-				padding: 20px;
-				display: flex;
-				flex-direction: column;
-				gap: 20px;
-
-				.control-section {
-					.section-label {
-						display: flex;
-						align-items: center;
-						gap: 8px;
-						margin-bottom: 12px;
-						font-size: 14px;
-						font-weight: 600;
-						color: #374151;
-
-						.label-icon {
-							font-size: 16px;
-							color: #6b7280;
-						}
-					}
-
-					.import-radio-group {
-						width: 100%;
-
-						:deep(.el-radio-button) {
-							flex: 1;
-
-							.el-radio-button__inner {
-								width: 100%;
-								border-radius: 8px !important;
-								border: 1px solid #d1d5db;
-								transition: all 0.2s;
-
-								&:hover {
-									border-color: #4f46e5;
-									color: #4f46e5;
-								}
-							}
-
-							&.is-active .el-radio-button__inner {
-								background: #4f46e5;
-								border-color: #4f46e5;
-								color: white;
-							}
-
-							&:first-child .el-radio-button__inner {
-								margin-right: 8px;
-							}
-						}
-					}
-
-					.full-width-select {
-						width: 100%;
-						margin-bottom: 12px;
-					}
-
-					.action-button,
-					.select-folder-button {
-						width: 100%;
-						height: 40px;
-						border-radius: 8px;
-						font-weight: 500;
-					}
-
-					.folder-info {
-						background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-						border: 1px solid #e2e8f0;
-						border-radius: 8px;
-						padding: 12px;
-						margin: 12px 0;
-
-						.info-item {
-							display: flex;
-							align-items: center;
-							gap: 8px;
-							margin-bottom: 8px;
-
-							&:last-child {
-								margin-bottom: 0;
-							}
-
-							.info-icon {
-								color: #6b7280;
-								font-size: 14px;
-							}
-
-							.info-text {
-								font-size: 13px;
-								color: #4b5563;
-							}
-						}
-					}
-
-					.model-count-tag {
-						margin-left: auto;
-						background: #e0e7ff;
-						color: #4338ca;
-						border: none;
-					}
-
-					.current-model-list {
-						max-height: 300px;
-						overflow-y: auto;
-						padding-right: 4px;
-
-						&::-webkit-scrollbar {
-							width: 4px;
-						}
-
-						&::-webkit-scrollbar-thumb {
-							background: #d1d5db;
-							border-radius: 2px;
-						}
-
-						.current-model-item {
-							display: flex;
-							align-items: center;
-							gap: 12px;
-							padding: 10px 12px;
-							border-radius: 8px;
-							cursor: pointer;
-							transition: all 0.2s;
-							border: 1px solid transparent;
-
-							&:hover {
-								background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-								border-color: #e2e8f0;
-								transform: translateX(2px);
-							}
-
-							&.selected {
-								background: linear-gradient(135deg, #ddd6fe, #e0e7ff);
-								border-color: #4f46e5;
-								box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
-							}
-
-							.model-indicator {
-								width: 12px;
-								height: 12px;
-								border-radius: 50%;
-								border: 2px solid white;
-								box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-							}
-
-							.model-name {
-								font-size: 13px;
-								color: #4b5563;
-								flex: 1;
-								font-weight: 500;
-							}
-
-							.model-arrow {
-								color: #9ca3af;
-								font-size: 14px;
-								transition: all 0.2s;
-							}
-
-							&:hover .model-arrow {
-								color: #4f46e5;
-								transform: translateX(2px);
-							}
-
-							&.selected .model-arrow {
-								color: #4f46e5;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	.settings-panel {
-		.settings-card {
-			background: rgba(255, 255, 255, 0.95);
-			backdrop-filter: blur(12px);
-			border-radius: 16px;
-			padding: 0;
-			min-width: 300px;
-			max-width: 320px;
-			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-			border: 1px solid rgba(255, 255, 255, 0.3);
-			overflow: hidden;
-
-			.settings-header {
-				background: linear-gradient(135deg, #f1b204, #eb971b);
-				color: white;
-				padding: 16px 20px;
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-
-				.header-content {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-
-					.header-icon {
-						font-size: 18px;
-					}
-
-					.header-text {
-						.header-title {
-							margin: 0;
-							font-size: 16px;
-							font-weight: 600;
-							letter-spacing: -0.025em;
-						}
-
-						.header-subtitle {
-							margin: 0;
-							font-size: 12px;
-							opacity: 0.9;
-							font-weight: 400;
-						}
-					}
-				}
-
-				.close-button {
-					background: rgba(255, 255, 255, 0.2);
-					border: none;
-					color: white;
-
-					&:hover {
-						background: rgba(255, 255, 255, 0.3);
-						color: white;
-					}
-				}
-			}
-
-			.settings-content {
-				padding: 20px;
-				display: flex;
-				flex-direction: column;
-				gap: 20px;
-
-				.setting-section {
-					.setting-label {
-						display: flex;
-						align-items: center;
-						gap: 8px;
-						margin-bottom: 12px;
-						font-size: 14px;
-						font-weight: 600;
-						color: #374151;
-
-						.setting-icon {
-							font-size: 16px;
-							color: #6b7280;
-						}
-					}
-
-					.setting-control {
-						.color-controls {
-							display: flex;
-							align-items: center;
-							gap: 12px;
-
-							.reset-color-btn {
-								height: 32px;
-								width: 50px;
-							}
-						}
-					}
-
-					.setting-actions {
-						display: flex;
-
-						.action-btn {
-							width: 100%;
-							height: 36px;
-							border-radius: 8px;
-							font-weight: 500;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// 动画效果
-	@keyframes spin {
-		0% {
-			transform: rotate(0deg);
-		}
-		100% {
-			transform: rotate(360deg);
-		}
-	}
-
-	// Canvas样式
-	:deep(canvas) {
-		cursor: grab;
-
-		&:active {
-			cursor: grabbing;
-		}
-	}
-
-	:deep(.el-progress) {
-		.el-progress__text {
-			display: none;
-		}
-
-		.el-progress-bar__outer {
-			background-color: #e5e7eb;
-			border-radius: 8px;
-		}
-
-		.el-progress-bar__inner {
-			border-radius: 8px;
-			background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-		}
-	}
-
-	:deep(.el-select) {
-		.el-input__inner {
-			border-radius: 8px;
-			border: 1px solid #d1d5db;
-			transition: all 0.2s;
-
-			&:hover {
-				border-color: #4f46e5;
-			}
-
-			&:focus {
-				border-color: #4f46e5;
-				box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-			}
-		}
-	}
-
-	:deep(.el-button) {
-		border-radius: 8px;
-		font-weight: 500;
-		transition: all 0.2s;
-
-		&.el-button--primary {
-			background: linear-gradient(135deg, #4f46e5, #7c3aed);
-			border: none;
-
-			&:hover {
-				background: linear-gradient(135deg, #4338ca, #6d28d9);
-				transform: translateY(-1px);
-				box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-			}
-		}
-
-		&.el-button--success {
-			background: linear-gradient(135deg, #10b981, #059669);
-			border: none;
-
-			&:hover {
-				background: linear-gradient(135deg, #047857, #065f46);
-				transform: translateY(-1px);
-				box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-			}
-		}
-
-		&.el-button--danger {
-			background: linear-gradient(135deg, #ef4444, #dc2626);
-			border: none;
-
-			&:hover {
-				background: linear-gradient(135deg, #dc2626, #b91c1c);
-				transform: translateY(-1px);
-				box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-			}
-		}
-	}
-
-	:deep(.el-slider) {
-		.el-slider__runway {
-			background-color: #e5e7eb;
-			border-radius: 4px;
-		}
-
-		.el-slider__bar {
-			background: linear-gradient(90deg, #4f46e5, #7c3aed);
-			border-radius: 4px;
-		}
-
-		.el-slider__button {
-			background: white;
-			border: 2px solid #4f46e5;
-			width: 18px;
-			height: 18px;
-
-			&:hover {
-				transform: scale(1.1);
-			}
-		}
-	}
-
-	:deep(.el-switch) {
-		&.is-checked .el-switch__core {
-			background-color: #4f46e5;
-		}
-
-		.el-switch__label {
-			font-size: 13px;
-			font-weight: 500;
-		}
-	}
-
-	:deep(.el-color-picker) {
-		.el-color-picker__trigger {
-			border-radius: 6px;
-			width: 36px;
-			height: 32px;
-		}
-	}
+<style lang="scss" scoped>
+	@use './styles/index.scss';
 </style>
 
 <style lang="scss">
