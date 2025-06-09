@@ -1143,7 +1143,7 @@
 				const mtlLoader = new MTLLoader()
 				const objLoader = new OBJLoader()
 				let materials = null
-				let object = null // 将 object 的定义提前
+				let object = null
 
 				if (this.loadType === 'preset') {
 					if (config.mtl) {
@@ -1158,7 +1158,7 @@
 						objLoader.setMaterials(materials)
 					}
 
-					object = await this.loadOBJFromUrl(objLoader, config.obj) // 先赋值给 object
+					object = await this.loadOBJFromUrl(objLoader, config.obj)
 				} else {
 					// 本地文件加载逻辑
 					if (config.mtlFile) {
@@ -1173,13 +1173,11 @@
 						objLoader.setMaterials(materials)
 					}
 
-					object = await this.loadOBJFromFile(objLoader, config.objFile) // 再赋值给 object
+					object = await this.loadOBJFromFile(objLoader, config.objFile)
 				}
 
-				// +++ 关键步骤：在模型加载后，返回前，对其进行处理 +++
 				this.recenterObject(object)
 
-				// 后续流程保持不变
 				if (!materials) {
 					this.applyDefaultMaterials(object)
 				}
@@ -1200,11 +1198,7 @@
 			}
 		}
 
-		// +++ 核心位置处理函数 +++
-		/**
-		 * 重置模型的几何中心，将烘焙在顶点数据中的位置提取到对象的 .position 属性上
-		 * @param {THREE.Object3D} object - 从OBJ加载的模型对象
-		 */
+		// 重置模型的几何中心，将烘焙在顶点数据中的位置提取到对象的 .position 属性上
 		recenterObject(object) {
 			// 1. 计算出它的几何中心点 (这就是它被烘焙的"假"位置)
 			const box = new THREE.Box3().setFromObject(object)
@@ -1356,7 +1350,25 @@
 	// 初始化Three.js场景
 	const initThreeJS = () => {
 		scene = new THREE.Scene()
-		scene.background = new THREE.Color(0xffffff)
+		scene.background = new THREE.Color('#f0f0f0')
+		const groundGeometry = new THREE.BoxGeometry(400, 400, 4)
+		const groundMaterial = new THREE.MeshBasicMaterial({
+			color: '#333333',
+			transparent: true,
+			opacity: 0.4
+		})
+
+		const ground = new THREE.Mesh(groundGeometry, groundMaterial)
+		ground.position.z = -2
+		scene.add(ground)
+
+		const grid = new THREE.GridHelper(400, 20, '#ffffff', '#ffffff')
+		grid.material.opacity = 0.6
+		grid.material.depthWrite = false
+		grid.material.transparent = true
+		// 将网格从XZ平面旋转到XY平面
+		grid.rotateX(Math.PI / 2)
+		scene.add(grid)
 
 		modelGroup = new THREE.Group()
 		scene.add(modelGroup)
@@ -1387,7 +1399,7 @@
 		controls.enableDamping = true
 		controls.dampingFactor = 0.05
 		controls.minDistance = 0.5
-		controls.maxDistance = 100
+		controls.maxDistance = 300
 		controls.target.set(0, 0, 0)
 		controls.enablePan = true
 		controls.mouseButtons = {
@@ -1511,19 +1523,25 @@
 		let successfulModels = 0
 
 		try {
-			scene.background = new THREE.Color(0xbbbbbb)
-			const environment = new RoomEnvironment()
-			const pmremGenerator = new THREE.PMREMGenerator(renderer)
-			scene.environment = pmremGenerator.fromScene(environment).texture
-			environment.dispose()
+			// scene.background = new THREE.Color('#f0f0f0')
+			// const groundGeometry = new THREE.BoxGeometry(400, 400, 4)
+			// const groundMaterial = new THREE.MeshBasicMaterial({
+			// 	color: '#333333',
+			// 	transparent: true,
+			// 	opacity: 0.4,
+			// })
 
-			const grid = new THREE.GridHelper(500, 10, 0xffffff, 0xffffff)
-			grid.material.opacity = 0.5
-			grid.material.depthWrite = false
-			grid.material.transparent = true
-			// 将网格从XZ平面旋转到XY平面
-			grid.rotateX(Math.PI / 2)
-			scene.add(grid)
+			// const ground = new THREE.Mesh(groundGeometry, groundMaterial)
+			// ground.position.z = -2
+			// scene.add(ground)
+
+			// const grid = new THREE.GridHelper(400, 20, '#ffffff', '#ffffff')
+			// grid.material.opacity = 0.6
+			// grid.material.depthWrite = false
+			// grid.material.transparent = true
+			// // 将网格从XZ平面旋转到XY平面
+			// grid.rotateX(Math.PI / 2)
+			// scene.add(grid)
 
 			for (const config of modelConfigs.value) {
 				try {
@@ -1722,6 +1740,6 @@
 	.viewport-gizmo {
 		top: unset !important;
 		bottom: 30px;
-		background-color: #9c9b9b27;
+		background-color: #6d6d6d28;
 	}
 </style>

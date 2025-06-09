@@ -36,11 +36,6 @@ const routes = [
 	// 	component: () => import('@/views/components/largeFileUpload/index.vue')
 	// },
 	{
-		path: '/CAD_txt',
-		name: 'CAD_txt',
-		component: () => import('@/views/CAD_txt/index.vue')
-	},
-	{
 		path: '/3dModel',
 		name: '3dModel',
 		component: () => import('@/views/3dModel/index.vue')
