@@ -244,6 +244,53 @@
 							</div>
 						</div>
 					</div>
+					<!-- 空间位置控制 -->
+					<div class="setting-section">
+						<div class="setting-label">
+							<el-icon class="setting-icon"><Location /></el-icon>
+							<span>空间位置</span>
+						</div>
+						<div class="setting-control">
+							<div class="position-controls">
+								<div class="position-row">
+									<span class="position-label">X</span>
+									<el-input-number
+										v-model="selectedModelPosition.x"
+										:precision="2"
+										:step="0.1"
+										size="small"
+										@change="onModelPositionChange"
+										class="position-input"
+										controls-position="right"
+									/>
+								</div>
+								<div class="position-row">
+									<span class="position-label">Y</span>
+									<el-input-number
+										v-model="selectedModelPosition.y"
+										:precision="2"
+										:step="0.1"
+										size="small"
+										@change="onModelPositionChange"
+										class="position-input"
+										controls-position="right"
+									/>
+								</div>
+								<div class="position-row">
+									<span class="position-label">Z</span>
+									<el-input-number
+										v-model="selectedModelPosition.z"
+										:precision="2"
+										:step="0.1"
+										size="small"
+										@change="onModelPositionChange"
+										class="position-input"
+										controls-position="right"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
 
 					<!-- 操作按钮 -->
 					<div class="setting-section">
@@ -287,6 +334,7 @@
 	// 鼠标状态跟踪
 	const mouseDownPos = ref({ x: 0, y: 0 })
 	const isDragging = ref(false)
+	const selectedModelPosition = ref({ x: 0, y: 0, z: 0 })
 
 	// 导入方式和本地文件夹相关
 	const importType = ref('preset')
@@ -468,6 +516,9 @@
 
 		// 更新选中模型的颜色
 		selectedModelColor.value = getModelDisplayColor(model)
+
+		// 读取实际位置
+		updateSelectedModelPosition(model)
 	}
 
 	// 取消选择模型
@@ -476,6 +527,7 @@
 			restoreModelMaterial(selectedModel.value)
 			selectedModel.value = null
 		}
+		selectedModelPosition.value = { x: 0, y: 0, z: 0 }
 	}
 
 	// 应用选中效果
@@ -697,7 +749,6 @@
 		const intersects = raycaster.intersectObjects(modelGroup.children, true)
 
 		if (intersects.length > 0) {
-			// 找到对应的模型的逻辑保持不变...
 			const intersectedObject = intersects[0].object
 			let targetModel = null
 
@@ -732,7 +783,7 @@
 		}
 	}
 
-	// 模型颜色改变 - 修复颜色更改问题
+	// 模型颜色改变
 	const onModelColorChange = (color) => {
 		if (!selectedModel.value || !color) return
 
@@ -1092,6 +1143,7 @@
 				const mtlLoader = new MTLLoader()
 				const objLoader = new OBJLoader()
 				let materials = null
+				let object = null // 将 object 的定义提前
 
 				if (this.loadType === 'preset') {
 					if (config.mtl) {
@@ -1106,22 +1158,9 @@
 						objLoader.setMaterials(materials)
 					}
 
-					const object = await this.loadOBJFromUrl(objLoader, config.obj)
-
-					if (!materials) {
-						this.applyDefaultMaterials(object)
-					}
-
-					this.enhanceModel(object)
-					config.status = 'success'
-
-					return {
-						name: config.name,
-						object: object,
-						visible: true,
-						config: config
-					}
+					object = await this.loadOBJFromUrl(objLoader, config.obj) // 先赋值给 object
 				} else {
+					// 本地文件加载逻辑
 					if (config.mtlFile) {
 						try {
 							materials = await this.loadMTLFromFile(mtlLoader, config.mtlFile, selectedLocalFolder.value.urlMap)
@@ -1134,27 +1173,58 @@
 						objLoader.setMaterials(materials)
 					}
 
-					const object = await this.loadOBJFromFile(objLoader, config.objFile)
+					object = await this.loadOBJFromFile(objLoader, config.objFile) // 再赋值给 object
+				}
 
-					if (!materials) {
-						this.applyDefaultMaterials(object)
-					}
+				// +++ 关键步骤：在模型加载后，返回前，对其进行处理 +++
+				this.recenterObject(object)
 
-					this.enhanceModel(object)
-					config.status = 'success'
+				// 后续流程保持不变
+				if (!materials) {
+					this.applyDefaultMaterials(object)
+				}
 
-					return {
-						name: config.name,
-						object: object,
-						visible: true,
-						config: config
-					}
+				this.enhanceModel(object)
+				config.status = 'success'
+
+				return {
+					name: config.name,
+					object: object,
+					visible: true,
+					config: config
 				}
 			} catch (error) {
 				config.status = 'error'
 				console.error(`加载模型失败: ${config.name}`, error)
 				throw error
 			}
+		}
+
+		// +++ 核心位置处理函数 +++
+		/**
+		 * 重置模型的几何中心，将烘焙在顶点数据中的位置提取到对象的 .position 属性上
+		 * @param {THREE.Object3D} object - 从OBJ加载的模型对象
+		 */
+		recenterObject(object) {
+			// 1. 计算出它的几何中心点 (这就是它被烘焙的"假"位置)
+			const box = new THREE.Box3().setFromObject(object)
+			const center = box.getCenter(new THREE.Vector3())
+
+			// 如果中心点几乎为0，说明模型本身就在原点，无需处理
+			if (center.lengthSq() < 0.000001) {
+				return
+			}
+
+			// 2. 将模型的几何体本身移回世界原点
+			object.traverse((child) => {
+				if (child.isMesh) {
+					child.geometry.translate(-center.x, -center.y, -center.z)
+				}
+			})
+
+			// 3. 将计算出的中心点赋值给对象的 .position 属性
+			// 现在，.position 成为了位置的唯一真实来源
+			object.position.copy(center)
 		}
 
 		loadMTLFromUrl(mtlLoader, path) {
@@ -1491,7 +1561,7 @@
 					modelCenter.copy(center)
 				}
 
-				// 修复：保持CAD视角方向，只调整距离
+				// 保持CAD视角方向，只调整距离
 				const fov = camera.fov * (Math.PI / 180)
 				const maxDimAfterScale = Math.max(size.x, size.y, size.z)
 				let cameraDistance = Math.abs(maxDimAfterScale / 2 / Math.tan(fov / 2))
@@ -1548,6 +1618,27 @@
 		if (gizmo) {
 			gizmo.render()
 		}
+	}
+
+	// 模型空间位置控制
+	const updateSelectedModelPosition = (model) => {
+		if (model && model.object) {
+			selectedModelPosition.value = {
+				x: parseFloat(model.object.position.x.toFixed(2)),
+				y: parseFloat(model.object.position.y.toFixed(2)),
+				z: parseFloat(model.object.position.z.toFixed(2))
+			}
+		}
+	}
+
+	const onModelPositionChange = () => {
+		if (!selectedModel.value || !selectedModel.value.object) return
+
+		selectedModel.value.object.position.set(
+			selectedModelPosition.value.x,
+			selectedModelPosition.value.y,
+			selectedModelPosition.value.z
+		)
 	}
 
 	// 处理窗口大小变化

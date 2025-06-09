@@ -470,6 +470,23 @@
 							width: 50px;
 						}
 					}
+
+					.position-controls {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						gap: 4px;
+
+						.position-row {
+							display: flex;
+							align-items: center;
+							gap: 12px;
+
+							.position-label {
+								color: #4b5563;
+							}
+						}
+					}
 				}
 
 				.setting-actions {
