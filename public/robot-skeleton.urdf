@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<robot name="skeleton_robot">
+
+  <!-- Base Link - 用简单几何体作为占位符 -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- J1 Link - 占位符 -->
+  <link name="j1_link">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- J2 Link - 占位符 -->
+  <link name="j2_link">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- J3 Link - 占位符 -->
+  <link name="j3_link">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- 关节定义 - 这里是关键！ -->
+  <joint name="base_to_j1" type="fixed">
+    <parent link="base_link"/>
+    <child link="j1_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="joint_2" type="revolute">
+    <parent link="j1_link"/>
+    <child link="j2_link"/>
+    <axis xyz="0 0 1"/>
+    <!-- 根据你的模型调整这个位置关系 -->
+    <origin xyz="0 0 1.0" rpy="0 0 0"/>
+    <limit lower="-3.14" upper="3.14"/>
+  </joint>
+
+  <joint name="joint_3" type="revolute">
+    <parent link="j2_link"/>
+    <child link="j3_link"/>
+    <axis xyz="0 1 0"/>
+    <!-- 根据你的模型调整这个位置关系 -->
+    <origin xyz="0 0 0.8" rpy="0 0 0"/>
+    <limit lower="-1.57" upper="1.57"/>
+  </joint>
+
+</robot>

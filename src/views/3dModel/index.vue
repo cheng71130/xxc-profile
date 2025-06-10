@@ -56,140 +56,159 @@
 
 		<!-- 模型控制面板 -->
 		<div class="control-panel absolute top-6 left-6 z-5">
-			<div class="control-card">
-				<div class="card-header">
-					<div class="header-icon">
-						<el-icon><Setting /></el-icon>
-					</div>
-					<h3 class="header-title">模型控制</h3>
-				</div>
-
-				<div class="card-content">
-					<!-- 导入方式选择 -->
-					<div class="control-section">
-						<div class="section-label">
-							<el-icon class="label-icon"><FolderOpened /></el-icon>
-							<span>导入方式</span>
+			<el-scrollbar height="800px">
+				<div class="control-card">
+					<div class="card-header">
+						<div class="header-icon">
+							<el-icon><Setting /></el-icon>
 						</div>
-						<el-radio-group v-model="importType" @change="onImportTypeChange" class="import-radio-group">
-							<el-radio-button value="preset" class="mr-2">预设文件夹</el-radio-button>
-							<el-radio-button value="local">本地文件夹</el-radio-button>
-						</el-radio-group>
+						<h3 class="header-title">模型控制</h3>
 					</div>
 
-					<!-- 预设文件夹选择 -->
-					<div v-if="importType === 'preset'" class="control-section">
-						<div class="section-label">
-							<el-icon class="label-icon"><Folder /></el-icon>
-							<span>预设文件夹</span>
-						</div>
-						<el-select
-							v-model="selectedFolder"
-							@change="onFolderChange"
-							:disabled="loading"
-							placeholder="选择文件夹"
-							class="full-width-select"
-						>
-							<el-option
-								v-for="folder in availableFolders"
-								:key="folder.value"
-								:label="folder.label"
-								:value="folder.value"
-							/>
-						</el-select>
-						<el-button
-							@click="loadFolderModels"
-							:loading="loading"
-							type="primary"
-							class="action-button"
-							icon="Download"
-						>
-							加载预设模型
-						</el-button>
-					</div>
-
-					<!-- 本地文件夹导入 -->
-					<div v-if="importType === 'local'" class="control-section">
-						<div class="section-label">
-							<el-icon class="label-icon"><Folder /></el-icon>
-							<span>本地文件夹</span>
-						</div>
-						<input
-							ref="folderInputRef"
-							type="file"
-							webkitdirectory
-							multiple
-							accept=".obj,.mtl,.png,.jpg,.jpeg,.bmp,.tga"
-							@change="onLocalFolderSelect"
-							style="display: none"
-						/>
-						<el-button @click="selectLocalFolder" :disabled="loading" class="select-folder-button" icon="Upload">
-							选择文件夹
-						</el-button>
-
-						<div v-if="selectedLocalFolder" class="folder-info">
-							<div class="info-item">
-								<el-icon class="info-icon"><Folder /></el-icon>
-								<span class="info-text">{{ selectedLocalFolder.name }}</span>
+					<div class="card-content">
+						<!-- 导入方式选择 -->
+						<div class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><FolderOpened /></el-icon>
+								<span>导入方式</span>
 							</div>
-							<div class="info-item">
-								<el-icon class="info-icon"><Document /></el-icon>
-								<span class="info-text">{{ localModelFiles.length }} 个模型文件</span>
+							<el-radio-group v-model="importType" @change="onImportTypeChange" class="import-radio-group">
+								<el-radio-button value="preset" class="mr-2">预设文件夹</el-radio-button>
+								<el-radio-button value="local">本地文件夹</el-radio-button>
+							</el-radio-group>
+						</div>
+
+						<!-- 预设文件夹选择 -->
+						<div v-if="importType === 'preset'" class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><Folder /></el-icon>
+								<span>预设文件夹</span>
 							</div>
-						</div>
-
-						<el-button
-							v-if="selectedLocalFolder || localModelFiles.length"
-							@click="loadLocalFolderModels"
-							:loading="loading"
-							type="primary"
-							class="action-button"
-							icon="Download"
-						>
-							加载本地模型
-						</el-button>
-					</div>
-
-					<!-- 光照控制 -->
-					<div class="control-section">
-						<div class="section-label">
-							<el-icon class="label-icon"><Sunny /></el-icon>
-							<span>光照设置</span>
-						</div>
-						<el-slider
-							v-model="lightIntensity"
-							:min="0.5"
-							:max="3"
-							:step="0.1"
-							@change="updateLighting"
-							:show-tooltip="true"
-							:format-tooltip="(val) => `${val.toFixed(1)}`"
-						/>
-					</div>
-
-					<!-- 当前加载的模型列表 -->
-					<div v-if="loadedModels.length > 0" class="control-section">
-						<div class="section-label">
-							<el-icon class="label-icon"><View /></el-icon>
-							<span>当前模型</span>
-							<el-tag size="small" class="model-count-tag">{{ loadedModels.length }}</el-tag>
-						</div>
-						<div class="current-model-list">
-							<div
-								v-for="(model, index) in loadedModels"
-								:key="index"
-								class="current-model-item"
-								:class="{ selected: selectedModel?.name === model.name }"
-								@click="selectModelFromList(model)"
+							<el-select
+								v-model="selectedFolder"
+								@change="onFolderChange"
+								:disabled="loading"
+								placeholder="选择文件夹"
+								class="full-width-select"
 							>
-								<div class="model-indicator" :style="{ backgroundColor: getModelDisplayColor(model) }"></div>
-								<span class="model-name">{{ model.name }}</span>
-								<el-icon class="model-arrow"><ArrowRight /></el-icon>
+								<el-option
+									v-for="folder in availableFolders"
+									:key="folder.value"
+									:label="folder.label"
+									:value="folder.value"
+								/>
+							</el-select>
+							<el-button
+								@click="loadFolderModels"
+								:loading="loading"
+								type="primary"
+								class="action-button"
+								icon="Download"
+							>
+								加载预设模型
+							</el-button>
+						</div>
+
+						<!-- 本地文件夹导入 -->
+						<div v-if="importType === 'local'" class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><Folder /></el-icon>
+								<span>本地文件夹</span>
 							</div>
+							<input
+								ref="folderInputRef"
+								type="file"
+								webkitdirectory
+								multiple
+								accept=".obj,.mtl,.png,.jpg,.jpeg,.bmp,.tga"
+								@change="onLocalFolderSelect"
+								style="display: none"
+							/>
+							<el-button @click="selectLocalFolder" :disabled="loading" class="select-folder-button" icon="Upload">
+								选择文件夹
+							</el-button>
+
+							<div v-if="selectedLocalFolder" class="folder-info">
+								<div class="info-item">
+									<el-icon class="info-icon"><Folder /></el-icon>
+									<span class="info-text">{{ selectedLocalFolder.name }}</span>
+								</div>
+								<div class="info-item">
+									<el-icon class="info-icon"><Document /></el-icon>
+									<span class="info-text">{{ localModelFiles.length }} 个模型文件</span>
+								</div>
+							</div>
+
+							<el-button
+								v-if="selectedLocalFolder || localModelFiles.length"
+								@click="loadLocalFolderModels"
+								:loading="loading"
+								type="primary"
+								class="action-button"
+								icon="Download"
+							>
+								加载本地模型
+							</el-button>
+						</div>
+
+						<!-- 光照控制 -->
+						<div class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><Sunny /></el-icon>
+								<span>光照设置</span>
+							</div>
+							<el-slider
+								v-model="lightIntensity"
+								:min="0.5"
+								:max="3"
+								:step="0.1"
+								@change="updateLighting"
+								:show-tooltip="true"
+								:format-tooltip="(val) => `${val.toFixed(1)}`"
+							/>
+						</div>
+
+						<!-- 当前加载的模型列表 -->
+						<div v-if="loadedModels.length > 0" class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><View /></el-icon>
+								<span>当前模型</span>
+								<el-tag size="small" class="model-count-tag">{{ loadedModels.length }}</el-tag>
+							</div>
+							<div class="current-model-list">
+								<div
+									v-for="(model, index) in loadedModels"
+									:key="index"
+									class="current-model-item"
+									:class="{ selected: selectedModel?.name === model.name }"
+									@click="selectModelFromList(model)"
+								>
+									<div class="model-indicator" :style="{ backgroundColor: getModelDisplayColor(model) }"></div>
+									<span class="model-name">{{ model.name }}</span>
+									<el-icon class="model-arrow"><ArrowRight /></el-icon>
+								</div>
+							</div>
+						</div>
+
+						<!-- 机器人控制 -->
+						<div class="robot-controls">
+							<el-button
+								@click="makeRobotMovable"
+								type="primary"
+								:disabled="hasRobot"
+								:loading="robotLoading"
+								class="w-full"
+								icon="VideoPlay"
+							>
+								开启机器人仿真
+							</el-button>
+							<el-button @click="clearRobot" type="warning" :disabled="!hasRobot" class="w-full" icon="RefreshRight">
+								恢复静态模型
+							</el-button>
 						</div>
 					</div>
 				</div>
-			</div>
+			</el-scrollbar>
 		</div>
 
 		<!-- 右侧模型设置面板 -->
@@ -320,6 +339,7 @@
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 	import { ViewportGizmo } from 'three-viewport-gizmo'
 	import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+	import URDFLoader from 'urdf-loader'
 
 	// 响应式数据
 	const containerRef = ref(null)
@@ -1187,7 +1207,7 @@
 
 				return {
 					name: config.name,
-					object: object,
+					object: markRaw(object), // 🔥 使用 markRaw 防止对象被代理
 					visible: true,
 					config: config
 				}
@@ -1399,7 +1419,7 @@
 		controls.enableDamping = true
 		controls.dampingFactor = 0.05
 		controls.minDistance = 0.5
-		controls.maxDistance = 300
+		controls.maxDistance = 1000
 		controls.target.set(0, 0, 0)
 		controls.enablePan = true
 		controls.mouseButtons = {
@@ -1730,6 +1750,174 @@
 		window.removeEventListener('resize', handleResize)
 		cleanup()
 	})
+
+	// UI状态
+	const robotLoading = ref(false)
+	const hasRobot = ref(false)
+
+	// 动画变量
+	let robotAnimationId = null
+	let isAnimating = false
+	let jointDefinitions = null // 存储关节定义
+	let modelJointMap = null // 模型到关节的映射
+
+	const makeRobotMovable = async () => {
+		// 检查必要的模型
+		const requiredModels = ['Base', 'J1', 'J2', 'J3']
+		const foundModels = {}
+
+		for (const modelName of requiredModels) {
+			const model = loadedModels.value.find(
+				(m) => m.name.toLowerCase().includes(modelName.toLowerCase()) || m.name === modelName
+			)
+			if (!model) {
+				ElMessage.error(`缺少必要模型: ${modelName}`)
+				return
+			}
+			foundModels[modelName.toLowerCase()] = toRaw(model.object)
+		}
+
+		robotLoading.value = true
+
+		try {
+			const loader = new URDFLoader()
+
+			// 跳过mesh加载
+			loader.loadMeshCb = (path, manager, onComplete) => {
+				onComplete(new THREE.Group())
+			}
+
+			loader.load(
+				`/robot-skeleton.urdf?t=${Date.now()}`,
+				(urdfRobot) => {
+					console.log('URDF加载成功，提取关节信息...')
+
+					// 🔥 只提取关节信息，不改变现有模型结构
+					jointDefinitions = {}
+					modelJointMap = {}
+
+					urdfRobot.traverse((child) => {
+						if (child.isURDFJoint && child.jointType === 'revolute') {
+							jointDefinitions[child.name] = {
+								axis: child.axis.clone(),
+								limit: child.limit,
+								origin: child.origin ? child.origin.clone() : new THREE.Vector3()
+							}
+							console.log(`找到关节: ${child.name}`)
+						}
+					})
+
+					// 🔥 建立模型到关节的映射（根据你的URDF结构调整）
+					modelJointMap = {
+						joint_2: foundModels.j2, // J2模型对应joint_2
+						joint_3: foundModels.j3 // J3模型对应joint_3
+					}
+
+					robotLoading.value = false
+					hasRobot.value = true
+
+					ElMessage.success('关节信息提取完成！开始动画...')
+
+					// 🔥 开始动画 - 直接操作现有模型
+					startDirectAnimation()
+				},
+				undefined,
+				(error) => {
+					console.error('URDF加载失败:', error)
+					ElMessage.error(`URDF加载失败: ${error.message || error}`)
+					robotLoading.value = false
+				}
+			)
+		} catch (error) {
+			console.error('处理失败:', error)
+			ElMessage.error('处理失败')
+			robotLoading.value = false
+		}
+	}
+
+	const startDirectAnimation = () => {
+		if (isAnimating || !modelJointMap) return
+
+		isAnimating = true
+		console.log('开始直接动画...')
+
+		// 🔥 记录每个模型的初始旋转，用于恢复
+		const initialRotations = new Map()
+		Object.values(modelJointMap).forEach((model) => {
+			if (model) {
+				initialRotations.set(model, {
+					x: model.rotation.x,
+					y: model.rotation.y,
+					z: model.rotation.z
+				})
+			}
+		})
+
+		const animate = () => {
+			if (!isAnimating) return
+
+			const time = Date.now() * 0.001
+
+			try {
+				// 🔥 直接旋转J2模型（joint_2）
+				const j2Model = modelJointMap['joint_2']
+				if (j2Model) {
+					const j2Angle = Math.sin(time) * 1.5
+					const initialJ2 = initialRotations.get(j2Model)
+					j2Model.rotation.set(
+						initialJ2.x,
+						initialJ2.y,
+						initialJ2.z + j2Angle // 假设绕Z轴旋转，根据实际调整
+					)
+				}
+
+				// 🔥 直接旋转J3模型（joint_3）
+				const j3Model = modelJointMap['joint_3']
+				if (j3Model) {
+					const j3Angle = Math.cos(time * 0.8) * 0.8
+					const initialJ3 = initialRotations.get(j3Model)
+					j3Model.rotation.set(
+						initialJ3.x,
+						initialJ3.y,
+						initialJ3.z + j3Angle // 假设绕Z轴旋转，根据实际调整
+					)
+				}
+			} catch (e) {
+				console.warn('动画执行失败:', e)
+			}
+
+			robotAnimationId = requestAnimationFrame(animate)
+		}
+
+		animate()
+	}
+
+	const stopAnimation = () => {
+		isAnimating = false
+		if (robotAnimationId) {
+			cancelAnimationFrame(robotAnimationId)
+			robotAnimationId = null
+		}
+	}
+
+	const clearRobot = () => {
+		stopAnimation()
+
+		if (modelJointMap) {
+			Object.values(modelJointMap).forEach((model) => {
+				if (model) {
+					model.rotation.set(0, 0, 0)
+				}
+			})
+		}
+
+		// 清理
+		jointDefinitions = null
+		modelJointMap = null
+		hasRobot.value = false
+
+		ElMessage.info('已停止动画，模型保持原位')
+	}
 </script>
 
 <style lang="scss" scoped>
