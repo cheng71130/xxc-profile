@@ -54,7 +54,7 @@
 							>
 								<el-option v-for="urdf in availableUrdfs" :key="urdf.value" :label="urdf.label" :value="urdf.value" />
 							</el-select>
-							<el-button @click="loadRobot" :loading="loading" type="primary" class="action-button" icon="Robot">
+							<el-button @click="loadRobot" :loading="loading" type="primary" class="action-button" icon="Download">
 								加载机器人
 							</el-button>
 						</div>
@@ -480,7 +480,9 @@
 
 	// 处理机器人模型
 	const processRobotModel = (robotModel) => {
-		robotModel.scale.multiplyScalar(0.003)
+		// 单位转换：mm -> m
+		robotModel.scale.multiplyScalar(0.001)
+
 		// 应用材质和阴影设置
 		robotModel.traverse((child) => {
 			if (child.isMesh) {
@@ -565,7 +567,6 @@
 	// 关节控制
 	const onJointValueChange = (jointName) => {
 		if (robot && jointValues.value[jointName] !== undefined) {
-			// 🔥 使用标准urdf-loader接口
 			robot.setJointValue(jointName, jointValues.value[jointName])
 		}
 	}
