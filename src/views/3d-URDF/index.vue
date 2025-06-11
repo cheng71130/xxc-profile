@@ -215,17 +215,17 @@
 		scene.background = new THREE.Color('#f0f0f0')
 
 		// 保持你原来的地面和网格设置
-		const groundGeometry = new THREE.BoxGeometry(100, 100, 4)
+		const groundGeometry = new THREE.BoxGeometry(30, 30, 2)
 		const groundMaterial = new THREE.MeshBasicMaterial({
 			color: '#333333',
 			transparent: true,
 			opacity: 0.4
 		})
 		const ground = new THREE.Mesh(groundGeometry, groundMaterial)
-		ground.position.z = -2
+		ground.position.z = -1
 		scene.add(ground)
 
-		const grid = new THREE.GridHelper(100, 20, '#ffffff', '#ffffff')
+		const grid = new THREE.GridHelper(30, 15, '#ffffff', '#ffffff')
 		grid.material.opacity = 0.6
 		grid.material.depthWrite = false
 		grid.material.transparent = true
@@ -480,24 +480,8 @@
 
 	// 处理机器人模型
 	const processRobotModel = (robotModel) => {
-		// 1. 先应用缩放
-		robotModel.scale.multiplyScalar(0.005)
-
-		// 2. 强制更新变换矩阵
-		robotModel.updateMatrixWorld(true)
-
-		// 3. 计算缩放后的边界盒
-		const box = new THREE.Box3().setFromObject(robotModel)
-		const center = box.getCenter(new THREE.Vector3())
-		const size = box.getSize(new THREE.Vector3())
-
-		// 4. 🎯 X、Y轴居中，Z轴底部贴地
-		robotModel.position.x = -center.x // X轴居中
-		robotModel.position.y = -center.y // Y轴居中
-		robotModel.position.z = -box.min.z // Z轴底部贴地面 (地面是z=0)
-
-
-		// 5. 应用材质和阴影设置
+		robotModel.scale.multiplyScalar(0.003)
+		// 应用材质和阴影设置
 		robotModel.traverse((child) => {
 			if (child.isMesh) {
 				child.castShadow = true
@@ -581,6 +565,7 @@
 	// 关节控制
 	const onJointValueChange = (jointName) => {
 		if (robot && jointValues.value[jointName] !== undefined) {
+			// 🔥 使用标准urdf-loader接口
 			robot.setJointValue(jointName, jointValues.value[jointName])
 		}
 	}
@@ -740,62 +725,17 @@
 <style lang="scss" scoped>
 	@use './styles/index.scss';
 
-	.loading-overlay {
-		background: rgba(0, 0, 0, 0.8);
-		backdrop-filter: blur(5px);
-	}
-
-	.loading-container {
-		max-width: 500px;
-		width: 90%;
-	}
-
-	.loading-card {
-		background: white;
-		border-radius: 12px;
-		padding: 30px;
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-	}
-
-	.loading-header {
-		display: flex;
-		align-items: center;
-		margin-bottom: 20px;
-	}
-
-	.loading-icon {
-		margin-right: 15px;
-	}
-
-	.spinner {
-		width: 40px;
-		height: 40px;
-		border: 4px solid #f3f3f3;
-		border-top: 4px solid #409eff;
-		border-radius: 50%;
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes spin {
-		0% {
-			transform: rotate(0deg);
-		}
-		100% {
-			transform: rotate(360deg);
-		}
-	}
-
 	.control-panel,
 	.settings-panel {
 		background: rgba(255, 255, 255, 0.95);
 		backdrop-filter: blur(10px);
 		border-radius: 12px;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		overflow: hidden;
 	}
 
 	.joint-controls {
-		max-height: 300px;
+		// max-height: 400px;
 		overflow-y: auto;
 	}
 
