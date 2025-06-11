@@ -39,6 +39,11 @@ const routes = [
 		path: '/3dModel',
 		name: '3dModel',
 		component: () => import('@/views/3dModel/index.vue')
+	},
+	{
+		path: '/3dURDF',
+		name: '3dURDF',
+		component: () => import('@/views/3d-URDF/index.vue')
 	}
 ]
 

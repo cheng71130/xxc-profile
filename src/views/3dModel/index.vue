@@ -1792,7 +1792,7 @@
 				(urdfRobot) => {
 					console.log('URDF加载成功，提取关节信息...')
 
-					// 🔥 只提取关节信息，不改变现有模型结构
+					// 只提取关节信息，不改变现有模型结构
 					jointDefinitions = {}
 					modelJointMap = {}
 
@@ -1807,7 +1807,7 @@
 						}
 					})
 
-					// 🔥 建立模型到关节的映射（根据你的URDF结构调整）
+					// 建立模型到关节的映射（根据你的URDF结构调整）
 					modelJointMap = {
 						joint_2: foundModels.j2, // J2模型对应joint_2
 						joint_3: foundModels.j3 // J3模型对应joint_3
@@ -1816,9 +1816,8 @@
 					robotLoading.value = false
 					hasRobot.value = true
 
-					ElMessage.success('关节信息提取完成！开始动画...')
+					ElMessage.success('关节信息提取完成！开始动画')
 
-					// 🔥 开始动画 - 直接操作现有模型
 					startDirectAnimation()
 				},
 				undefined,
@@ -1841,7 +1840,7 @@
 		isAnimating = true
 		console.log('开始直接动画...')
 
-		// 🔥 记录每个模型的初始旋转，用于恢复
+		// 记录每个模型的初始旋转，用于恢复
 		const initialRotations = new Map()
 		Object.values(modelJointMap).forEach((model) => {
 			if (model) {
@@ -1859,7 +1858,7 @@
 			const time = Date.now() * 0.001
 
 			try {
-				// 🔥 直接旋转J2模型（joint_2）
+				// 直接旋转J2模型（joint_2）
 				const j2Model = modelJointMap['joint_2']
 				if (j2Model) {
 					const j2Angle = Math.sin(time) * 1.5
@@ -1871,7 +1870,7 @@
 					)
 				}
 
-				// 🔥 直接旋转J3模型（joint_3）
+				// 直接旋转J3模型（joint_3）
 				const j3Model = modelJointMap['joint_3']
 				if (j3Model) {
 					const j3Angle = Math.cos(time * 0.8) * 0.8
