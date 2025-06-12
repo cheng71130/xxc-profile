@@ -56,159 +56,166 @@
 
 		<!-- 模型控制面板 -->
 		<div class="control-panel absolute top-6 left-6 z-5">
-			<el-scrollbar height="800px">
-				<div class="control-card">
-					<div class="card-header">
+			<div class="control-card">
+				<div class="card-header">
+					<div class="card-header-left">
 						<div class="header-icon">
 							<el-icon><Setting /></el-icon>
 						</div>
 						<h3 class="header-title">模型控制</h3>
 					</div>
-
-					<div class="card-content">
-						<!-- 导入方式选择 -->
-						<div class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><FolderOpened /></el-icon>
-								<span>导入方式</span>
-							</div>
-							<el-radio-group v-model="importType" @change="onImportTypeChange" class="import-radio-group">
-								<el-radio-button value="preset" class="mr-2">预设文件夹</el-radio-button>
-								<el-radio-button value="local">本地文件夹</el-radio-button>
-							</el-radio-group>
-						</div>
-
-						<!-- 预设文件夹选择 -->
-						<div v-if="importType === 'preset'" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><Folder /></el-icon>
-								<span>预设文件夹</span>
-							</div>
-							<el-select
-								v-model="selectedFolder"
-								@change="onFolderChange"
-								:disabled="loading"
-								placeholder="选择文件夹"
-								class="full-width-select"
-							>
-								<el-option
-									v-for="folder in availableFolders"
-									:key="folder.value"
-									:label="folder.label"
-									:value="folder.value"
-								/>
-							</el-select>
-							<el-button
-								@click="loadFolderModels"
-								:loading="loading"
-								type="primary"
-								class="action-button"
-								icon="Download"
-							>
-								加载预设模型
-							</el-button>
-						</div>
-
-						<!-- 本地文件夹导入 -->
-						<div v-if="importType === 'local'" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><Folder /></el-icon>
-								<span>本地文件夹</span>
-							</div>
-							<input
-								ref="folderInputRef"
-								type="file"
-								webkitdirectory
-								multiple
-								accept=".obj,.mtl,.png,.jpg,.jpeg,.bmp,.tga"
-								@change="onLocalFolderSelect"
-								style="display: none"
-							/>
-							<el-button @click="selectLocalFolder" :disabled="loading" class="select-folder-button" icon="Upload">
-								选择文件夹
-							</el-button>
-
-							<div v-if="selectedLocalFolder" class="folder-info">
-								<div class="info-item">
-									<el-icon class="info-icon"><Folder /></el-icon>
-									<span class="info-text">{{ selectedLocalFolder.name }}</span>
-								</div>
-								<div class="info-item">
-									<el-icon class="info-icon"><Document /></el-icon>
-									<span class="info-text">{{ localModelFiles.length }} 个模型文件</span>
-								</div>
-							</div>
-
-							<el-button
-								v-if="selectedLocalFolder || localModelFiles.length"
-								@click="loadLocalFolderModels"
-								:loading="loading"
-								type="primary"
-								class="action-button"
-								icon="Download"
-							>
-								加载本地模型
-							</el-button>
-						</div>
-
-						<!-- 光照控制 -->
-						<div class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><Sunny /></el-icon>
-								<span>光照设置</span>
-							</div>
-							<el-slider
-								v-model="lightIntensity"
-								:min="0.5"
-								:max="3"
-								:step="0.1"
-								@change="updateLighting"
-								:show-tooltip="true"
-								:format-tooltip="(val) => `${val.toFixed(1)}`"
-							/>
-						</div>
-
-						<!-- 当前加载的模型列表 -->
-						<div v-if="loadedModels.length > 0" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><View /></el-icon>
-								<span>当前模型</span>
-								<el-tag size="small" class="model-count-tag">{{ loadedModels.length }}</el-tag>
-							</div>
-							<div class="current-model-list">
-								<div
-									v-for="(model, index) in loadedModels"
-									:key="index"
-									class="current-model-item"
-									:class="{ selected: selectedModel?.name === model.name }"
-									@click="selectModelFromList(model)"
-								>
-									<div class="model-indicator" :style="{ backgroundColor: getModelDisplayColor(model) }"></div>
-									<span class="model-name">{{ model.name }}</span>
-									<el-icon class="model-arrow"><ArrowRight /></el-icon>
-								</div>
-							</div>
-						</div>
-
-						<!-- 机器人控制 -->
-						<div class="robot-controls">
-							<el-button
-								@click="makeRobotMovable"
-								type="primary"
-								:disabled="hasRobot"
-								:loading="robotLoading"
-								class="w-full"
-								icon="VideoPlay"
-							>
-								开启机器人仿真
-							</el-button>
-							<el-button @click="clearRobot" type="warning" :disabled="!hasRobot" class="w-full" icon="RefreshRight">
-								恢复静态模型
-							</el-button>
-						</div>
+					<div class="header-expand" @click="panelShow = !panelShow">
+						<el-icon><component :is="panelShow ? 'Minus' : 'Plus'" /></el-icon>
 					</div>
 				</div>
-			</el-scrollbar>
+
+				<el-collapse-transition>
+					<el-scrollbar v-show="panelShow" max-height="800px">
+						<div class="card-content">
+							<!-- 导入方式选择 -->
+							<div class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><FolderOpened /></el-icon>
+									<span>导入方式</span>
+								</div>
+								<el-radio-group v-model="importType" @change="onImportTypeChange" class="import-radio-group">
+									<el-radio-button value="preset" class="mr-2">预设文件夹</el-radio-button>
+									<el-radio-button value="local">本地文件夹</el-radio-button>
+								</el-radio-group>
+							</div>
+
+							<!-- 预设文件夹选择 -->
+							<div v-if="importType === 'preset'" class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Folder /></el-icon>
+									<span>预设文件夹</span>
+								</div>
+								<el-select
+									v-model="selectedFolder"
+									@change="onFolderChange"
+									:disabled="loading"
+									placeholder="选择文件夹"
+									class="full-width-select"
+								>
+									<el-option
+										v-for="folder in availableFolders"
+										:key="folder.value"
+										:label="folder.label"
+										:value="folder.value"
+									/>
+								</el-select>
+								<el-button
+									@click="loadFolderModels"
+									:loading="loading"
+									type="primary"
+									class="action-button"
+									icon="Download"
+								>
+									加载预设模型
+								</el-button>
+							</div>
+
+							<!-- 本地文件夹导入 -->
+							<div v-if="importType === 'local'" class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Folder /></el-icon>
+									<span>本地文件夹</span>
+								</div>
+								<input
+									ref="folderInputRef"
+									type="file"
+									webkitdirectory
+									multiple
+									accept=".obj,.mtl,.png,.jpg,.jpeg,.bmp,.tga"
+									@change="onLocalFolderSelect"
+									style="display: none"
+								/>
+								<el-button @click="selectLocalFolder" :disabled="loading" class="select-folder-button" icon="Upload">
+									选择文件夹
+								</el-button>
+
+								<div v-if="selectedLocalFolder" class="folder-info">
+									<div class="info-item">
+										<el-icon class="info-icon"><Folder /></el-icon>
+										<span class="info-text">{{ selectedLocalFolder.name }}</span>
+									</div>
+									<div class="info-item">
+										<el-icon class="info-icon"><Document /></el-icon>
+										<span class="info-text">{{ localModelFiles.length }} 个模型文件</span>
+									</div>
+								</div>
+
+								<el-button
+									v-if="selectedLocalFolder || localModelFiles.length"
+									@click="loadLocalFolderModels"
+									:loading="loading"
+									type="primary"
+									class="action-button"
+									icon="Download"
+								>
+									加载本地模型
+								</el-button>
+							</div>
+
+							<!-- 光照控制 -->
+							<div class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Sunny /></el-icon>
+									<span>光照设置</span>
+								</div>
+								<el-slider
+									v-model="lightIntensity"
+									:min="0.5"
+									:max="3"
+									:step="0.1"
+									@change="updateLighting"
+									:show-tooltip="true"
+									:format-tooltip="(val) => `${val.toFixed(1)}`"
+								/>
+							</div>
+
+							<!-- 当前加载的模型列表 -->
+							<div v-if="loadedModels.length > 0" class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><View /></el-icon>
+									<span>当前模型</span>
+									<el-tag size="small" class="model-count-tag">{{ loadedModels.length }}</el-tag>
+								</div>
+								<div class="current-model-list">
+									<div
+										v-for="(model, index) in loadedModels"
+										:key="index"
+										class="current-model-item"
+										:class="{ selected: selectedModel?.name === model.name }"
+										@click="selectModelFromList(model)"
+									>
+										<div class="model-indicator" :style="{ backgroundColor: getModelDisplayColor(model) }"></div>
+										<span class="model-name">{{ model.name }}</span>
+										<el-icon class="model-arrow"><ArrowRight /></el-icon>
+									</div>
+								</div>
+							</div>
+
+							<!-- 机器人控制 -->
+							<div class="robot-controls">
+								<el-button
+									@click="makeRobotMovable"
+									type="primary"
+									:disabled="hasRobot"
+									:loading="robotLoading"
+									class="w-full"
+									icon="VideoPlay"
+								>
+									开启仿真
+								</el-button>
+								<el-button @click="clearRobot" type="warning" :disabled="!hasRobot" class="w-full" icon="RefreshRight">
+									恢复静态模型
+								</el-button>
+							</div>
+						</div>
+					</el-scrollbar>
+				</el-collapse-transition>
+			</div>
 		</div>
 
 		<!-- 右侧模型设置面板 -->
@@ -277,9 +284,8 @@
 										v-model="selectedModelPosition.x"
 										:precision="2"
 										:step="0.1"
-										size="small"
 										@change="onModelPositionChange"
-										class="position-input"
+										class="position-input w-full"
 										controls-position="right"
 									/>
 								</div>
@@ -289,9 +295,8 @@
 										v-model="selectedModelPosition.y"
 										:precision="2"
 										:step="0.1"
-										size="small"
 										@change="onModelPositionChange"
-										class="position-input"
+										class="position-input w-full"
 										controls-position="right"
 									/>
 								</div>
@@ -301,9 +306,8 @@
 										v-model="selectedModelPosition.z"
 										:precision="2"
 										:step="0.1"
-										size="small"
 										@change="onModelPositionChange"
-										class="position-input"
+										class="position-input w-full"
 										controls-position="right"
 									/>
 								</div>
@@ -342,6 +346,7 @@
 	import URDFLoader from 'urdf-loader'
 
 	// 响应式数据
+	const panelShow = ref(true)
 	const containerRef = ref(null)
 	const folderInputRef = ref(null)
 	const loading = ref(false)
@@ -1429,7 +1434,21 @@
 		}
 		controls.panSpeed = 0.7
 
-		gizmo = new ViewportGizmo(camera, renderer, { className: 'viewport-gizmo' })
+		gizmo = new ViewportGizmo(camera, renderer, {
+			placement: 'bottom-right',
+			offset: {
+				right: 22,
+				bottom: 22
+			},
+			background: {
+				color: '#F0F0F0',
+				opacity: 1,
+				hover: {
+					color: 0xffffff,
+					opacity: 1
+				}
+			}
+		})
 		gizmo.attachControls(controls)
 
 		// 添加鼠标事件监听
@@ -1918,12 +1937,4 @@
 
 <style lang="scss" scoped>
 	@use './styles/index.scss';
-</style>
-
-<style lang="scss">
-	.viewport-gizmo {
-		top: unset !important;
-		bottom: 30px;
-		background-color: #6d6d6d28;
-	}
 </style>

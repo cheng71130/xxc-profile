@@ -117,7 +117,7 @@
 							<!-- 动画控制 -->
 							<div v-if="robot" class="control-section">
 								<div class="section-label">
-									<el-icon class="label-icon"><VideoPlay /></el-icon>
+									<el-icon class="label-icon"><Odometer /></el-icon>
 									<span>动画控制</span>
 								</div>
 								<div class="animation-controls">
@@ -330,7 +330,21 @@
 		controls.panSpeed = 0.7
 
 		// 视角小工具
-		gizmo = new ViewportGizmo(camera, renderer, { className: 'viewport-gizmo' })
+		gizmo = new ViewportGizmo(camera, renderer, {
+			placement: 'bottom-right',
+			offset: {
+				right: 22,
+				bottom: 22
+			},
+			background: {
+				color: '#F0F0F0',
+				opacity: 1,
+				hover: {
+					color: 0xffffff,
+					opacity: 1
+				}
+			}
+		})
 		gizmo.attachControls(controls)
 
 		// 设置光照系统
@@ -870,13 +884,5 @@
 	.info-value {
 		font-weight: 500;
 		color: #333;
-	}
-</style>
-
-<style lang="scss">
-	.viewport-gizmo {
-		top: unset !important;
-		bottom: 30px;
-		background-color: #6d6d6d28;
 	}
 </style>
