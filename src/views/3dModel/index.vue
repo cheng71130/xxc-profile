@@ -1442,10 +1442,10 @@
 			},
 			background: {
 				color: '#F0F0F0',
-				opacity: 1,
+				opacity: 0.6,
 				hover: {
 					color: 0xffffff,
-					opacity: 1
+					opacity: 0.6
 				}
 			}
 		})

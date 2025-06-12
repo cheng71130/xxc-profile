@@ -338,10 +338,10 @@
 			},
 			background: {
 				color: '#F0F0F0',
-				opacity: 1,
+				opacity: 0.6,
 				hover: {
 					color: 0xffffff,
-					opacity: 1
+					opacity: 0.6
 				}
 			}
 		})
@@ -820,15 +820,7 @@
 </script>
 
 <style lang="scss" scoped>
-	@use './styles/index.scss';
-
-	.control-panel {
-		background: rgba(255, 255, 255, 0.95);
-		backdrop-filter: blur(10px);
-		border-radius: 12px;
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-		overflow: hidden;
-	}
+	@use '../3dModel/styles/index.scss';
 
 	.joint-controls {
 		overflow-y: auto;
@@ -861,7 +853,7 @@
 	}
 
 	.robot-info {
-		background: #f8f9fa;
+		background: #f0f0f0;
 		border-radius: 8px;
 		padding: 15px;
 	}
