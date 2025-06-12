@@ -1605,16 +1605,13 @@
 				let cameraDistance = Math.abs(maxDimAfterScale / 2 / Math.tan(fov / 2))
 				cameraDistance *= 1.8
 
-				// 保持固定的CAD视角方向 (8, -8, 6)
+				// // 保持固定的CAD视角方向 (8, -8, 6)
 				const direction = new THREE.Vector3(8, -8, 6).normalize()
 
-				// 设置新位置：模型中心 + 方向 * 距离
+				// // 设置新位置：模型中心 + 方向 * 距离
 				camera.position.copy(center).add(direction.multiplyScalar(cameraDistance))
-
-				// 关键：保持CAD设置
 				camera.up.set(0, 0, 1)
 				camera.lookAt(center.x, center.y, center.z)
-
 				controls.target.copy(center)
 				controls.update()
 

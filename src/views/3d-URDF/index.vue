@@ -86,6 +86,28 @@
 							</div>
 						</div>
 
+						<!-- 机器人信息 -->
+						<div v-if="robot" class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><InfoFilled /></el-icon>
+								<span>机器人信息</span>
+							</div>
+							<div class="robot-info">
+								<div class="info-item">
+									<span class="info-label">关节数量</span>
+									<span class="info-value">{{ jointNames.length }}</span>
+								</div>
+								<div class="info-item">
+									<span class="info-label">连杆数量</span>
+									<span class="info-value">{{ linkNames.length }}</span>
+								</div>
+								<div class="info-item">
+									<span class="info-label">自由度</span>
+									<span class="info-value">{{ revoluteJoints.length }}</span>
+								</div>
+							</div>
+						</div>
+
 						<!-- 动画控制 -->
 						<div v-if="robot" class="control-section">
 							<div class="section-label">
@@ -100,57 +122,6 @@
 									停止动画
 								</el-button>
 								<el-button @click="resetJoints" type="info" icon="RefreshRight"> 复位关节 </el-button>
-							</div>
-						</div>
-
-						<!-- 光照控制 -->
-						<div class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><Sunny /></el-icon>
-								<span>光照设置</span>
-							</div>
-							<el-slider
-								v-model="lightIntensity"
-								:min="0.5"
-								:max="3"
-								:step="0.1"
-								@change="updateLighting"
-								:show-tooltip="true"
-								:format-tooltip="(val) => `${val.toFixed(1)}`"
-							/>
-						</div>
-
-						<!-- 机器人信息 -->
-						<div v-if="robot" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><InfoFilled /></el-icon>
-								<span>机器人信息</span>
-							</div>
-							<div class="robot-info">
-								<div class="info-item">
-									<span class="info-label">关节数量:</span>
-									<span class="info-value">{{ jointNames.length }}</span>
-								</div>
-								<div class="info-item">
-									<span class="info-label">连杆数量:</span>
-									<span class="info-value">{{ linkNames.length }}</span>
-								</div>
-								<div class="info-item">
-									<span class="info-label">自由度:</span>
-									<span class="info-value">{{ revoluteJoints.length }}</span>
-								</div>
-							</div>
-						</div>
-
-						<!-- 视角控制 -->
-						<div class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><View /></el-icon>
-								<span>视角控制</span>
-							</div>
-							<div class="view-controls">
-								<el-button @click="resetView" type="info" icon="Refresh"> 重置视角 </el-button>
-								<el-button @click="focusRobot" type="primary" icon="ZoomIn"> 聚焦机器人 </el-button>
 							</div>
 						</div>
 					</div>
@@ -215,14 +186,14 @@
 		scene.background = new THREE.Color('#f0f0f0')
 
 		// 保持你原来的地面和网格设置
-		const groundGeometry = new THREE.BoxGeometry(30, 30, 2)
+		const groundGeometry = new THREE.BoxGeometry(30, 30, 0.5)
 		const groundMaterial = new THREE.MeshBasicMaterial({
 			color: '#333333',
 			transparent: true,
 			opacity: 0.4
 		})
 		const ground = new THREE.Mesh(groundGeometry, groundMaterial)
-		ground.position.z = -1
+		ground.position.z = -0.25
 		scene.add(ground)
 
 		const grid = new THREE.GridHelper(30, 15, '#ffffff', '#ffffff')
@@ -258,7 +229,7 @@
 		controls.enableDamping = true
 		controls.dampingFactor = 0.05
 		controls.minDistance = 0.5
-		controls.maxDistance = 100
+		controls.maxDistance = 1000
 		controls.target.set(0, 0, 0)
 		controls.enablePan = true
 		controls.mouseButtons = {
@@ -279,7 +250,7 @@
 		animate()
 	}
 
-	// 设置光照系统 - 保持你原来的设置
+	// 设置光照系统
 	const setupLights = () => {
 		lights.forEach((light) => scene.remove(light))
 		lights = []
@@ -315,23 +286,6 @@
 		const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, lightIntensity.value * 0.5)
 		scene.add(hemisphereLight)
 		lights.push(hemisphereLight)
-	}
-
-	// 更新光照强度
-	const updateLighting = () => {
-		lights.forEach((light, index) => {
-			if (light.isAmbientLight) {
-				light.intensity = lightIntensity.value * 0.8
-			} else if (light.isDirectionalLight) {
-				if (index === 1) {
-					light.intensity = lightIntensity.value
-				} else {
-					light.intensity = lightIntensity.value * (0.3 + index * 0.1)
-				}
-			} else if (light.isHemisphereLight) {
-				light.intensity = lightIntensity.value * 0.5
-			}
-		})
 	}
 
 	const loadRobot = async () => {
@@ -422,18 +376,18 @@
 					// 提取关节信息
 					extractRobotInfo(robot)
 
-					// 应用你原来的模型处理逻辑
+					// 模型处理
 					processRobotModel(robot)
 
-					// 调整相机视角 - 保持CAD风格
-					adjustCameraView(robot)
-
-					loadingProgress.value = 100
-					loadingText.value = '加载完成！'
-
 					setTimeout(() => {
-						loading.value = false
-						ElMessage.success(`机器人加载成功！找到 ${jointNames.value.length} 个关节`)
+						// 调整相机视角
+						adjustCameraView(robot)
+						loadingProgress.value = 100
+						loadingText.value = '加载完成！'
+						setTimeout(() => {
+							loading.value = false
+							ElMessage.success(`机器人加载成功！找到 ${jointNames.value.length} 个关节`)
+						}, 1000)
 					}, 500)
 				},
 				(progress) => {
@@ -480,9 +434,8 @@
 
 	// 处理机器人模型
 	const processRobotModel = (robotModel) => {
-		// 单位转换：mm -> m
-		robotModel.scale.multiplyScalar(0.001)
-
+		// 单位转换：mm -> m 然后缩放
+		robotModel.scale.multiplyScalar(0.001 * 3)
 		// 应用材质和阴影设置
 		robotModel.traverse((child) => {
 			if (child.isMesh) {
@@ -547,21 +500,24 @@
 
 	// 调整相机视角
 	const adjustCameraView = (robotModel) => {
-		// const box = new THREE.Box3().setFromObject(robotModel)
-		// const center = box.getCenter(new THREE.Vector3())
-		// const size = box.getSize(new THREE.Vector3())
-		// const maxDim = Math.max(size.x, size.y, size.z)
-		// cameraDistance *= distanceMultiplier
-		// // 设置合理的距离范围限制
-		// cameraDistance = Math.max(cameraDistance, 1.0) // 最小距离
-		// cameraDistance = Math.min(cameraDistance, 500.0) // 最大距离
-		// // 保持CAD视角方向，但调整距离
-		// const direction = new THREE.Vector3(8, -8, 6).normalize()
-		// camera.position.copy(center).add(direction.multiplyScalar(cameraDistance))
-		// camera.up.set(0, 0, 1)
-		// camera.lookAt(center.x, center.y, center.z)
-		// controls.target.copy(center)
-		// controls.update()
+		const box = new THREE.Box3().setFromObject(robotModel)
+		const center = box.getCenter(new THREE.Vector3())
+		const size = box.getSize(new THREE.Vector3())
+
+		const fov = camera.fov * (Math.PI / 180)
+		const maxDimAfterScale = Math.max(size.x, size.y, size.z)
+		let cameraDistance = Math.abs(maxDimAfterScale / 2 / Math.tan(fov / 2))
+		cameraDistance *= 1.8
+
+		// 保持固定的CAD视角方向 (8, -8, 6)
+		const direction = new THREE.Vector3(8, -8, 6).normalize()
+
+		// 设置新位置：模型中心 + 方向 * 距离
+		camera.position.copy(center).add(direction.multiplyScalar(cameraDistance))
+		camera.up.set(0, 0, 1)
+		camera.lookAt(center.x, center.y, center.z)
+		controls.target.copy(center)
+		controls.update()
 	}
 
 	// 关节控制
@@ -629,21 +585,6 @@
 		})
 
 		ElMessage.success('关节已复位')
-	}
-
-	// 视角控制
-	const resetView = () => {
-		camera.position.set(8, -8, 6)
-		camera.up.set(0, 0, 1)
-		camera.lookAt(0, 0, 0)
-		controls.target.set(0, 0, 0)
-		controls.update()
-	}
-
-	const focusRobot = () => {
-		if (robot) {
-			adjustCameraView(robot)
-		}
 	}
 
 	// URDF文件改变
