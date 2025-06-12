@@ -177,7 +177,7 @@
 		backdrop-filter: blur(12px);
 		border-radius: 16px;
 		padding: 0;
-		min-width: 320px;
+		min-width: 300px;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
 		border: 1px solid rgba(255, 255, 255, 0.3);
 		overflow: hidden;
@@ -188,19 +188,39 @@
 			padding: 16px 20px;
 			display: flex;
 			align-items: center;
+			justify-content: space-between;
 			gap: 12px;
 
-			.header-icon {
+			.card-header-left {
+				display: flex;
+				gap: 12px;
+
+				.header-icon {
+					display: flex;
+					align-items: center;
+					font-size: 18px;
+				}
+
+				.header-title {
+					margin: 0;
+					font-size: 16px;
+					font-weight: 600;
+				}
+			}
+
+			.header-expand {
 				display: flex;
 				align-items: center;
 				font-size: 18px;
-			}
-
-			.header-title {
-				margin: 0;
-				font-size: 16px;
-				font-weight: 600;
-				letter-spacing: -0.025em;
+				padding: 2px;
+				background-color: #9c85f06c;
+				border-radius: 6px;
+				cursor: pointer;
+				float: right;
+				transition: all 0.3s;
+				&:hover {
+					background-color: #c2b1fd59;
+				}
 			}
 		}
 

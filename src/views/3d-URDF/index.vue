@@ -29,104 +29,188 @@
 
 		<!-- 机器人控制面板 -->
 		<div class="control-panel absolute top-6 left-6 z-5">
-			<el-scrollbar max-height="850px">
-				<div class="control-card">
-					<div class="card-header">
+			<div class="control-card">
+				<div class="card-header">
+					<div class="card-header-left">
 						<div class="header-icon">
 							<el-icon><Setting /></el-icon>
 						</div>
 						<h3 class="header-title">机器人控制</h3>
 					</div>
 
-					<div class="card-content">
-						<!-- URDF文件选择 -->
-						<div class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><Document /></el-icon>
-								<span>URDF文件</span>
-							</div>
-							<el-select
-								v-model="selectedUrdf"
-								@change="onUrdfChange"
-								:disabled="loading"
-								placeholder="选择URDF文件"
-								class="full-width-select"
-							>
-								<el-option v-for="urdf in availableUrdfs" :key="urdf.value" :label="urdf.label" :value="urdf.value" />
-							</el-select>
-							<el-button @click="loadRobot" :loading="loading" type="primary" class="action-button" icon="Download">
-								加载机器人
-							</el-button>
-						</div>
-
-						<!-- 关节控制 -->
-						<div v-if="robot && jointNames.length > 0" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><Operation /></el-icon>
-								<span>关节控制</span>
-								<el-tag size="small" class="model-count-tag">{{ jointNames.length }}</el-tag>
-							</div>
-
-							<div class="joint-controls">
-								<div v-for="jointName in jointNames" :key="jointName" class="joint-control-item">
-									<div class="joint-label">{{ jointName }}</div>
-									<div class="joint-slider">
-										<el-slider
-											v-model="jointValues[jointName]"
-											:min="getJointLimit(jointName, 'lower')"
-											:max="getJointLimit(jointName, 'upper')"
-											:step="0.1"
-											@change="onJointValueChange(jointName)"
-											:show-tooltip="true"
-											:format-tooltip="(val) => `${((val * 180) / Math.PI).toFixed(1)}°`"
-										/>
-									</div>
-									<div class="joint-value">{{ ((jointValues[jointName] * 180) / Math.PI).toFixed(1) }}°</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- 机器人信息 -->
-						<div v-if="robot" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><InfoFilled /></el-icon>
-								<span>机器人信息</span>
-							</div>
-							<div class="robot-info">
-								<div class="info-item">
-									<span class="info-label">关节数量</span>
-									<span class="info-value">{{ jointNames.length }}</span>
-								</div>
-								<div class="info-item">
-									<span class="info-label">连杆数量</span>
-									<span class="info-value">{{ linkNames.length }}</span>
-								</div>
-								<div class="info-item">
-									<span class="info-label">自由度</span>
-									<span class="info-value">{{ revoluteJoints.length }}</span>
-								</div>
-							</div>
-						</div>
-
-						<!-- 动画控制 -->
-						<div v-if="robot" class="control-section">
-							<div class="section-label">
-								<el-icon class="label-icon"><VideoPlay /></el-icon>
-								<span>动画控制</span>
-							</div>
-							<div class="animation-controls">
-								<el-button @click="startAnimation" :disabled="isAnimating" type="primary" icon="VideoPlay">
-									开始动画
-								</el-button>
-								<el-button @click="stopAnimation" :disabled="!isAnimating" type="warning" icon="VideoPause">
-									停止动画
-								</el-button>
-								<el-button @click="resetJoints" type="info" icon="RefreshRight"> 复位关节 </el-button>
-							</div>
-						</div>
+					<div class="header-expand" @click="leftShow = !leftShow">
+						<el-icon><component :is="leftShow ? 'Minus' : 'Plus'" /></el-icon>
 					</div>
 				</div>
-			</el-scrollbar>
+				<el-collapse-transition>
+					<el-scrollbar v-show="leftShow" max-height="850px">
+						<div class="card-content">
+							<!-- URDF文件选择 -->
+							<div class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Document /></el-icon>
+									<span>URDF文件</span>
+								</div>
+								<el-select
+									v-model="selectedUrdf"
+									@change="onUrdfChange"
+									:disabled="loading"
+									placeholder="选择URDF文件"
+									class="full-width-select"
+								>
+									<el-option v-for="urdf in availableUrdfs" :key="urdf.value" :label="urdf.label" :value="urdf.value" />
+								</el-select>
+								<el-button @click="loadRobot" :loading="loading" type="primary" class="action-button" icon="Download">
+									加载机器人
+								</el-button>
+							</div>
+
+							<!-- 关节控制 -->
+							<div v-if="robot && jointNames.length > 0" class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Operation /></el-icon>
+									<span>关节控制</span>
+									<el-tag size="small" class="model-count-tag">{{ jointNames.length }}</el-tag>
+								</div>
+
+								<div class="joint-controls">
+									<div v-for="jointName in jointNames" :key="jointName" class="joint-control-item">
+										<div class="joint-label">{{ jointName }}</div>
+										<div class="joint-slider">
+											<el-slider
+												v-model="jointValues[jointName]"
+												:min="getJointLimit(jointName, 'lower')"
+												:max="getJointLimit(jointName, 'upper')"
+												:step="0.1"
+												@change="onJointValueChange(jointName)"
+												:show-tooltip="true"
+												:format-tooltip="(val) => `${((val * 180) / Math.PI).toFixed(1)}°`"
+											/>
+										</div>
+										<div class="joint-value">{{ ((jointValues[jointName] * 180) / Math.PI).toFixed(1) }}°</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 机器人信息 -->
+							<div v-if="robot" class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><InfoFilled /></el-icon>
+									<span>机器人信息</span>
+								</div>
+								<div class="robot-info">
+									<div class="info-item">
+										<span class="info-label">关节数量</span>
+										<span class="info-value">{{ jointNames.length }}</span>
+									</div>
+									<div class="info-item">
+										<span class="info-label">连杆数量</span>
+										<span class="info-value">{{ linkNames.length }}</span>
+									</div>
+									<div class="info-item">
+										<span class="info-label">自由度</span>
+										<span class="info-value">{{ revoluteJoints.length }}</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- 动画控制 -->
+							<div v-if="robot" class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><VideoPlay /></el-icon>
+									<span>动画控制</span>
+								</div>
+								<div class="animation-controls">
+									<el-button @click="startAnimation" :disabled="isAnimating" type="primary" icon="VideoPlay">
+										开始动画
+									</el-button>
+									<el-button @click="stopAnimation" :disabled="!isAnimating" type="warning" icon="VideoPause">
+										停止动画
+									</el-button>
+									<el-button @click="resetJoints" type="info" icon="RefreshRight"> 复位关节 </el-button>
+								</div>
+							</div>
+
+							<!-- <div class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><Sunny /></el-icon>
+								<span>光照控制</span>
+							</div>
+							<el-slider
+								v-model="lightIntensity"
+								:min="0.1"
+								:max="3"
+								:step="0.1"
+								@change="updateLighting"
+								:show-tooltip="true"
+								:format-tooltip="(val) => `${val.toFixed(1)}x`"
+							/>
+						</div>
+						<div class="control-section">
+							<div class="section-label">
+								<el-icon class="label-icon"><Finished /></el-icon>
+								<span>阴影质量</span>
+							</div>
+							<el-select v-model="shadowQuality" @change="updateShadowQuality">
+								<el-option label="低" value="low" />
+								<el-option label="中" value="medium" />
+								<el-option label="高" value="high" />
+							</el-select>
+						</div> -->
+						</div>
+					</el-scrollbar>
+				</el-collapse-transition>
+			</div>
+		</div>
+
+		<!-- 其他配置 -->
+		<div class="control-panel absolute top-6 right-6 z-5">
+			<div class="control-card">
+				<div class="card-header">
+					<div class="card-header-left">
+						<div class="header-icon">
+							<el-icon><Setting /></el-icon>
+						</div>
+						<h3 class="header-title">环境控制</h3>
+					</div>
+
+					<div class="header-expand" @click="rightShow = !rightShow">
+						<el-icon><component :is="rightShow ? 'Minus' : 'Plus'" /></el-icon>
+					</div>
+				</div>
+				<el-collapse-transition>
+					<el-scrollbar v-show="rightShow" max-height="850px">
+						<div class="card-content">
+							<div class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Sunny /></el-icon>
+									<span>光照控制</span>
+								</div>
+								<el-slider
+									v-model="lightIntensity"
+									:min="0.1"
+									:max="3"
+									:step="0.1"
+									@change="updateLighting"
+									:show-tooltip="true"
+									:format-tooltip="(val) => `${val.toFixed(1)}x`"
+								/>
+							</div>
+							<div class="control-section">
+								<div class="section-label">
+									<el-icon class="label-icon"><Finished /></el-icon>
+									<span>阴影质量</span>
+								</div>
+								<el-select v-model="shadowQuality" @change="updateShadowQuality">
+									<el-option label="低" value="low" />
+									<el-option label="中" value="medium" />
+									<el-option label="高" value="high" />
+								</el-select>
+							</div>
+						</div>
+					</el-scrollbar>
+				</el-collapse-transition>
+			</div>
 		</div>
 
 		<!-- Three.js 渲染容器 -->
@@ -143,12 +227,16 @@
 	import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
 	import URDFLoader from 'urdf-loader'
 
+	const leftShow = ref(true)
+	const rightShow = ref(true)
+
 	// 响应式数据
 	const containerRef = ref(null)
 	const loading = ref(false)
 	const loadingProgress = ref(0)
 	const loadingText = ref('准备加载机器人...')
-	const lightIntensity = ref(1.5)
+	const lightIntensity = ref(2)
+	const shadowQuality = ref('high')
 	const selectedUrdf = ref('robot.urdf')
 
 	// 机器人相关数据
@@ -171,38 +259,48 @@
 	let animationId = null
 	let robotAnimationId = null
 	let lights = []
+	let mainLight = null
 
-	// 初始化Three.js场景 - 保持你原来的设置
+	// 阴影质量配置
+	const shadowConfigs = {
+		low: { mapSize: 1024, bias: -0.001 },
+		medium: { mapSize: 2048, bias: -0.0005 },
+		high: { mapSize: 4096, bias: -0.0001 }
+	}
+
+	// 初始化Three.js场景
 	const initThreeJS = () => {
 		scene = new THREE.Scene()
 		scene.background = new THREE.Color('#f0f0f0')
 
-		// 保持你原来的地面和网格设置
+		// 创建地面 - 使用支持光照的材质
 		const groundGeometry = new THREE.BoxGeometry(30, 30, 0.5)
-		const groundMaterial = new THREE.MeshBasicMaterial({
-			color: '#333333',
+		const groundMaterial = new THREE.MeshLambertMaterial({
+			color: '#f5f5f5',
 			transparent: true,
-			opacity: 0.4
+			opacity: 0.8
 		})
 		const ground = new THREE.Mesh(groundGeometry, groundMaterial)
 		ground.position.z = -0.25
+		ground.receiveShadow = true // 接收阴影
 		scene.add(ground)
 
-		const grid = new THREE.GridHelper(30, 15, '#ffffff', '#ffffff')
-		grid.material.opacity = 0.6
+		// 网格
+		const grid = new THREE.GridHelper(30, 12, '#ffffff', '#ffffff')
+		grid.material.opacity = 1
 		grid.material.depthWrite = false
 		grid.material.transparent = true
-		grid.rotateX(Math.PI / 2) // 将网格从XZ平面旋转到XY平面
+		grid.rotateX(Math.PI / 2)
 		scene.add(grid)
 
-		// 保持你原来的相机设置
+		// 相机设置
 		const aspect = containerRef.value.clientWidth / containerRef.value.clientHeight
 		camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000)
-		camera.position.set(8, -8, 6) // 保持CAD视角
-		camera.up.set(0, 0, 1) // 保持Z轴向上
+		camera.position.set(8, -8, 6)
+		camera.up.set(0, 0, 1)
 		camera.lookAt(0, 0, 0)
 
-		// 渲染器设置保持一致
+		// 渲染器设置 - 启用阴影
 		renderer = new THREE.WebGLRenderer({
 			antialias: true,
 			alpha: true
@@ -210,13 +308,13 @@
 		renderer.setSize(containerRef.value.clientWidth, containerRef.value.clientHeight)
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 		renderer.shadowMap.enabled = true
-		renderer.shadowMap.type = THREE.PCFSoftShadowMap
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap // 使用软阴影
 		renderer.outputEncoding = THREE.sRGBEncoding
 		renderer.toneMapping = THREE.ReinhardToneMapping
 		renderer.toneMappingExposure = 1.2
 		containerRef.value.appendChild(renderer.domElement)
 
-		// 控制器设置保持一致
+		// 控制器设置
 		controls = new OrbitControls(camera, renderer.domElement)
 		controls.enableDamping = true
 		controls.dampingFactor = 0.05
@@ -242,42 +340,67 @@
 		animate()
 	}
 
-	// 设置光照系统
+	// 设置光照系统 - 优化阴影效果
 	const setupLights = () => {
 		lights.forEach((light) => scene.remove(light))
 		lights = []
 
-		const ambientLight = new THREE.AmbientLight(0x404040, lightIntensity.value * 0.8)
+		// 环境光 - 提供基础照明
+		const ambientLight = new THREE.AmbientLight(0x404040, lightIntensity.value * 0.4)
 		scene.add(ambientLight)
 		lights.push(ambientLight)
 
-		const lightDistance = 100
-		const directionalLight1 = new THREE.DirectionalLight(0xffffff, lightIntensity.value)
-		directionalLight1.position.set(lightDistance, lightDistance, lightDistance / 2)
-		directionalLight1.castShadow = true
-		directionalLight1.shadow.mapSize.width = 2048
-		directionalLight1.shadow.mapSize.height = 2048
-		scene.add(directionalLight1)
-		lights.push(directionalLight1)
+		// 主光源 - 投射阴影
+		mainLight = new THREE.DirectionalLight(0xffffff, lightIntensity.value * 0.8)
+		mainLight.position.set(10, 10, 8)
+		mainLight.castShadow = true
 
-		const directions = [
-			{ pos: [-lightDistance, lightDistance, lightDistance / 2], intensity: 0.6 },
-			{ pos: [lightDistance / 2, -lightDistance, lightDistance], intensity: 0.5 },
-			{ pos: [-lightDistance / 2, lightDistance / 2, -lightDistance], intensity: 0.4 },
-			{ pos: [0, lightDistance * 1.5, 0], intensity: 0.3 },
-			{ pos: [lightDistance * 1.5, 0, 0], intensity: 0.3 }
-		]
+		// 设置阴影质量
+		const config = shadowConfigs[shadowQuality.value]
+		mainLight.shadow.mapSize.width = config.mapSize
+		mainLight.shadow.mapSize.height = config.mapSize
+		mainLight.shadow.camera.near = 0.1
+		mainLight.shadow.camera.far = 50
+		mainLight.shadow.camera.left = -15
+		mainLight.shadow.camera.right = 15
+		mainLight.shadow.camera.top = 15
+		mainLight.shadow.camera.bottom = -15
+		mainLight.shadow.bias = config.bias
+		scene.add(mainLight)
+		lights.push(mainLight)
 
-		directions.forEach(({ pos, intensity }) => {
-			const light = new THREE.DirectionalLight(0xffffff, lightIntensity.value * intensity)
-			light.position.set(pos[0], pos[1], pos[2])
-			scene.add(light)
-			lights.push(light)
-		})
+		// 辅助光源 - 不投射阴影，用于补光
+		const fillLight = new THREE.DirectionalLight(0xffffff, lightIntensity.value * 0.3)
+		fillLight.position.set(-8, -8, 6)
+		scene.add(fillLight)
+		lights.push(fillLight)
 
-		const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, lightIntensity.value * 0.5)
+		// 背光 - 增强轮廓
+		const backLight = new THREE.DirectionalLight(0xffffff, lightIntensity.value * 0.2)
+		backLight.position.set(0, -15, 2)
+		scene.add(backLight)
+		lights.push(backLight)
+
+		// 天空光 - 模拟天空散射
+		const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, lightIntensity.value * 0.3)
 		scene.add(hemisphereLight)
 		lights.push(hemisphereLight)
+	}
+
+	// 更新光照
+	const updateLighting = () => {
+		setupLights()
+	}
+
+	// 更新阴影质量
+	const updateShadowQuality = () => {
+		if (mainLight) {
+			const config = shadowConfigs[shadowQuality.value]
+			mainLight.shadow.mapSize.width = config.mapSize
+			mainLight.shadow.mapSize.height = config.mapSize
+			mainLight.shadow.bias = config.bias
+			mainLight.shadow.needsUpdate = true
+		}
 	}
 
 	const loadRobot = async () => {
@@ -341,12 +464,14 @@
 				} else if (path.endsWith('.stl')) {
 					const stlLoader = new THREE.STLLoader(manager)
 					stlLoader.load(path, (geometry) => {
-						const material = new THREE.MeshPhongMaterial({
+						const material = new THREE.MeshLambertMaterial({
 							color: 0x888888,
 							shininess: 30,
 							specular: 0x222222
 						})
 						const mesh = new THREE.Mesh(geometry, material)
+						mesh.castShadow = true
+						mesh.receiveShadow = true
 						enhanceModel(mesh)
 						onComplete(mesh)
 					})
@@ -384,8 +509,6 @@
 				},
 				(progress) => {
 					// 加载进度回调
-					// const percent = Math.round((progress.loaded / progress.total) * 40) + 30
-					// loadingProgress.value = Math.min(percent, 70)
 				},
 				(error) => {
 					console.error('URDF加载失败:', error)
@@ -424,37 +547,57 @@
 		revoluteJoints.value = revolutes
 	}
 
-	// 处理机器人模型
+	// 处理机器人模型 - 添加阴影设置
 	const processRobotModel = (robotModel) => {
 		// 单位转换：mm -> m 然后缩放
 		robotModel.scale.multiplyScalar(0.001 * 3)
+
 		// 应用材质和阴影设置
 		robotModel.traverse((child) => {
 			if (child.isMesh) {
-				child.castShadow = true
-				child.receiveShadow = true
+				child.castShadow = true // 投射阴影
+				child.receiveShadow = true // 接收阴影
 
 				if (child.material) {
 					const materials = Array.isArray(child.material) ? child.material : [child.material]
-					materials.forEach((mat) => enhanceMaterial(mat))
+					materials.forEach((mat) => {
+						enhanceMaterial(mat)
+						// 确保材质支持阴影
+						if (mat.type === 'MeshBasicMaterial') {
+							// 将基础材质替换为支持光照的材质
+							const newMat = new THREE.MeshLambertMaterial({
+								color: mat.color,
+								transparent: mat.transparent,
+								opacity: mat.opacity
+							})
+							child.material = newMat
+						}
+					})
 				}
 			}
 		})
 	}
 
-	// 材质增强
+	// 材质增强 - 确保材质支持光照
 	const enhanceMaterial = (material) => {
+		// 如果是基础材质，需要有光照计算才能显示阴影
+		if (material.type === 'MeshBasicMaterial') {
+			return // 在processRobotModel中会被替换
+		}
+
 		if (material.emissive && material.emissive.getHex() === 0x000000) {
 			if (material.color) {
-				material.emissive.setRGB(material.color.r * 0.05, material.color.g * 0.05, material.color.b * 0.05)
-			} else {
-				material.emissive.setHex(0x0a0a0a)
+				material.emissive.setRGB(material.color.r * 0.02, material.color.g * 0.02, material.color.b * 0.02)
 			}
 		}
+
 		if (material.shininess !== undefined && material.shininess === 0) {
-			material.shininess = 30
+			material.shininess = 60
 		}
-		material.receiveShadow = true
+
+		// 确保材质接收阴影
+		material.needsUpdate = true
+
 		if (material.transparent === undefined) {
 			material.transparent = false
 		}
@@ -462,16 +605,17 @@
 
 	// 应用默认材质
 	const applyDefaultMaterials = (object) => {
-		const defaultMaterial = new THREE.MeshPhongMaterial({
-			color: 0x888888,
-			shininess: 30,
-			specular: 0x222222
-		})
+		const colors = [0x888888, 0x666666, 0xaaaaaa, 0x999999, 0x777777]
 
 		object.traverse((child) => {
 			if (child.isMesh) {
-				child.material = defaultMaterial.clone()
-				child.material.color.setHex(Math.random() * 0xffffff)
+				const randomColor = colors[Math.floor(Math.random() * colors.length)]
+				child.material = new THREE.MeshLambertMaterial({
+					color: randomColor,
+					shininess: 60
+				})
+				child.castShadow = true
+				child.receiveShadow = true
 			}
 		})
 	}
@@ -479,12 +623,17 @@
 	// 模型增强
 	const enhanceModel = (object) => {
 		object.traverse((child) => {
-			if (child.isMesh && child.material) {
-				const material = child.material
-				if (Array.isArray(material)) {
-					material.forEach((mat) => enhanceMaterial(mat))
-				} else {
-					enhanceMaterial(material)
+			if (child.isMesh) {
+				child.castShadow = true
+				child.receiveShadow = true
+
+				if (child.material) {
+					const material = child.material
+					if (Array.isArray(material)) {
+						material.forEach((mat) => enhanceMaterial(mat))
+					} else {
+						enhanceMaterial(material)
+					}
 				}
 			}
 		})
@@ -659,8 +808,7 @@
 <style lang="scss" scoped>
 	@use './styles/index.scss';
 
-	.control-panel,
-	.settings-panel {
+	.control-panel {
 		background: rgba(255, 255, 255, 0.95);
 		backdrop-filter: blur(10px);
 		border-radius: 12px;
@@ -669,7 +817,6 @@
 	}
 
 	.joint-controls {
-		// max-height: 400px;
 		overflow-y: auto;
 	}
 
