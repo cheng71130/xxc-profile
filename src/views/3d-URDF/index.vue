@@ -161,16 +161,8 @@
 	// 可用的URDF文件
 	const availableUrdfs = ref([
 		{
-			label: 'R2000iC-165F 机器人',
+			label: 'R2000iC-165F',
 			value: 'robot.urdf'
-		},
-		{
-			label: 'UR5 机器人',
-			value: 'ur5.urdf'
-		},
-		{
-			label: 'Panda 机器人',
-			value: 'panda.urdf'
 		}
 	])
 
@@ -717,6 +709,10 @@
 		display: flex;
 		justify-content: space-between;
 		margin-bottom: 8px;
+	}
+
+	.info-item:last-child {
+		margin-bottom: 0;
 	}
 
 	.info-label {
