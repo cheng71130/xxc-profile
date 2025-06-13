@@ -1,3 +1,4 @@
+
 <template>
 	<el-container v-show="loaded" class="main-container animate__animated animate__fadeIn">
 		<el-header class="header">
@@ -6,7 +7,13 @@
 		<el-main class="main">
 			<div class="content">
 				<div class="card" v-for="(item, index) in cards" :key="index" @click="toNavigation(item.path)">
-					<img :src="item.img" alt="Card Image" class="card-img" />
+					<img 
+						:src="item.img" 
+						alt="Card Image" 
+						class="card-img" 
+						@load="onImageLoad(index)"
+						@error="onImageError(index)"
+					/>
 					<div class="card-title">{{ item.title }}</div>
 					<p>{{ item.description }}</p>
 				</div>
@@ -14,7 +21,7 @@
 			<showMoreBtn @click="router.push('/gallery')"/>
 		</el-main>
 	</el-container>
-	<div v-if="!allImagesLoaded" class="load-container">
+	<div v-if="!loaded" class="load-container">
 		<div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
 			<div class="wheel"></div>
 			<div class="hamster">
@@ -37,15 +44,12 @@
 </template>
 
 <script setup>
-	import { ref, computed } from 'vue'
-	import { useRoute } from 'vue-router'
+	import { ref, computed, onMounted } from 'vue'
+	import { useRouter } from 'vue-router'
+	import { ElMessage } from 'element-plus'
 	import showMoreBtn from './components/showMoreBtn.vue'
 
-	const route = useRoute()
 	const router = useRouter()
-	const showNav = computed(() => {
-		return route.path === '/home'
-	})
 
 	const toNavigation = (path) => {
 		router.push(path)
@@ -72,33 +76,65 @@
 		}
 	])
 
+	// 图片加载状态：3张卡片图片 + 1张背景图片 = 4张
 	const imagesLoaded = ref([false, false, false, false])
 	const allImagesLoaded = computed(() => imagesLoaded.value.every((loaded) => loaded))
+	const loaded = computed(() => allImagesLoaded.value)
 
-	onMounted(() => {
-		// 检查卡片图片的加载状态
-		const imgElements = document.querySelectorAll('img.card-img')
-		imgElements.forEach((img, index) => {
-			if (img.complete) {
-				imagesLoaded.value[index] = true
-			} else {
-				img.onload = () => (imagesLoaded.value[index] = true)
-				img.onerror = () => console.warn(`图片加载失败: ${img.src}`)
-			}
-		})
+	// 卡片图片加载完成回调
+	const onImageLoad = (index) => {
+		console.log(`卡片图片 ${index + 1} 加载完成`)
+		imagesLoaded.value[index] = true
+	}
 
-		// 检查背景图片的加载状态
+	// 卡片图片加载失败回调
+	const onImageError = (index) => {
+		console.warn(`卡片图片 ${index + 1} 加载失败`)
+		// 即使加载失败也标记为完成，避免永远loading
+		imagesLoaded.value[index] = true
+	}
+
+	// 预加载背景图片
+	const preloadBackgroundImage = () => {
 		const bgImage = new Image()
 		bgImage.src = 'https://picsum.photos/1920/1080?random=4'
+		
 		bgImage.onload = () => {
+			console.log('背景图片加载完成')
 			// 当背景图片加载完成后，动态设置 main-container 的背景图像
-			document.querySelector('.main-container').style.backgroundImage = `url(${bgImage.src})`
+			const container = document.querySelector('.main-container')
+			if (container) {
+				container.style.backgroundImage = `url(${bgImage.src})`
+			}
+			imagesLoaded.value[3] = true // 背景图片索引为3
+		}
+		
+		bgImage.onerror = () => {
+			console.warn('背景图片加载失败')
+			// 即使背景图片加载失败也标记为完成
 			imagesLoaded.value[3] = true
 		}
-		bgImage.onerror = () => console.warn('背景图片加载失败')
-	})
+	}
 
-	const loaded = computed(() => showNav.value && allImagesLoaded.value)
+	onMounted(() => {
+		// 预加载背景图片
+		preloadBackgroundImage()
+		
+		// 设置5秒超时机制
+		setTimeout(() => {
+			if (!allImagesLoaded.value) {
+				console.warn('图片加载超时，显示提示信息')
+				ElMessage({
+					message: '页面加载超时，建议刷新页面重试',
+					type: 'warning',
+					duration: 0, // 不自动关闭
+					showClose: true
+				})
+				// 强制显示页面
+				imagesLoaded.value = [true, true, true, true]
+			}
+		}, 5000) // 5秒超时
+	})
 </script>
 
 <style scoped lang="scss">
