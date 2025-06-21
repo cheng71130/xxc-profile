@@ -1,4 +1,3 @@
-
 <template>
 	<el-container v-show="loaded" class="main-container animate__animated animate__fadeIn">
 		<el-header class="header">
@@ -7,10 +6,10 @@
 		<el-main class="main">
 			<div class="content">
 				<div class="card" v-for="(item, index) in cards" :key="index" @click="toNavigation(item.path)">
-					<img 
-						:src="item.img" 
-						alt="Card Image" 
-						class="card-img" 
+					<img
+						:src="item.img"
+						alt="Card Image"
+						class="card-img"
 						@load="onImageLoad(index)"
 						@error="onImageError(index)"
 					/>
@@ -18,7 +17,7 @@
 					<p>{{ item.description }}</p>
 				</div>
 			</div>
-			<showMoreBtn @click="router.push('/gallery')"/>
+			<showMoreBtn @click="router.push('/gallery')" />
 		</el-main>
 	</el-container>
 	<div v-if="!loaded" class="load-container">
@@ -98,7 +97,7 @@
 	const preloadBackgroundImage = () => {
 		const bgImage = new Image()
 		bgImage.src = 'https://picsum.photos/1920/1080?random=4'
-		
+
 		bgImage.onload = () => {
 			console.log('背景图片加载完成')
 			// 当背景图片加载完成后，动态设置 main-container 的背景图像
@@ -108,7 +107,7 @@
 			}
 			imagesLoaded.value[3] = true // 背景图片索引为3
 		}
-		
+
 		bgImage.onerror = () => {
 			console.warn('背景图片加载失败')
 			// 即使背景图片加载失败也标记为完成
@@ -119,21 +118,18 @@
 	onMounted(() => {
 		// 预加载背景图片
 		preloadBackgroundImage()
-		
-		// 设置5秒超时机制
+
+		// 设置超时机制
 		setTimeout(() => {
 			if (!allImagesLoaded.value) {
-				console.warn('图片加载超时，显示提示信息')
 				ElMessage({
 					message: '页面加载超时，建议刷新页面重试',
-					type: 'warning',
-					duration: 0, // 不自动关闭
-					showClose: true
+					type: 'warning'
 				})
 				// 强制显示页面
 				imagesLoaded.value = [true, true, true, true]
 			}
-		}, 5000) // 5秒超时
+		}, 8000)
 	})
 </script>
 
