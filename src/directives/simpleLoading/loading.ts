@@ -30,7 +30,7 @@ const loadingDirective: Directive = {
 // 创建 loading 遮罩层
 function createLoadingElement(): HTMLElement {
     const loadingWrapper = document.createElement('div');
-    loadingWrapper.className = 'custom-loading-mask';
+    loadingWrapper.className = 'simple-loading-mask';
     loadingWrapper.style.cssText = `  
     position: absolute;  
     top: 0;  
@@ -50,14 +50,14 @@ function createLoadingElement(): HTMLElement {
 
     // 创建旋转圆环
     const spinner = document.createElement('div');
-    spinner.className = 'custom-loading-spinner';
+    spinner.className = 'simple-loading-spinner';
     spinner.style.cssText = `  
     width: 35px;  
     height: 35px;  
     border: 3px solid #f3f3f3;  
     border-top: 3px solid var(--el-color-primary);  
     border-radius: 50%;  
-    animation: custom-spin 0.8s linear infinite;  
+    animation: simple-spin 0.8s linear infinite;  
   `;
 
     // 创建加载文字

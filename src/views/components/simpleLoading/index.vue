@@ -8,7 +8,7 @@
         </div>
 
         <!-- ✅ 用法和 v-loading 一模一样！ -->
-        <el-table v-custom-loading="tableLoading" :data="tableData" border style="width: 100%">
+        <el-table v-simple-loading="tableLoading" :data="tableData" border style="width: 100%">
             <el-table-column prop="id" label="ID" width="80" />
             <el-table-column prop="name" label="姓名" width="120" />
             <el-table-column prop="department" label="部门" width="150" />
@@ -28,7 +28,7 @@
         </div>
 
         <!-- ✅ 其他容器也可以用！ -->
-        <div v-custom-loading="cardLoading" class="card-box">
+        <div v-simple-loading="cardLoading" class="card-box">
             <h3>卡片内容</h3>
             <p>这是一个普通的 div 容器</p>
             <el-button @click="loadCard">加载卡片数据</el-button>

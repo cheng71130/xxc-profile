@@ -180,7 +180,8 @@
     import { ref, computed } from 'vue';
     import LargeFileUpload from '@/views/components/largeFileUpload/index.vue';
     import VirtualizedTable from '@/views/components/virtualizedTable/index.vue';
-    import Loading from '@/views/components/loading/index.vue';
+    import SimpleLoading from '@/views/components/simpleLoading/index.vue';
+    import ConfigurableLoading from '@/views/components/configurableLoading/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -205,7 +206,7 @@
             description: '高性能，动画丝滑流畅，减少CPU占用，自定义样式简单，纯CSS实现，0依赖',
             iconPath:
                 'M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122',
-            component: Loading,
+            component: ConfigurableLoading,
         },
         {
             id: 3,
