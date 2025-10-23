@@ -28,9 +28,14 @@ const loadingDirective: Directive = {
 };
 
 // 创建 loading 遮罩层
-function createLoadingElement(): HTMLElement {
+function createLoadingElement(el: HTMLElement): HTMLElement {
     const loadingWrapper = document.createElement('div');
     loadingWrapper.className = 'simple-loading-mask';
+
+    // ✅ 自动继承父元素的圆角
+    const computedStyle = window.getComputedStyle(el);
+    const borderRadius = computedStyle.borderRadius || '0';
+
     loadingWrapper.style.cssText = `  
     position: absolute;  
     top: 0;  
@@ -45,7 +50,8 @@ function createLoadingElement(): HTMLElement {
     backdrop-filter: blur(2px);  
     z-index: 2000;  
     opacity: 0;  
-    transition: opacity 0.3s ease;  
+    transition: opacity 0.3s ease;
+    border-radius: ${borderRadius};
   `;
 
     // 创建旋转圆环
@@ -90,8 +96,8 @@ function appendLoading(el: LoadingElement) {
         el.style.position = 'relative';
     }
 
-    // 创建并添加 loading
-    const loadingInstance = createLoadingElement();
+    // ✅ 传入 el 参数以获取圆角
+    const loadingInstance = createLoadingElement(el);
     el.__loadingInstance = loadingInstance;
     el.appendChild(loadingInstance);
 

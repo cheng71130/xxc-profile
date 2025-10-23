@@ -32,7 +32,7 @@
                     show: loading2,
                     type: currentStyle,
                     text: '加载中...',
-                    color: '#67c23a',
+                    color: 'var(--el-color-primary)',
                 }"
                 :data="tableData"
                 border
@@ -52,7 +52,7 @@
                     show: loading3,
                     type: currentStyle,
                     text: '处理中...',
-                    color: '#409eff',
+                    color: 'var(--el-color-primary)',
                     background: 'rgba(0, 0, 0, 0.7)',
                 }"
                 class="dark-card"

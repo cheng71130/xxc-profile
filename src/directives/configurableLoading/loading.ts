@@ -51,7 +51,7 @@ function createSpinnerLoading(options: LoadingOptions): string {
         <div class="loading-spinner" style="
             width: 35px;
             height: 35px;
-            border: 3px solid rgba(64, 158, 255, 0.2);
+            border: 3px solid #f3f3f3;
             border-top: 3px solid ${color};
             border-radius: 50%;
             animation: custom-spin 0.8s linear infinite;
@@ -197,8 +197,8 @@ function createPulseLoading(options: LoadingOptions): string {
 function createGradientLoading(): string {
     return `
         <div style="
-            width: 50px;
-            height: 50px;
+            width: 35px;
+            height: 35px;
             border: 4px solid transparent;
             border-radius: 50%;
             background: linear-gradient(white, white) padding-box,

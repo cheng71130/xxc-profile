@@ -166,6 +166,5 @@
         border-radius: 8px;
         min-height: 200px;
         background-color: rgba(255, 255, 255, 0.05);
-        overflow: hidden;
     }
 </style>
