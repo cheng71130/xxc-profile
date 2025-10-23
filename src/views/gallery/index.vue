@@ -180,6 +180,7 @@
     import { ref, computed } from 'vue';
     import LargeFileUpload from '@/views/components/largeFileUpload/index.vue';
     import VirtualizedTable from '@/views/components/virtualizedTable/index.vue';
+    import Loading from '@/views/components/loading/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -199,21 +200,20 @@
         },
         {
             id: 2,
-            name: '按钮套件',
-            summarize: '现代化按钮集合，支持多种样式和状态',
-            description: '现代化按钮集合，支持多种样式和状态',
+            name: '自定义loading',
+            summarize: '高性能不卡顿的过度动画插件',
+            description: '高性能，动画丝滑流畅，减少CPU占用，自定义样式简单，纯CSS实现，0依赖',
             iconPath:
                 'M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122',
-            component: null,
+            component: Loading,
         },
         {
             id: 3,
-            name: '数据卡片',
-            summarize: '美观的数据展示卡片，支持图表和指标显示',
-            description: '美观的数据展示卡片，支持图表和指标显示',
-            iconPath:
-                'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
-            component: null,
+            name: '数据表格',
+            summarize: '大数据表格，支持排序、筛选等功能',
+            description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
+            iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
+            component: VirtualizedTable,
         },
         {
             id: 4,
@@ -226,11 +226,12 @@
         },
         {
             id: 5,
-            name: '数据表格',
-            summarize: '大数据表格，支持排序、筛选等功能',
-            description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
-            iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
-            component: VirtualizedTable,
+            name: '数据卡片',
+            summarize: '美观的数据展示卡片，支持图表和指标显示',
+            description: '美观的数据展示卡片，支持图表和指标显示',
+            iconPath:
+                'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+            component: null,
         },
         {
             id: 6,

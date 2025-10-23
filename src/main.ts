@@ -9,6 +9,7 @@ import SvgIcon from './components/svgIcon.vue'
 import '@/assets/fonts/dsFont.css' // 引入电子字体样式
 import DataVVue3 from '@kjgl77/datav-vue3'
 import 'virtual:uno.css'
+import simpleLoading from './directives/simpleLoading/index';
 
 const app = createApp(App)
 
@@ -27,4 +28,5 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(router)
 app.use(ElementPlus)
 app.use(DataVVue3)
+app.use(simpleLoading); 
 app.mount('#app')

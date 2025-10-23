@@ -229,17 +229,17 @@
 
 <style scoped lang="scss">
     .advanced-table-container {
-        padding: 20px;
-        background: #f5f7fa;
-        border-radius: 8px;
+        // padding: 20px;
+        // background: #f5f7fa;
+        // border-radius: 8px;
 
         .table-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
-            padding: 16px;
-            background: white;
+            // padding: 16px;
+            // background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
@@ -252,10 +252,11 @@
             .toolbar-right {
                 display: flex;
                 align-items: center;
+                margin-right: 20px;
 
                 .stats-text {
                     font-size: 14px;
-                    color: #606266;
+                    color: #fff;
                     font-weight: 500;
 
                     .filtered-text {
