@@ -1,7 +1,6 @@
 <template>
     <div class="demo-container">
         <h2>多样式 Loading 示例</h2>
-
         <div class="demo-row">
             <div class="controls">
                 <el-radio-group v-model="currentStyle">
@@ -15,8 +14,6 @@
                 <el-button type="primary" @click="toggleLoading">切换 Loading</el-button>
             </div>
         </div>
-
-        <!-- 第一行：简单用法 + 自定义样式 -->
         <div class="demo-row">
             <!-- 示例 1: 简单用法（布尔值） -->
             <div class="demo-box">
@@ -47,8 +44,6 @@
                 </el-table>
             </div>
         </div>
-
-        <!-- 第二行：深色背景适配 + 颜色示例 -->
         <div class="demo-row">
             <!-- 示例 3: 深色背景 -->
             <div class="demo-box">
@@ -164,14 +159,12 @@
             color: #ffffff;
             margin-top: 0;
             margin-bottom: 24px;
-            font-size: 28px;
             font-weight: 600;
         }
 
         h3 {
             color: #f0f0f0;
             margin-bottom: 16px;
-            font-size: 18px;
             font-weight: 500;
         }
 
