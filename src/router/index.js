@@ -1,55 +1,50 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
-	{
-		path: '/',
-		redirect: '/home'
-	},
-	{
-		path: '/home',
-		name: 'Home',
-		component: () => import('@/views/home/index.vue')
-	},
-	{
-		path: '/visualizationScreen',
-		name: 'Screen',
-		component: () => import('@/views/visualizationScreen/index.vue')
-	},
-	{
-		path: '/mine',
-		name: 'Mine',
-		component: () => import('@/views/mine/index.vue')
-	},
-	{
-		path: '/flowDemo',
-		name: 'Flow',
-		component: () => import('@/views/logicFlow/index.vue')
-	},
-	{
-		path: '/gallery',
-		name: 'Gallery',
-		component: () => import('@/views/gallery/index.vue')
-	},
-	// {
-	// 	path: '/largeFileUpload',
-	// 	name: 'largeFileUpload',
-	// 	component: () => import('@/views/components/largeFileUpload/index.vue')
-	// },
-	{
-		path: '/3dModel',
-		name: '3dModel',
-		component: () => import('@/views/3dModel/index.vue')
-	},
-	{
-		path: '/3dURDF',
-		name: '3dURDF',
-		component: () => import('@/views/3d-URDF/index.vue')
-	}
-]
+    {
+        path: '/',
+        redirect: '/home',
+    },
+    {
+        path: '/home',
+        name: 'Home',
+        component: () => import('@/views/home/index.vue'),
+    },
+    {
+        path: '/visualizationScreen',
+        name: 'Screen',
+        component: () => import('@/views/visualizationScreen/index.vue'),
+    },
+    {
+        path: '/mine',
+        name: 'Mine',
+        component: () => import('@/views/mine/index.vue'),
+    },
+    {
+        path: '/flowDemo',
+        name: 'Flow',
+        component: () => import('@/views/logicFlow/index.vue'),
+    },
+    {
+        path: '/gallery',
+        name: 'Gallery',
+        component: () => import('@/views/gallery/index.vue'),
+    },
+    {
+        path: '/3d_model',
+        name: '3d_model',
+        component: () => import('@/views/others/3d_model/index.vue'),
+    },
+    {
+        path: '/3d_urdf',
+        name: '3d_urdf',
+        component: () => import('@/views/others/3d_urdf/index.vue'),
+    },
+];
 
 const router = createRouter({
-	history: createWebHistory(),
-	routes
-})
+    history: createWebHistory(),
+    routes,
+});
 
-export default router
+export default router;

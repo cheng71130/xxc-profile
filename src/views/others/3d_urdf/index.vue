@@ -820,7 +820,7 @@
 </script>
 
 <style lang="scss" scoped>
-	@use '../3dModel/styles/index.scss';
+	@use '../3d_model/styles/index.scss';
 
 	.joint-controls {
 		overflow-y: auto;
