@@ -21,7 +21,7 @@
             <!-- 示例 1: 简单用法（布尔值） -->
             <div class="demo-box">
                 <h3>简单用法（默认样式）</h3>
-                <el-table v-configurable-loading="loading1" :data="tableData" border style="width: 100%">
+                <el-table v-configurable-loading="loading1" :data="tableData" style="width: 100%">
                     <el-table-column prop="name" label="姓名" />
                     <el-table-column prop="age" label="年龄" />
                     <el-table-column prop="address" label="地址" />
@@ -39,7 +39,6 @@
                         color: 'var(--el-color-primary)',
                     }"
                     :data="tableData"
-                    border
                     style="width: 100%"
                 >
                     <el-table-column prop="name" label="姓名" />
@@ -255,6 +254,10 @@
                 tr:hover > td {
                     background-color: rgba(255, 255, 255, 0.06) !important;
                 }
+            }
+
+            :deep(.el-table__inner-wrapper::before) {
+                height: 0;
             }
         }
 
