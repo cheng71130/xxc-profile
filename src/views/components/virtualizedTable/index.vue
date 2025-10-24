@@ -27,7 +27,7 @@
             :columns="tableColumns"
             :data="processedData"
             :width="1300"
-            :height="600"
+            :height="700"
             :header-height="50"
             :row-height="48"
             fixed
@@ -229,10 +229,6 @@
 
 <style scoped lang="scss">
     .advanced-table-container {
-        // padding: 20px;
-        // background: #f5f7fa;
-        // border-radius: 8px;
-
         .table-toolbar {
             display: flex;
             justify-content: space-between;
@@ -303,7 +299,7 @@
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 
             .el-table-v2__header-row {
-                background: linear-gradient(90deg, #409eff 0%, #66b1ff 100%) !important;
+                background: linear-gradient(90deg, var(--el-color-primary) 0%, #666bff 100%) !important;
             }
 
             .el-table-v2__header-cell {

@@ -187,7 +187,7 @@
     const searchQuery = ref('');
     const selectedComponent = ref(null);
 
-    // 组件列表（你可以在这里导入你的实际组件）
+    // 组件列表
     const components = ref([
         {
             id: 1,
