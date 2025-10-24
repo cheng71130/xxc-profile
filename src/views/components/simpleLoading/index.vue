@@ -135,36 +135,35 @@
     };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .demo-container {
-        padding: 20px;
-    }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 600;
+        }
 
-    h2 {
-        margin-bottom: 20px;
-        color: #ffffff;
-        font-weight: 600;
-    }
+        h3 {
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
 
-    h3 {
-        color: #ffffff;
-        margin-bottom: 10px;
-    }
+        p {
+            color: #e0e0e0;
+        }
 
-    p {
-        color: #e0e0e0;
-    }
+        .info-text {
+            margin-top: 20px;
+        }
 
-    .info-text {
-        margin-top: 20px;
-    }
-
-    .card-box {
-        margin-top: 30px;
-        padding: 20px;
-        border: 1px solid #555;
-        border-radius: 8px;
-        min-height: 200px;
-        background-color: rgba(255, 255, 255, 0.05);
+        .card-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            min-height: 200px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
     }
 </style>

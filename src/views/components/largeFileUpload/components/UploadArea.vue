@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="upload-area"
-		:class="{ 'is-dragover': isDragover }"
+		:class="{ 'is-dragOver': isDragover }"
 		@dragenter.prevent="handleDragEnter"
 		@dragover.prevent="handleDragOver"
 		@dragleave.prevent="handleDragLeave"

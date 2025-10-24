@@ -1,6 +1,6 @@
 <template>
     <div class="demo-container">
-        <h2>多样式 Loading 示例</h2>
+        <h2>多样式 Loading 插件</h2>
         <div class="demo-row">
             <div class="controls">
                 <el-radio-group v-model="currentStyle">

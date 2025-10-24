@@ -16,7 +16,7 @@
 			@cancel="handleCancel"
 		/>
 
-		<FileList v-if="fileList.length > 0" :files="fileList" @download="handleDownload" />
+		<FileList :files="fileList" @download="handleDownload" />
 
 		<div v-if="uploadStatus === 'success'" class="upload-complete">
 			<el-button type="primary" @click="resetUploader">继续上传</el-button>
