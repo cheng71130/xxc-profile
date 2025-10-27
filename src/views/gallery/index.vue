@@ -182,6 +182,8 @@
     import VirtualizedTable from '@/views/components/virtualizedTable/index.vue';
     import SimpleLoading from '@/views/components/simpleLoading/index.vue';
     import ConfigurableLoading from '@/views/components/configurableLoading/index.vue';
+    import DataCard from '@/views/components/dataCard/index.vue';
+    import Notice from '@/views/components/notice/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -210,20 +212,19 @@
         },
         {
             id: 3,
+            name: '通知系统',
+            summarize: '现代化通知组件，支持多种类型和位置',
+            description: '现代化通知组件，支持多种类型和位置',
+            iconPath: 'M15 17h5l-5 5v-5zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+            component: Notice,
+        },
+        {
+            id: 4,
             name: '数据表格',
             summarize: '大数据表格，支持排序、筛选等功能',
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
             iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
             component: VirtualizedTable,
-        },
-        {
-            id: 4,
-            name: '智能表单',
-            summarize: '带有验证和自动完成功能的智能表单组件',
-            description: '带有验证和自动完成功能的智能表单组件',
-            iconPath:
-                'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-            component: SimpleLoading,
         },
         {
             id: 5,
@@ -232,10 +233,18 @@
             description: '美观的数据展示卡片，支持图表和指标显示',
             iconPath:
                 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
-            component: null,
+            component: DataCard,
         },
         {
             id: 6,
+            name: '导航菜单',
+            summarize: '响应式导航菜单，支持多级嵌套和折叠',
+            description: '响应式导航菜单，支持多级嵌套和折叠',
+            iconPath: 'M4 6h16M4 12h16M4 18h16',
+            component: null,
+        },
+        {
+            id: 7,
             name: '分析图表',
             summarize: '交互式图表组件，用于数据可视化展示',
             description: '交互式图表组件，用于数据可视化展示',
@@ -243,21 +252,15 @@
                 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
             component: null,
         },
-        {
-            id: 7,
-            name: '通知系统',
-            summarize: '现代化通知组件，支持多种类型和位置',
-            description: '现代化通知组件，支持多种类型和位置',
-            iconPath: 'M15 17h5l-5 5v-5zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-            component: null,
-        },
+
         {
             id: 8,
-            name: '导航菜单',
-            summarize: '响应式导航菜单，支持多级嵌套和折叠',
-            description: '响应式导航菜单，支持多级嵌套和折叠',
-            iconPath: 'M4 6h16M4 12h16M4 18h16',
-            component: null,
+            name: '智能表单',
+            summarize: '带有验证和自动完成功能的智能表单组件',
+            description: '带有验证和自动完成功能的智能表单组件',
+            iconPath:
+                'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+            component: SimpleLoading,
         },
     ]);
 
