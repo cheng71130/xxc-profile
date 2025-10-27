@@ -19,7 +19,7 @@ export default defineConfig(({}) => {
 			imports: ['vue', 'vue-router']
 		}),
 		vueInspector({
-			toggleComboKey: 'shift',
+			// toggleComboKey: 'shift',
 			toggleButtonVisibility: 'never'
 		}),
 		UnoCSS()

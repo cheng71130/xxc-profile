@@ -180,10 +180,10 @@
     import { ref, computed } from 'vue';
     import LargeFileUpload from '@/views/components/largeFileUpload/index.vue';
     import VirtualizedTable from '@/views/components/virtualizedTable/index.vue';
-    import SimpleLoading from '@/views/components/simpleLoading/index.vue';
     import ConfigurableLoading from '@/views/components/configurableLoading/index.vue';
     import DataCard from '@/views/components/dataCard/index.vue';
     import Notice from '@/views/components/notice/index.vue';
+    import VirtualScroll from '@/views/components/virtualScroll/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -257,10 +257,10 @@
             id: 8,
             name: '智能表单',
             summarize: '带有验证和自动完成功能的智能表单组件',
-            description: '带有验证和自动完成功能的智能表单组件',
+            description: '实时验证 • 自动完成 • 智能提示',
             iconPath:
                 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-            component: SimpleLoading,
+            component: VirtualScroll,
         },
     ]);
 
