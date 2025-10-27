@@ -184,6 +184,7 @@
     import DataCard from '@/views/components/dataCard/index.vue';
     import Notice from '@/views/components/notice/index.vue';
     import VirtualScroll from '@/views/components/virtualScroll/index.vue';
+    import LazyImage from '@/views/components/lazyImage/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -193,8 +194,8 @@
     const components = ref([
         {
             id: 1,
-            name: '文件上传',
-            summarize: '普通文件、大文件上传的高级组件',
+            name: '大文件上传',
+            summarize: '进度可视化大文件上传的高级组件',
             description:
                 '支持拖拽上传、智能分片（带重试机制）、并发控制、断点续传、进度追踪，web worker采样计算hash实现真正秒传，文件完整性校验待实现（一般不需要），对标阿里云盘，百度云上传等。',
             iconPath:
@@ -204,7 +205,7 @@
         {
             id: 2,
             name: '自定义loading',
-            summarize: '高性能不卡顿的过度动画插件',
+            summarize: 'v-loading动画卡顿阻塞，完美平替',
             description: '高性能，动画丝滑流畅，减少CPU占用，自定义样式简单，纯CSS实现，0依赖',
             iconPath:
                 'M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122',
@@ -212,6 +213,15 @@
         },
         {
             id: 3,
+            name: '虚拟滚动',
+            summarize: '解决长列表渲染卡顿、内存占用高',
+            description: '自动计算可视区域，只渲染必要DOM，支持动态高度、懒加载、滚动定位，（1000+条）轻松渲染',
+            iconPath:
+                'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+            component: VirtualScroll,
+        },
+        {
+            id: 4,
             name: '通知系统',
             summarize: '现代化通知组件，支持多种类型和位置',
             description: '现代化通知组件，支持多种类型和位置',
@@ -219,7 +229,7 @@
             component: Notice,
         },
         {
-            id: 4,
+            id: 5,
             name: '数据表格',
             summarize: '大数据表格，支持排序、筛选等功能',
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
@@ -227,7 +237,7 @@
             component: VirtualizedTable,
         },
         {
-            id: 5,
+            id: 6,
             name: '数据卡片',
             summarize: '美观的数据展示卡片，支持图表和指标显示',
             description: '美观的数据展示卡片，支持图表和指标显示',
@@ -236,7 +246,7 @@
             component: DataCard,
         },
         {
-            id: 6,
+            id: 7,
             name: '导航菜单',
             summarize: '响应式导航菜单，支持多级嵌套和折叠',
             description: '响应式导航菜单，支持多级嵌套和折叠',
@@ -244,23 +254,13 @@
             component: null,
         },
         {
-            id: 7,
-            name: '分析图表',
-            summarize: '交互式图表组件，用于数据可视化展示',
-            description: '交互式图表组件，用于数据可视化展示',
+            id: 8,
+            name: '图片懒加载',
+            summarize: '原生懒加载不支持自定义占位、加载失败处理差',
+            description: '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级',
             iconPath:
                 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-            component: null,
-        },
-
-        {
-            id: 8,
-            name: '智能表单',
-            summarize: '带有验证和自动完成功能的智能表单组件',
-            description: '实时验证 • 自动完成 • 智能提示',
-            iconPath:
-                'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-            component: VirtualScroll,
+            component: LazyImage,
         },
     ]);
 

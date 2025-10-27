@@ -1,6 +1,6 @@
 <template>
     <div class="demo-container">
-        <h2>多样式 Loading 插件</h2>
+        <h3>多种样式可选</h3>
         <div class="demo-row">
             <div class="controls">
                 <el-radio-group v-model="currentStyle">
@@ -154,13 +154,6 @@
     .demo-container {
         width: 100%;
         height: 100%;
-
-        h2 {
-            color: #ffffff;
-            margin-top: 0;
-            margin-bottom: 24px;
-            font-weight: 600;
-        }
 
         h3 {
             color: #f0f0f0;
