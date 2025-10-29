@@ -10,19 +10,15 @@
                 <el-radio-button label="virtual">虚拟滚动</el-radio-button>
             </el-radio-group>
 
-            <el-button type="primary" @click="reloadAll" :icon="RefreshRight">
-                <!-- <el-icon class="reload-icon"><RefreshRight /></el-icon> -->
-                重新加载全部
-            </el-button>
+            <el-button type="primary" @click="reloadCurrent" :icon="RefreshRight"> 重新加载 </el-button>
         </div>
 
         <!-- 骨架屏占位 -->
-        <div v-show="currentDemo === 'skeleton'" class="demo-grid">
+        <div v-if="currentDemo === 'skeleton'" class="demo-grid" :key="skeletonKey">
             <LazyImage
                 v-for="i in 6"
-                :key="`skeleton-${i}`"
-                :ref="(el) => (imageRefs[`skeleton-${i}`] = el)"
-                :src="`https://picsum.photos/800/600?random=${i}&t=${timestamp}`"
+                :key="`skeleton-${i}-${skeletonKey}`"
+                :src="`https://picsum.photos/800/600?random=${i + skeletonKey * 100}`"
                 aspect-ratio="16/9"
                 alt="骨架屏示例"
                 show-skeleton
@@ -34,31 +30,31 @@
         </div>
 
         <!-- 渐进式加载 -->
-        <div v-show="currentDemo === 'progressive'" class="demo-grid">
+        <div v-if="currentDemo === 'progressive'" class="demo-grid" :key="progressiveKey">
             <LazyImage
                 v-for="i in 4"
-                :key="`progressive-${i}`"
-                :ref="(el) => (imageRefs[`progressive-${i}`] = el)"
-                :src="`https://picsum.photos/1200/800?random=${20 + i}&t=${timestamp}`"
-                :preview-src="`https://picsum.photos/60/40?random=${20 + i}&t=${timestamp}`"
+                :key="`progressive-${i}-${progressiveKey}`"
+                :src="`https://picsum.photos/1200/800?random=${i + progressiveKey * 100}`"
+                progressive
+                :thumbnail-width="100"
+                :image-width="1200"
                 aspect-ratio="16/9"
                 alt="渐进式加载"
             >
                 <template #badge>
                     <el-tag type="success" effect="dark" size="small">
                         <el-icon><Picture /></el-icon>
-                        高清
+                        渐进式
                     </el-tag>
                 </template>
             </LazyImage>
         </div>
 
         <!-- 失败重试 -->
-        <div v-show="currentDemo === 'error'" class="demo-grid-error">
+        <div v-if="currentDemo === 'error'" class="demo-grid-error" :key="errorKey">
             <div class="image-card">
                 <LazyImage
-                    :ref="(el) => (imageRefs['error-1'] = el)"
-                    src="https://invalid-url-example-test.com/image-1.jpg"
+                    :src="`https://invalid-url-example-test.com/image-1.jpg?t=${errorKey}`"
                     aspect-ratio="4/3"
                     show-retry
                     alt="手动重试"
@@ -71,9 +67,8 @@
 
             <div class="image-card">
                 <LazyImage
-                    :ref="(el) => (imageRefs['error-2'] = el)"
-                    src="https://invalid-url-example-test.com/image-2.jpg"
-                    :fallback-src="`https://picsum.photos/600/450?random=999&t=${timestamp}`"
+                    :src="`https://invalid-url-example-test.com/image-2.jpg?t=${errorKey}`"
+                    :fallback-src="`https://picsum.photos/600/450?random=${errorKey + 999}`"
                     aspect-ratio="4/3"
                     alt="备用图片"
                 />
@@ -85,8 +80,7 @@
 
             <div class="image-card">
                 <LazyImage
-                    :ref="(el) => (imageRefs['error-3'] = el)"
-                    src="https://invalid-url-example-test.com/image-3.jpg"
+                    :src="`https://invalid-url-example-test.com/image-3.jpg?t=${errorKey}`"
                     aspect-ratio="4/3"
                     error-message="图片走丢了 😢"
                     :show-retry="false"
@@ -100,8 +94,7 @@
 
             <div class="image-card">
                 <LazyImage
-                    :ref="(el) => (imageRefs['error-4'] = el)"
-                    src="https://invalid-url-example-test.com/image-4.jpg"
+                    :src="`https://invalid-url-example-test.com/image-4.jpg?t=${errorKey}`"
                     aspect-ratio="4/3"
                     alt="自定义错误样式"
                 >
@@ -109,16 +102,7 @@
                         <div class="custom-error">
                             <div class="error-emoji">💔</div>
                             <p class="error-text">加载失败</p>
-                            <el-button
-                                class="custom-retry-btn"
-                                type="primary"
-                                :icon="RefreshRight"
-                                round
-                                @click="retry"
-                            >
-                                <!-- <el-icon class="custom-retry-icon">< /></el-icon> -->
-                                重试
-                            </el-button>
+                            <el-button type="primary" :icon="RefreshRight" round @click="retry"> 重试 </el-button>
                         </div>
                     </template>
                 </LazyImage>
@@ -130,12 +114,11 @@
         </div>
 
         <!-- Hover遮罩 -->
-        <div v-show="currentDemo === 'hover'" class="demo-grid">
+        <div v-if="currentDemo === 'hover'" class="demo-grid" :key="hoverKey">
             <LazyImage
                 v-for="img in hoverImages"
-                :key="img.id"
-                :ref="(el) => (imageRefs[`hover-${img.id}`] = el)"
-                :src="`${img.src}&t=${timestamp}`"
+                :key="`hover-${img.id}-${hoverKey}`"
+                :src="`${img.src}&t=${hoverKey}`"
                 aspect-ratio="16/9"
                 :alt="img.title"
                 show-mask
@@ -163,78 +146,68 @@
         </div>
 
         <!-- 虚拟滚动 -->
-        <div v-show="currentDemo === 'virtual'" class="demo-virtual">
-            <div class="virtual-header">
-                <el-statistic title="总图片数" :value="virtualImages.length">
-                    <template #suffix>张</template>
-                </el-statistic>
-                <el-statistic title="已加载" :value="loadedCount">
-                    <template #suffix>张</template>
-                </el-statistic>
-                <el-statistic title="加载率">
-                    <template #default>
-                        <span class="statistic-value">{{ loadRate }}%</span>
+        <div v-if="currentDemo === 'virtual'">
+            <div class="demo-virtual">
+                <VirtualScroll
+                    :key="virtualKey"
+                    :data-source="virtualImages"
+                    :estimated-item-height="280"
+                    :buffer-size="3"
+                    item-key="id"
+                >
+                    <template #default="{ item, index }">
+                        <div class="virtual-item">
+                            <div class="virtual-image">
+                                <LazyImage
+                                    :src="`${item.src}&t=${virtualKey}`"
+                                    aspect-ratio="16/9"
+                                    :alt="item.title"
+                                    show-skeleton
+                                >
+                                    <template #badge>
+                                        <el-tag type="info" effect="dark" size="small"> #{{ index + 1 }} </el-tag>
+                                    </template>
+                                </LazyImage>
+                            </div>
+                            <div class="virtual-info">
+                                <div class="info-header">
+                                    <h4>{{ item.title }}</h4>
+                                    <el-tag size="small">{{ item.category }}</el-tag>
+                                </div>
+                                <div class="info-meta">
+                                    <span
+                                        ><el-icon><Clock /></el-icon> {{ item.time }}</span
+                                    >
+                                    <span
+                                        ><el-icon><View /></el-icon> {{ item.views }}</span
+                                    >
+                                    <span
+                                        ><el-icon><Document /></el-icon> {{ item.size }}</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
                     </template>
-                </el-statistic>
+                </VirtualScroll>
             </div>
-
-            <VirtualScroll
-                :data-source="virtualImages"
-                :estimated-item-height="280"
-                :buffer-size="3"
-                item-key="id"
-                @visible-change="handleVisibleChange"
-            >
-                <template #default="{ item, index }">
-                    <div class="virtual-item">
-                        <div class="virtual-image">
-                            <LazyImage
-                                :ref="(el) => (imageRefs[`virtual-${item.id}`] = el)"
-                                :src="`${item.src}&t=${timestamp}`"
-                                aspect-ratio="16/9"
-                                :alt="item.title"
-                                show-skeleton
-                                @load="handleImageLoad"
-                            >
-                                <template #badge>
-                                    <el-tag type="info" effect="dark" size="small"> #{{ index + 1 }} </el-tag>
-                                </template>
-                            </LazyImage>
-                        </div>
-                        <div class="virtual-info">
-                            <div class="info-header">
-                                <h4>{{ item.title }}</h4>
-                                <el-tag size="small">{{ item.category }}</el-tag>
-                            </div>
-                            <div class="info-meta">
-                                <span
-                                    ><el-icon><Clock /></el-icon> {{ item.time }}</span
-                                >
-                                <span
-                                    ><el-icon><View /></el-icon> {{ item.views }}</span
-                                >
-                                <span
-                                    ><el-icon><Document /></el-icon> {{ item.size }}</span
-                                >
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </VirtualScroll>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-    import { ref, computed, reactive } from 'vue';
+    import { ref } from 'vue';
     import LazyImage from './LazyImage.vue';
     import VirtualScroll from '../virtualScroll/VirtualScroll.vue';
     import { RefreshRight, Picture, ZoomIn, Download, Share, Clock, View, Document } from '@element-plus/icons-vue';
 
     const currentDemo = ref('skeleton');
-    const timestamp = ref(Date.now());
-    const imageRefs = reactive<Record<string, any>>({});
-    const loadedCount = ref(0);
+
+    // 每个 tab 独立的 key
+    const skeletonKey = ref(0);
+    const progressiveKey = ref(0);
+    const errorKey = ref(0);
+    const hoverKey = ref(0);
+    const virtualKey = ref(0);
 
     const hoverImages = [
         {
@@ -273,27 +246,25 @@
         size: `${(Math.random() * 3 + 1).toFixed(2)} MB`,
     }));
 
-    const loadRate = computed(() => {
-        return virtualImages.length > 0 ? ((loadedCount.value / virtualImages.length) * 100).toFixed(1) : 0;
-    });
-
-    const reloadAll = () => {
-        timestamp.value = Date.now();
-        loadedCount.value = 0;
-
-        Object.values(imageRefs).forEach((ref) => {
-            if (ref && typeof ref.reload === 'function') {
-                ref.reload();
-            }
-        });
-    };
-
-    const handleImageLoad = () => {
-        loadedCount.value++;
-    };
-
-    const handleVisibleChange = ({ startIndex, endIndex }: { startIndex: number; endIndex: number }) => {
-        console.log(`可视区域: ${startIndex} - ${endIndex}`);
+    // 只重新加载当前 tab
+    const reloadCurrent = () => {
+        switch (currentDemo.value) {
+            case 'skeleton':
+                skeletonKey.value++;
+                break;
+            case 'progressive':
+                progressiveKey.value++;
+                break;
+            case 'error':
+                errorKey.value++;
+                break;
+            case 'hover':
+                hoverKey.value++;
+                break;
+            case 'virtual':
+                virtualKey.value++;
+                break;
+        }
     };
 </script>
 
@@ -305,7 +276,6 @@
         width: 100%;
     }
 
-    // 顶部操作
     .demo-actions {
         display: flex;
         align-items: center;
@@ -341,39 +311,20 @@
             color: #ffffff;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
-
-        .reload-icon {
-            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        :deep(.el-button:hover) {
-            .reload-icon {
-                transform: rotate(360deg);
-            }
-        }
-
-        :deep(.el-button:active) {
-            .reload-icon {
-                transform: rotate(360deg) scale(0.9);
-            }
-        }
     }
 
-    // 网格布局（大尺寸）
     .demo-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
         gap: 24px;
     }
 
-    // 失败重试专用网格
     .demo-grid-error {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
         gap: 24px;
     }
 
-    // 图片卡片（仅用于失败重试）
     .image-card {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.06);
@@ -414,7 +365,6 @@
         letter-spacing: 0.5px;
     }
 
-    // 自定义错误样式
     .custom-error {
         display: flex;
         flex-direction: column;
@@ -433,24 +383,6 @@
             font-weight: 500;
             color: rgba(255, 255, 255, 0.65);
         }
-
-        .custom-retry-btn {
-            :deep(.custom-retry-icon) {
-                transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            }
-
-            &:hover {
-                :deep(.custom-retry-icon) {
-                    transform: rotate(360deg);
-                }
-            }
-
-            &:active {
-                :deep(.custom-retry-icon) {
-                    transform: rotate(360deg) scale(0.9);
-                }
-            }
-        }
     }
 
     @keyframes error-bounce {
@@ -463,7 +395,6 @@
         }
     }
 
-    // Hover遮罩
     .hover-mask {
         width: 100%;
         height: 100%;
@@ -510,55 +441,27 @@
         }
     }
 
-    // 虚拟滚动
     .demo-virtual {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        height: 800px;
-    }
-
-    .virtual-header {
-        display: flex;
-        gap: 32px;
-        padding: 24px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        height: 620px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 12px;
-
-        :deep(.el-statistic__head) {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-        }
-
-        :deep(.el-statistic__content) {
-            color: #ffffff;
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .statistic-value {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        overflow: hidden;
     }
 
     .virtual-item {
         display: flex;
         gap: 16px;
         padding: 16px;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        // background: rgba(255, 255, 255, 0.02);
+        // border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 12px;
         transition: all 0.3s;
         margin-bottom: 16px;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(102, 126, 234, 0.3);
-            transform: translateX(4px);
+            // background: rgba(255, 255, 255, 0.05);
+            // border-color: rgba(102, 126, 234, 0.3);
+            // transform: translateX(4px);
         }
     }
 
@@ -620,6 +523,21 @@
     }
 
     @media (max-width: 768px) {
+        .demo-actions {
+            flex-direction: column;
+            align-items: stretch;
+
+            :deep(.el-radio-group) {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            :deep(.el-radio-button) {
+                width: 100%;
+            }
+        }
+
         .demo-grid,
         .demo-grid-error {
             grid-template-columns: 1fr;
@@ -632,6 +550,10 @@
 
         .virtual-image {
             width: 100%;
+        }
+
+        .demo-virtual {
+            height: 600px;
         }
     }
 </style>

@@ -7,11 +7,10 @@
     >
         <!-- 骨架屏占位 -->
         <transition name="skeleton-fade">
-            <div v-if="loading && showSkeleton && !imageLoaded" class="image-skeleton">
+            <div v-if="showSkeleton && loading && !imageLoaded && !error" class="image-skeleton">
                 <div class="skeleton-shimmer"></div>
                 <div class="skeleton-icon">
                     <svg viewBox="0 0 64 64" fill="none">
-                        <!-- 外框 -->
                         <rect
                             x="8"
                             y="8"
@@ -22,8 +21,6 @@
                             stroke-width="2"
                             opacity="0.35"
                         />
-
-                        <!-- 山峰 -->
                         <path
                             d="M 12 42 L 20 28 L 28 36 L 40 20 L 52 36 L 52 52 L 12 52 Z"
                             fill="currentColor"
@@ -37,8 +34,6 @@
                             stroke-linejoin="round"
                             opacity="0.4"
                         />
-
-                        <!-- 太阳 -->
                         <circle cx="44" cy="20" r="4" fill="currentColor" opacity="0.3" />
                         <circle cx="44" cy="20" r="2" fill="currentColor" opacity="0.45" />
                     </svg>
@@ -48,7 +43,7 @@
 
         <!-- 自定义占位符 -->
         <transition name="placeholder-fade">
-            <div v-if="loading && !showSkeleton && !imageLoaded" class="image-placeholder">
+            <div v-if="loading && !showSkeleton && !imageLoaded && !error" class="image-placeholder">
                 <slot name="placeholder">
                     <div class="default-placeholder">
                         <div class="placeholder-spinner"></div>
@@ -58,14 +53,13 @@
             </div>
         </transition>
 
-        <!-- 模糊预览（渐进式加载） -->
+        <!-- 模糊预览（渐进式加载-缩略图） -->
         <transition name="preview-fade">
             <img
-                v-if="previewSrc && showPreview && !imageLoaded"
-                :src="previewSrc"
+                v-if="progressive && thumbnailSrc && thumbnailLoaded && !imageLoaded && !error"
+                :src="thumbnailSrc"
                 class="image-preview"
                 :alt="alt"
-                @load="handlePreviewLoad"
             />
         </transition>
 
@@ -84,12 +78,11 @@
 
         <!-- 加载失败 -->
         <transition name="error-fade">
-            <div v-if="error && !loading && !imageLoaded" class="image-error">
+            <div v-if="error" class="image-error">
                 <slot name="error" :retry="manualRetry">
                     <div class="error-content">
                         <div class="error-icon">
                             <svg viewBox="0 0 48 48" fill="none">
-                                <!-- 圆角外框 -->
                                 <rect
                                     x="8"
                                     y="8"
@@ -100,8 +93,6 @@
                                     stroke-width="2"
                                     opacity="0.5"
                                 />
-
-                                <!-- 破裂的图片图标 -->
                                 <path
                                     d="M 8 32 L 16 24 L 20 28 L 24 24"
                                     stroke="currentColor"
@@ -110,8 +101,6 @@
                                     stroke-linejoin="round"
                                     opacity="0.4"
                                 />
-
-                                <!-- 感叹号 -->
                                 <circle cx="24" cy="24" r="8" fill="currentColor" opacity="0.15" />
                                 <line
                                     x1="24"
@@ -170,7 +159,6 @@
     interface Props {
         src: string;
         fallbackSrc?: string;
-        previewSrc?: string;
         alt?: string;
         width?: string | number;
         height?: string | number;
@@ -185,6 +173,9 @@
         webpFallback?: boolean;
         errorMessage?: string;
         timeout?: number;
+        progressive?: boolean;
+        thumbnailWidth?: number;
+        imageWidth?: number;
     }
 
     const props = withDefaults(defineProps<Props>(), {
@@ -199,6 +190,8 @@
         webpFallback: true,
         errorMessage: '图片加载失败',
         timeout: 30000,
+        progressive: false,
+        thumbnailWidth: 100,
     });
 
     const emit = defineEmits<{
@@ -208,12 +201,13 @@
 
     const containerRef = ref<HTMLElement>();
     const imageRef = ref<HTMLImageElement>();
-    const loading = ref(true);
+    const loading = ref(true); // 初始为 true，确保骨架屏立即显示
     const imageLoaded = ref(false);
+    const thumbnailLoaded = ref(false);
     const error = ref(false);
     const progress = ref(0);
     const currentSrc = ref('');
-    const showPreview = ref(false);
+    const thumbnailSrc = ref('');
 
     let observer: IntersectionObserver | null = null;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -233,6 +227,25 @@
 
         return style;
     });
+
+    // 添加 URL 参数生成图片 URL
+    const buildImageUrl = (url: string, width?: number): string => {
+        if (!url) return '';
+
+        try {
+            const urlObj = new URL(url);
+            const params = new URLSearchParams(urlObj.search);
+
+            if (width) {
+                params.set('w', String(width));
+            }
+
+            urlObj.search = params.toString();
+            return urlObj.toString();
+        } catch {
+            return url;
+        }
+    };
 
     const checkWebPSupport = (): Promise<boolean> => {
         return new Promise((resolve) => {
@@ -261,23 +274,45 @@
         return src.replace(/\.webp$/i, '.jpg');
     };
 
-    const handlePreviewLoad = () => {
-        showPreview.value = true;
+    // 加载缩略图（渐进式加载第一步）
+    const loadThumbnail = async () => {
+        if (!props.progressive || !props.src) return;
+
+        const thumbUrl = buildImageUrl(props.src, props.thumbnailWidth);
+        const realThumbUrl = await getRealSrc(thumbUrl);
+        thumbnailSrc.value = realThumbUrl;
+
+        const img = new Image();
+        img.onload = () => {
+            thumbnailLoaded.value = true;
+        };
+        img.onerror = () => {
+            thumbnailLoaded.value = false;
+        };
+        img.src = realThumbUrl;
     };
 
+    // 加载主图
     const loadImage = async () => {
         if (!props.src) return;
 
         loading.value = true;
         error.value = false;
         imageLoaded.value = false;
+        thumbnailLoaded.value = false;
         progress.value = 0;
-        showPreview.value = false;
+
+        // 如果启用渐进式加载，先加载缩略图
+        if (props.progressive) {
+            await loadThumbnail();
+        }
+
+        // 构建主图 URL
+        const mainUrl = props.imageWidth ? buildImageUrl(props.src, props.imageWidth) : props.src;
+        const realSrc = await getRealSrc(mainUrl);
+        currentSrc.value = realSrc;
 
         try {
-            const realSrc = await getRealSrc(props.src);
-            currentSrc.value = realSrc;
-
             if (props.showProgress) {
                 const progressInterval = setInterval(() => {
                     if (progress.value < 90) {
@@ -311,7 +346,6 @@
             imageLoaded.value = true;
             error.value = false;
             progress.value = 100;
-            showPreview.value = false;
 
             emit('load', e);
         }, 150);
@@ -327,25 +361,26 @@
         if (props.fallbackSrc && currentSrc.value !== props.fallbackSrc) {
             currentSrc.value = props.fallbackSrc;
         } else {
-            // 显示错误
             imageLoaded.value = false;
+            thumbnailLoaded.value = false;
             loading.value = false;
             error.value = true;
             emit('error', new Error(props.errorMessage));
         }
     };
 
-    // 手动重试（用户点击重试按钮）
     const manualRetry = () => {
         error.value = false;
         loading.value = true;
         imageLoaded.value = false;
+        thumbnailLoaded.value = false;
 
         setTimeout(() => {
             loadImage();
         }, 100);
     };
 
+    // threshold实现
     const initLazyLoad = () => {
         if (!props.lazy || !containerRef.value) {
             loadImage();
@@ -355,7 +390,13 @@
         observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
+                    const rect = entry.boundingClientRect;
+                    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+                    const threshold = props.threshold;
+
+                    const isInView = rect.top < viewportHeight + threshold && rect.bottom > -threshold;
+
+                    if (isInView) {
                         loadImage();
                         if (observer && containerRef.value) {
                             observer.unobserve(containerRef.value);
@@ -364,7 +405,9 @@
                 });
             },
             {
-                rootMargin: `${props.threshold}px`,
+                root: null,
+                rootMargin: '0px',
+                threshold: 0,
             }
         );
 
@@ -375,6 +418,9 @@
         retry: manualRetry,
         reload: () => {
             imageLoaded.value = false;
+            thumbnailLoaded.value = false;
+            error.value = false;
+            loading.value = true;
             loadImage();
         },
     });
@@ -396,9 +442,14 @@
 
     watch(
         () => props.src,
-        () => {
+        async (newSrc, oldSrc) => {
+            if (!newSrc || newSrc === oldSrc) return;
+
             imageLoaded.value = false;
-            showPreview.value = false;
+            thumbnailLoaded.value = false;
+            error.value = false;
+            loading.value = true;
+
             if (!props.lazy) {
                 loadImage();
             } else {
@@ -418,7 +469,6 @@
         transition: all 0.3s ease;
     }
 
-    // 骨架屏
     .image-skeleton {
         position: absolute;
         inset: 0;
@@ -490,7 +540,6 @@
         opacity: 0;
     }
 
-    // 占位符
     .image-placeholder {
         position: absolute;
         inset: 0;
@@ -538,7 +587,6 @@
         opacity: 0;
     }
 
-    // 预览图（模糊）
     .image-preview {
         position: absolute;
         inset: 0;
@@ -566,7 +614,6 @@
         opacity: 0;
     }
 
-    // 主图片
     .lazy-image {
         display: block;
         width: 100%;
@@ -585,7 +632,6 @@
         transform: scale(0.96);
     }
 
-    // 加载失败
     .image-error {
         position: absolute;
         inset: 0;
@@ -690,7 +736,6 @@
         }
     }
 
-    // 遮罩层
     .image-mask {
         position: absolute;
         inset: 0;
@@ -719,7 +764,6 @@
         opacity: 0;
     }
 
-    // 徽章
     .image-badge {
         position: absolute;
         top: 14px;
