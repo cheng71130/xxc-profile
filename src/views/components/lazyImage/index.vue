@@ -32,19 +32,18 @@
         <!-- 渐进式加载 -->
         <div v-if="currentDemo === 'progressive'" class="demo-grid" :key="progressiveKey">
             <LazyImage
-                v-for="i in 4"
-                :key="`progressive-${i}-${progressiveKey}`"
-                :src="`https://picsum.photos/1200/800?random=${i + progressiveKey * 100}`"
+                v-for="item in hdImages"
+                :key="`progressive-${item.id}-${progressiveKey}`"
+                :src="item.src"
                 progressive
                 :thumbnail-width="100"
-                :image-width="1200"
                 aspect-ratio="16/9"
                 alt="渐进式加载"
             >
                 <template #badge>
                     <el-tag type="success" effect="dark" size="small">
                         <el-icon><Picture /></el-icon>
-                        渐进式
+                        高清
                     </el-tag>
                 </template>
             </LazyImage>
@@ -163,6 +162,7 @@
                                     aspect-ratio="16/9"
                                     :alt="item.title"
                                     show-skeleton
+                                    :threshold="500"
                                 >
                                     <template #badge>
                                         <el-tag type="info" effect="dark" size="small"> #{{ index + 1 }} </el-tag>
@@ -208,6 +208,29 @@
     const errorKey = ref(0);
     const hoverKey = ref(0);
     const virtualKey = ref(0);
+
+    const hdImages = [
+        {
+            id: 1,
+            src: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba',
+        },
+        {
+            id: 2,
+            src: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
+        },
+        {
+            id: 3,
+            src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
+        },
+        {
+            id: 4,
+            src: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65',
+        },
+        {
+            id: 5,
+            src: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e',
+        },
+    ];
 
     const hoverImages = [
         {
@@ -443,7 +466,7 @@
 
     .demo-virtual {
         height: 620px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        // border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 12px;
         overflow: hidden;
     }
@@ -452,16 +475,16 @@
         display: flex;
         gap: 16px;
         padding: 16px;
-        // background: rgba(255, 255, 255, 0.02);
-        // border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 12px;
         transition: all 0.3s;
         margin-bottom: 16px;
 
         &:hover {
-            // background: rgba(255, 255, 255, 0.05);
-            // border-color: rgba(102, 126, 234, 0.3);
-            // transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(4px);
         }
     }
 

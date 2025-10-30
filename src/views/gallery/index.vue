@@ -222,6 +222,15 @@
         },
         {
             id: 4,
+            name: '图片懒加载',
+            summarize: '原生不支持自定义占位、失败处理差',
+            description: '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级',
+            iconPath:
+                'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14.414M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
+            component: LazyImage,
+        },
+        {
+            id: 5,
             name: '通知系统',
             summarize: '现代化通知组件，支持多种类型和位置',
             description: '现代化通知组件，支持多种类型和位置',
@@ -229,7 +238,7 @@
             component: Notice,
         },
         {
-            id: 5,
+            id: 6,
             name: '数据表格',
             summarize: '大数据表格，支持排序、筛选等功能',
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
@@ -237,7 +246,7 @@
             component: VirtualizedTable,
         },
         {
-            id: 6,
+            id: 7,
             name: '数据卡片',
             summarize: '美观的数据展示卡片，支持图表和指标显示',
             description: '美观的数据展示卡片，支持图表和指标显示',
@@ -246,21 +255,12 @@
             component: DataCard,
         },
         {
-            id: 7,
+            id: 8,
             name: '导航菜单',
             summarize: '响应式导航菜单，支持多级嵌套和折叠',
             description: '响应式导航菜单，支持多级嵌套和折叠',
             iconPath: 'M4 6h16M4 12h16M4 18h16',
             component: null,
-        },
-        {
-            id: 8,
-            name: '图片懒加载',
-            summarize: '原生懒加载不支持自定义占位、加载失败处理差',
-            description: '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级',
-            iconPath:
-                'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-            component: LazyImage,
         },
     ]);
 

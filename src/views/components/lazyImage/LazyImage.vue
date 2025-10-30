@@ -7,7 +7,7 @@
     >
         <!-- 骨架屏占位 -->
         <transition name="skeleton-fade">
-            <div v-if="showSkeleton && loading && !imageLoaded && !error" class="image-skeleton">
+            <div v-if="showSkeleton && loading && !thumbnailLoaded && !imageLoaded && !error" class="image-skeleton">
                 <div class="skeleton-shimmer"></div>
                 <div class="skeleton-icon">
                     <svg viewBox="0 0 64 64" fill="none">
@@ -43,23 +43,27 @@
 
         <!-- 自定义占位符 -->
         <transition name="placeholder-fade">
-            <div v-if="loading && !showSkeleton && !imageLoaded && !error" class="image-placeholder">
+            <div
+                v-if="loading && !showSkeleton && !thumbnailLoaded && !imageLoaded && !error"
+                class="image-placeholder"
+            >
                 <slot name="placeholder">
                     <div class="default-placeholder">
                         <div class="placeholder-spinner"></div>
-                        <span v-if="showProgress" class="placeholder-text">{{ progress }}%</span>
                     </div>
                 </slot>
             </div>
         </transition>
 
-        <!-- 模糊预览（渐进式加载-缩略图） -->
+        <!-- 模糊缩略图 -->
         <transition name="preview-fade">
             <img
-                v-if="progressive && thumbnailSrc && thumbnailLoaded && !imageLoaded && !error"
+                v-if="progressive && thumbnailSrc && !imageLoaded && !error"
                 :src="thumbnailSrc"
                 class="image-preview"
                 :alt="alt"
+                @load="handleThumbnailLoad"
+                @error="handleThumbnailError"
             />
         </transition>
 
@@ -139,7 +143,7 @@
             </div>
         </transition>
 
-        <!-- 遮罩层（hover效果等） -->
+        <!-- 遮罩层 -->
         <transition name="mask-fade">
             <div v-if="showMask && imageLoaded && !error" class="image-mask">
                 <slot name="mask"></slot>
@@ -165,7 +169,6 @@
         aspectRatio?: string | number;
         fit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
         showSkeleton?: boolean;
-        showProgress?: boolean;
         showMask?: boolean;
         lazy?: boolean;
         threshold?: number;
@@ -182,7 +185,6 @@
         alt: '',
         fit: 'cover',
         showSkeleton: true,
-        showProgress: false,
         showMask: false,
         lazy: true,
         threshold: 100,
@@ -201,11 +203,10 @@
 
     const containerRef = ref<HTMLElement>();
     const imageRef = ref<HTMLImageElement>();
-    const loading = ref(true); // 初始为 true，确保骨架屏立即显示
+    const loading = ref(true);
     const imageLoaded = ref(false);
     const thumbnailLoaded = ref(false);
     const error = ref(false);
-    const progress = ref(0);
     const currentSrc = ref('');
     const thumbnailSrc = ref('');
 
@@ -228,7 +229,6 @@
         return style;
     });
 
-    // 添加 URL 参数生成图片 URL
     const buildImageUrl = (url: string, width?: number): string => {
         if (!url) return '';
 
@@ -274,25 +274,15 @@
         return src.replace(/\.webp$/i, '.jpg');
     };
 
-    // 加载缩略图（渐进式加载第一步）
-    const loadThumbnail = async () => {
-        if (!props.progressive || !props.src) return;
-
-        const thumbUrl = buildImageUrl(props.src, props.thumbnailWidth);
-        const realThumbUrl = await getRealSrc(thumbUrl);
-        thumbnailSrc.value = realThumbUrl;
-
-        const img = new Image();
-        img.onload = () => {
-            thumbnailLoaded.value = true;
-        };
-        img.onerror = () => {
-            thumbnailLoaded.value = false;
-        };
-        img.src = realThumbUrl;
+    const handleThumbnailLoad = () => {
+        thumbnailLoaded.value = true;
     };
 
-    // 加载主图
+    const handleThumbnailError = () => {
+        console.warn('[LazyImage] 缩略图加载失败');
+        thumbnailLoaded.value = false;
+    };
+
     const loadImage = async () => {
         if (!props.src) return;
 
@@ -300,38 +290,22 @@
         error.value = false;
         imageLoaded.value = false;
         thumbnailLoaded.value = false;
-        progress.value = 0;
 
-        // 如果启用渐进式加载，先加载缩略图
         if (props.progressive) {
-            await loadThumbnail();
+            const thumbUrl = buildImageUrl(props.src, props.thumbnailWidth);
+            thumbnailSrc.value = await getRealSrc(thumbUrl);
         }
 
-        // 构建主图 URL
         const mainUrl = props.imageWidth ? buildImageUrl(props.src, props.imageWidth) : props.src;
         const realSrc = await getRealSrc(mainUrl);
         currentSrc.value = realSrc;
 
-        try {
-            if (props.showProgress) {
-                const progressInterval = setInterval(() => {
-                    if (progress.value < 90) {
-                        progress.value += Math.random() * 20;
-                    }
-                }, 300);
-
-                setTimeout(() => clearInterval(progressInterval), props.timeout);
-            }
-
-            if (props.timeout > 0) {
-                timeoutId = setTimeout(() => {
-                    if (!imageLoaded.value) {
-                        handleError(new Event('timeout'));
-                    }
-                }, props.timeout);
-            }
-        } catch (err) {
-            handleError(err as Event);
+        if (props.timeout > 0) {
+            timeoutId = setTimeout(() => {
+                if (!imageLoaded.value) {
+                    handleError(new Event('timeout'));
+                }
+            }, props.timeout);
         }
     };
 
@@ -345,7 +319,6 @@
             loading.value = false;
             imageLoaded.value = true;
             error.value = false;
-            progress.value = 100;
 
             emit('load', e);
         }, 150);
@@ -357,7 +330,6 @@
             timeoutId = null;
         }
 
-        // 尝试备用图片
         if (props.fallbackSrc && currentSrc.value !== props.fallbackSrc) {
             currentSrc.value = props.fallbackSrc;
         } else {
@@ -380,7 +352,6 @@
         }, 100);
     };
 
-    // threshold实现
     const initLazyLoad = () => {
         if (!props.lazy || !containerRef.value) {
             loadImage();
@@ -473,14 +444,15 @@
         position: absolute;
         inset: 0;
         background: linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.02) 0%,
-            rgba(255, 255, 255, 0.06) 50%,
-            rgba(255, 255, 255, 0.02) 100%
-        );
+                90deg,
+                rgba(255, 255, 255, 0.02) 0%,
+                rgba(255, 255, 255, 0.06) 50%,
+                rgba(255, 255, 255, 0.02) 100%
+            ),
+            linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         background-size: 200% 100%;
         animation: skeleton-loading 2s ease-in-out infinite;
-        z-index: 2;
+        z-index: 10;
         border-radius: 12px;
     }
 
@@ -503,8 +475,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 80px;
-        height: 80px;
+        width: 30%;
+        height: 30%;
         color: rgba(255, 255, 255, 0.25);
 
         svg {
@@ -547,7 +519,7 @@
         align-items: center;
         justify-content: center;
         background: rgba(255, 255, 255, 0.03);
-        z-index: 2;
+        z-index: 9;
     }
 
     .default-placeholder {
@@ -564,13 +536,6 @@
         border-top-color: #667eea;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
-    }
-
-    .placeholder-text {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.5);
-        font-weight: 600;
-        font-variant-numeric: tabular-nums;
     }
 
     @keyframes spin {
