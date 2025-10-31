@@ -1,5 +1,5 @@
 <template>
-	<div class="file-uploader-container">
+	<div class="file-uploader-container animate__animated animate__fadeIn">
 		<UploadArea
 			:has-file="!!currentFile"
 			:file="currentFile"

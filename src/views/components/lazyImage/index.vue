@@ -1,5 +1,5 @@
 <template>
-    <div class="lazy-image-demo">
+    <div class="lazy-image-demo animate__animated animate__fadeIn">
         <!-- 顶部操作栏 -->
         <div class="demo-actions">
             <el-radio-group v-model="currentDemo" size="large">

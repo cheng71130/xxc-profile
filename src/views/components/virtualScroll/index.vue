@@ -1,5 +1,5 @@
 <template>
-    <div class="demo-container">
+    <div class="demo-container animate__animated animate__fadeIn">
         <!-- 顶部操作栏 -->
         <div class="demo-header">
             <div class="header-title">

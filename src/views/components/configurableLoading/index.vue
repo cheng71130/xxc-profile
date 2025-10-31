@@ -1,5 +1,5 @@
 <template>
-    <div class="demo-container">
+    <div class="demo-container animate__animated animate__fadeIn">
         <h3>多种样式可选</h3>
         <div class="demo-row">
             <div class="controls">

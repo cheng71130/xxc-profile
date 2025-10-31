@@ -185,6 +185,7 @@
     import Notice from '@/views/components/notice/index.vue';
     import VirtualScroll from '@/views/components/virtualScroll/index.vue';
     import LazyImage from '@/views/components/lazyImage/index.vue';
+    import DraggableCore from '@/views/components/draggableCore/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -260,7 +261,7 @@
             summarize: '响应式导航菜单，支持多级嵌套和折叠',
             description: '响应式导航菜单，支持多级嵌套和折叠',
             iconPath: 'M4 6h16M4 12h16M4 18h16',
-            component: null,
+            component: DraggableCore,
         },
     ]);
 

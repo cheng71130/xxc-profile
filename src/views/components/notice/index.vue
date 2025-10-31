@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="control-panel">
+        <div class="control-panel animate__animated animate__fadeIn">
             <div class="panel-header">
                 <div class="header-icon">
                     <svg

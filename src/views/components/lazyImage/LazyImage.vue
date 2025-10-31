@@ -83,7 +83,7 @@
         <!-- 加载失败 -->
         <transition name="error-fade">
             <div v-if="error" class="image-error">
-                <slot name="error" :retry="manualRetry">
+                <slot name="error" :retry="reloadImage">
                     <div class="error-content">
                         <div class="error-icon">
                             <svg viewBox="0 0 48 48" fill="none">
@@ -119,7 +119,7 @@
                             </svg>
                         </div>
                         <p class="error-message">{{ errorMessage }}</p>
-                        <button v-if="showRetry" class="error-retry-btn" @click="manualRetry">
+                        <button v-if="showRetry" class="error-retry-btn" @click="reloadImage">
                             <svg class="retry-icon" viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M23 4v6h-6"
@@ -337,19 +337,41 @@
             thumbnailLoaded.value = false;
             loading.value = false;
             error.value = true;
-            emit('error', new Error(props.errorMessage));
+
+            const err = new Error(e.type === 'timeout' ? '图片加载超时' : props.errorMessage);
+            Object.assign(err, {
+                type: e.type === 'timeout' ? 'timeout' : 'error',
+                src: currentSrc.value,
+                event: e,
+            });
+
+            emit('error', err);
         }
     };
 
-    const manualRetry = () => {
+    const reloadImage = () => {
         error.value = false;
         loading.value = true;
         imageLoaded.value = false;
         thumbnailLoaded.value = false;
 
+        const tempSrc = currentSrc.value;
+        currentSrc.value = '';
+
         setTimeout(() => {
-            loadImage();
+            currentSrc.value = tempSrc;
         }, 100);
+
+        if (props.timeout > 0) {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            timeoutId = setTimeout(() => {
+                if (!imageLoaded.value) {
+                    handleError(new Event('timeout'));
+                }
+            }, props.timeout);
+        }
     };
 
     const initLazyLoad = () => {
@@ -386,14 +408,7 @@
     };
 
     defineExpose({
-        retry: manualRetry,
-        reload: () => {
-            imageLoaded.value = false;
-            thumbnailLoaded.value = false;
-            error.value = false;
-            loading.value = true;
-            loadImage();
-        },
+        retry: reloadImage,
     });
 
     onMounted(() => {
@@ -415,6 +430,11 @@
         () => props.src,
         async (newSrc, oldSrc) => {
             if (!newSrc || newSrc === oldSrc) return;
+
+            // observer清理避免内存泄露
+            if (observer && containerRef.value) {
+                observer.unobserve(containerRef.value);
+            }
 
             imageLoaded.value = false;
             thumbnailLoaded.value = false;
