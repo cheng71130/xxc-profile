@@ -3,11 +3,11 @@
         <!-- 顶部操作栏 -->
         <div class="demo-actions">
             <el-radio-group v-model="currentDemo" size="large">
-                <el-radio-button label="list">列表排序</el-radio-button>
-                <el-radio-button label="grid">网格布局</el-radio-button>
-                <el-radio-button label="handle">拖拽手柄</el-radio-button>
-                <el-radio-button label="multi">多容器</el-radio-button>
-                <el-radio-button label="kanban">看板系统</el-radio-button>
+                <el-radio-button value="list">列表排序</el-radio-button>
+                <el-radio-button value="grid">网格布局</el-radio-button>
+                <el-radio-button value="handle">拖拽手柄</el-radio-button>
+                <el-radio-button value="multi">多容器</el-radio-button>
+                <el-radio-button value="kanban">看板系统</el-radio-button>
             </el-radio-group>
 
             <el-button type="primary" @click="resetData" :icon="RefreshRight"> 重置数据 </el-button>
@@ -24,12 +24,16 @@
                 v-model="listData"
                 :removable="true"
                 animation="flip-list"
+                :style="{ '--list-gap': '12px' }"
                 @change="handleListChange"
-                @remove="handleRemove"
+                @remove="handleListRemove"
             >
-                <template #default="{ item, index }">
+                <template #default="{ item }">
                     <div class="task-item">
-                        <el-checkbox v-model="item.completed" @change="handleTaskToggle(item)" />
+                        <el-checkbox
+                            :model-value="item.completed"
+                            @update:model-value="(val:any) => handleTaskToggle(item, val)"
+                        />
                         <div class="task-content">
                             <div class="task-title" :class="{ completed: item.completed }">{{ item.title }}</div>
                             <div class="task-meta">
@@ -47,7 +51,7 @@
                             </div>
                         </div>
                         <div class="task-actions">
-                            <el-button text :icon="Edit" size="small" />
+                            <el-button text :icon="Edit" size="small" @click.stop />
                         </div>
                     </div>
                 </template>
@@ -59,8 +63,8 @@
             <div class="section-header">
                 <h3>🎨 图片画廊拖拽</h3>
                 <div class="header-actions">
-                    <el-input-number v-model="gridColumns" :min="2" :max="6" size="small" />
-                    <span style="margin-left: 8px">列</span>
+                    <el-input-number v-model="gridColumns" :min="2" :max="8" size="small" />
+                    <span style="margin-left: 8px; color: rgba(255, 255, 255, 0.6)">列</span>
                 </div>
             </div>
 
@@ -70,7 +74,9 @@
                 :columns="gridColumns"
                 :gap="16"
                 :removable="true"
+                :style="{ '--grid-columns': gridColumns, '--grid-gap': '16px' }"
                 @change="handleGridChange"
+                @remove="handleGridRemove"
             >
                 <template #default="{ item }">
                     <div class="image-card">
@@ -105,7 +111,14 @@
                 <el-tag type="warning">只能通过手柄拖拽</el-tag>
             </div>
 
-            <DraggableCore v-model="handleData" :handle="true" :removable="true">
+            <DraggableCore
+                v-model="handleData"
+                :handle="true"
+                :removable="true"
+                :style="{ '--list-gap': '12px' }"
+                @change="handleHandleChange"
+                @remove="handleHandleRemove"
+            >
                 <template #default="{ item }">
                     <div class="handle-item">
                         <el-avatar :src="item.avatar" :size="48" />
@@ -148,6 +161,8 @@
                         :removable="true"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
+                        :style="{ '--list-gap': '8px' }"
+                        @add="handleTodoAdd"
                     >
                         <template #default="{ item }">
                             <div class="multi-item" :style="{ borderLeftColor: item.color }">
@@ -170,6 +185,8 @@
                         :removable="true"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
+                        :style="{ '--list-gap': '8px' }"
+                        @add="handleDoingAdd"
                     >
                         <template #default="{ item }">
                             <div class="multi-item" :style="{ borderLeftColor: item.color }">
@@ -192,6 +209,8 @@
                         :removable="true"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
+                        :style="{ '--list-gap': '8px' }"
+                        @add="handleDoneAdd"
                     >
                         <template #default="{ item }">
                             <div class="multi-item" :style="{ borderLeftColor: item.color }">
@@ -228,10 +247,12 @@
 
                     <DraggableCore
                         v-model="column.items"
-                        :group="'kanban'"
+                        group="kanban"
                         :gap="12"
                         class="column-content"
                         empty-text="暂无任务"
+                        :style="{ '--list-gap': '12px' }"
+                        @add="(e) => handleKanbanAdd(column.title, e)"
                     >
                         <template #default="{ item }">
                             <div class="kanban-card">
@@ -283,7 +304,7 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, reactive } from 'vue';
+    import { ref } from 'vue';
     import DraggableCore from './DraggableCore.vue';
     import {
         RefreshRight,
@@ -308,12 +329,67 @@
         CircleCheckFilled,
     } from '@element-plus/icons-vue';
     import { ElMessage } from 'element-plus';
+    import type { Component } from 'vue';
 
-    const currentDemo = ref('list');
-    const gridColumns = ref(3);
+    interface TaskItem {
+        id: number;
+        title: string;
+        priority: string;
+        dueDate: string;
+        assignee: string;
+        completed: boolean;
+    }
+
+    interface ImageItem {
+        id: number;
+        url: string;
+        title: string;
+        views: string;
+        likes: number;
+    }
+
+    interface PersonItem {
+        id: number;
+        name: string;
+        role: string;
+        department: string;
+        avatar: string;
+        projects: number;
+        tasks: number;
+    }
+
+    interface MultiItem {
+        id: number;
+        title: string;
+        tag: string;
+        color: string;
+    }
+
+    interface KanbanItem {
+        id: string;
+        title: string;
+        description: string;
+        label: string;
+        type: '' | 'primary' | 'success' | 'warning' | 'info' | 'danger';
+        tags: string[];
+        attachments: number;
+        comments: number;
+        assignees: string[];
+    }
+
+    interface KanbanColumn {
+        id: string;
+        title: string;
+        icon: Component;
+        color: string;
+        items: KanbanItem[];
+    }
+
+    const currentDemo = ref<string>('list');
+    const gridColumns = ref<number>(5);
 
     // 列表数据
-    const listData = ref([
+    const initialListData: TaskItem[] = [
         {
             id: 1,
             title: '完成项目需求文档',
@@ -354,56 +430,88 @@
             assignee: '孙七',
             completed: false,
         },
-    ]);
+    ];
 
-    // 网格数据
-    const gridData = ref([
+    const listData = ref<TaskItem[]>([...initialListData]);
+
+    // 网格数据 - 800x600 图片
+    const initialGridData: ImageItem[] = [
         {
             id: 1,
-            url: 'https://picsum.photos/400/300?random=1',
+            url: 'https://picsum.photos/800/600?random=1',
             title: '日落美景',
             views: '2.3k',
             likes: 156,
         },
         {
             id: 2,
-            url: 'https://picsum.photos/400/300?random=2',
+            url: 'https://picsum.photos/800/600?random=2',
             title: '城市夜景',
             views: '3.1k',
             likes: 234,
         },
         {
             id: 3,
-            url: 'https://picsum.photos/400/300?random=3',
+            url: 'https://picsum.photos/800/600?random=3',
             title: '自然风光',
             views: '1.8k',
             likes: 189,
         },
         {
             id: 4,
-            url: 'https://picsum.photos/400/300?random=4',
+            url: 'https://picsum.photos/800/600?random=4',
             title: '山川河流',
             views: '4.2k',
             likes: 312,
         },
         {
             id: 5,
-            url: 'https://picsum.photos/400/300?random=5',
+            url: 'https://picsum.photos/800/600?random=5',
             title: '建筑艺术',
             views: '2.9k',
             likes: 267,
         },
         {
             id: 6,
-            url: 'https://picsum.photos/400/300?random=6',
+            url: 'https://picsum.photos/800/600?random=6',
             title: '海滨风情',
             views: '3.5k',
             likes: 298,
         },
-    ]);
+        {
+            id: 7,
+            url: 'https://picsum.photos/800/600?random=7',
+            title: '森林深处',
+            views: '2.7k',
+            likes: 203,
+        },
+        {
+            id: 8,
+            url: 'https://picsum.photos/800/600?random=8',
+            title: '星空银河',
+            views: '5.1k',
+            likes: 421,
+        },
+        {
+            id: 9,
+            url: 'https://picsum.photos/800/600?random=9',
+            title: '雪山之巅',
+            views: '3.9k',
+            likes: 356,
+        },
+        {
+            id: 10,
+            url: 'https://picsum.photos/800/600?random=10',
+            title: '沙漠绿洲',
+            views: '2.5k',
+            likes: 198,
+        },
+    ];
+
+    const gridData = ref<ImageItem[]>([...initialGridData]);
 
     // 手柄数据
-    const handleData = ref([
+    const initialHandleData: PersonItem[] = [
         {
             id: 1,
             name: '张三',
@@ -440,27 +548,33 @@
             projects: 10,
             tasks: 67,
         },
-    ]);
+    ];
+
+    const handleData = ref<PersonItem[]>([...initialHandleData]);
 
     // 多容器数据
-    const todoItems = ref([
+    const initialTodoItems: MultiItem[] = [
         { id: 1, title: '需求分析', tag: 'PRD', color: '#409eff' },
         { id: 2, title: '技术调研', tag: 'Tech', color: '#67c23a' },
         { id: 3, title: '原型设计', tag: 'Design', color: '#e6a23c' },
-    ]);
+    ];
 
-    const doingItems = ref([
+    const initialDoingItems: MultiItem[] = [
         { id: 4, title: '前端开发', tag: 'Dev', color: '#f56c6c' },
         { id: 5, title: '接口联调', tag: 'API', color: '#909399' },
-    ]);
+    ];
 
-    const doneItems = ref([
+    const initialDoneItems: MultiItem[] = [
         { id: 6, title: '单元测试', tag: 'Test', color: '#606266' },
         { id: 7, title: '代码审查', tag: 'Review', color: '#409eff' },
-    ]);
+    ];
+
+    const todoItems = ref<MultiItem[]>([...initialTodoItems]);
+    const doingItems = ref<MultiItem[]>([...initialDoingItems]);
+    const doneItems = ref<MultiItem[]>([...initialDoneItems]);
 
     // 看板数据
-    const kanbanColumns = reactive([
+    const initialKanbanColumns: KanbanColumn[] = [
         {
             id: 'backlog',
             title: '待办事项',
@@ -558,10 +672,12 @@
                 },
             ],
         },
-    ]);
+    ];
 
-    const getPriorityType = (priority: string) => {
-        const map: Record<string, any> = {
+    const kanbanColumns = ref<KanbanColumn[]>(JSON.parse(JSON.stringify(initialKanbanColumns)));
+
+    const getPriorityType = (priority: string): '' | 'danger' | 'warning' | 'info' => {
+        const map: Record<string, '' | 'danger' | 'warning' | 'info'> = {
             高: 'danger',
             中: 'warning',
             低: 'info',
@@ -569,23 +685,65 @@
         return map[priority] || 'info';
     };
 
+    // 列表事件处理
     const handleListChange = (event: any) => {
-        ElMessage.success(`从位置 ${event.oldIndex + 1} 移动到 ${event.newIndex + 1}`);
+        ElMessage.success('从位置 ' + (event.oldIndex + 1) + ' 移动到 ' + (event.newIndex + 1));
     };
 
+    const handleListRemove = (event: any) => {
+        ElMessage.warning('移除了任务: ' + event.item.title);
+    };
+
+    // 网格事件处理
     const handleGridChange = (event: any) => {
         console.log('Grid changed:', event);
+        ElMessage.success('图片位置已更新');
     };
 
-    const handleRemove = (event: any) => {
-        ElMessage.warning(`移除了项目: ${event.item.title || event.item.name || '未命名'}`);
+    const handleGridRemove = (event: any) => {
+        ElMessage.warning('移除了图片: ' + event.item.title);
     };
 
-    const handleTaskToggle = (task: any) => {
-        ElMessage.success(task.completed ? '任务已完成 ✅' : '任务已重新开启');
+    // 手柄事件处理
+    const handleHandleChange = (event: any) => {
+        ElMessage.success(event.item.name + ' 位置已更新');
+    };
+
+    const handleHandleRemove = (event: any) => {
+        ElMessage.warning('移除了成员: ' + event.item.name);
+    };
+
+    // 多容器事件处理
+    const handleTodoAdd = (event: any) => {
+        ElMessage.success('"' + event.item.title + '" 已添加到待处理');
+    };
+
+    const handleDoingAdd = (event: any) => {
+        ElMessage.success('"' + event.item.title + '" 已添加到进行中');
+    };
+
+    const handleDoneAdd = (event: any) => {
+        ElMessage.success('"' + event.item.title + '" 已添加到已完成');
+    };
+
+    // 看板事件处理
+    const handleKanbanAdd = (columnTitle: string, event: any) => {
+        ElMessage.success('任务 "' + event.item.title + '" 移动到 ' + columnTitle);
+    };
+
+    const handleTaskToggle = (task: TaskItem, value: boolean) => {
+        task.completed = value;
+        ElMessage.success(value ? '任务已完成 ✅' : '任务已重新开启');
     };
 
     const resetData = () => {
+        listData.value = JSON.parse(JSON.stringify(initialListData));
+        gridData.value = [...initialGridData];
+        handleData.value = [...initialHandleData];
+        todoItems.value = [...initialTodoItems];
+        doingItems.value = [...initialDoingItems];
+        doneItems.value = [...initialDoneItems];
+        kanbanColumns.value = JSON.parse(JSON.stringify(initialKanbanColumns));
         currentDemo.value = 'list';
         ElMessage.info('数据已重置');
     };
@@ -690,6 +848,7 @@
                 gap: 16px;
                 font-size: 13px;
                 color: rgba(255, 255, 255, 0.5);
+                flex-wrap: wrap;
 
                 .task-time,
                 .task-assignee {
@@ -711,6 +870,7 @@
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.03);
         transition: all 0.3s;
+        cursor: pointer;
 
         &:hover {
             transform: translateY(-4px);
@@ -915,6 +1075,13 @@
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
 
         .card-header {
             display: flex;
@@ -1001,6 +1168,10 @@
                 width: 100%;
                 display: flex;
                 flex-direction: column;
+
+                .el-radio-button {
+                    width: 100%;
+                }
             }
         }
 
@@ -1010,6 +1181,8 @@
             .handle-stats {
                 width: 100%;
                 justify-content: space-around;
+                padding-top: 12px;
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
             }
         }
     }

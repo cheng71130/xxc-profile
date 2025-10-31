@@ -1,3 +1,4 @@
+<!-- DraggableCore.vue - 完整修复版 -->
 <template>
     <div
         ref="containerRef"
@@ -6,23 +7,30 @@
         :style="containerStyle"
         @dragover.prevent="handleDragOver"
         @drop="handleDrop"
-        @dragenter="handleDragEnter"
-        @dragleave="handleDragLeave"
+        @dragenter.prevent="handleDragEnter"
+        @dragleave.prevent="handleDragLeave"
     >
-        <TransitionGroup :name="animation" :tag="tag">
+        <TransitionGroup :name="animation" tag="div" class="draggable-list">
             <div
                 v-for="(item, index) in localData"
                 :key="getItemKey(item, index)"
-                :draggable="!disabled && !item.disabled"
+                :draggable="getDraggable(item)"
                 class="draggable-item"
                 :class="getItemClasses(item, index)"
                 :style="getItemStyle(item)"
-                @dragstart="handleDragStart($event, item, index)"
+                @dragstart="handleItemDragStart($event, item, index)"
                 @dragend="handleDragEnd"
-                @dragenter="handleItemDragEnter(index)"
+                @dragover.prevent="handleItemDragOver($event, index)"
             >
                 <!-- 拖拽手柄 -->
-                <div v-if="handle" class="drag-handle" @mousedown.stop>
+                <div
+                    v-if="handle"
+                    class="drag-handle"
+                    :draggable="true"
+                    @dragstart.stop="handleHandleDragStart($event, item, index)"
+                    @dragend.stop="handleDragEnd"
+                    @click.stop
+                >
                     <slot name="handle" :item="item" :index="index">
                         <el-icon><Rank /></el-icon>
                     </slot>
@@ -36,22 +44,22 @@
                 </div>
 
                 <!-- 删除按钮 -->
-                <div v-if="removable" class="item-remove" @click="removeItem(index)">
+                <div v-if="removable" class="item-remove" @click.stop="removeItem(index)">
                     <slot name="remove" :item="item" :index="index">
                         <el-icon><Close /></el-icon>
                     </slot>
                 </div>
 
                 <!-- 拖拽遮罩 -->
-                <div v-if="dragIndex === index" class="drag-mask">
+                <div v-if="dragIndex === index && isDragging" class="drag-mask">
                     <el-icon class="drag-icon"><Rank /></el-icon>
                 </div>
 
-                <!-- 占位指示器 -->
+                <!-- 占位指示器 - 修复位置逻辑 -->
                 <div
                     v-if="showPlaceholder && dropIndex === index && dragIndex !== index"
                     class="drop-placeholder"
-                    :class="placeholderPosition"
+                    :class="getPlaceholderPosition(index)"
                 />
             </div>
         </TransitionGroup>
@@ -73,8 +81,45 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, computed, watch, nextTick } from 'vue';
+    import { ref, computed, watch } from 'vue';
     import { Rank, Close, FolderOpened, Plus } from '@element-plus/icons-vue';
+
+    type DraggableItem = Record<string, any>;
+
+    interface DragData {
+        group: string;
+        index: number;
+        item: any;
+        sourceId: string;
+        removeCallback?: () => void;
+    }
+
+    interface ChangeEvent {
+        oldIndex: number;
+        newIndex: number;
+        item: any;
+    }
+
+    interface AddEvent {
+        item: any;
+        newIndex: number;
+    }
+
+    interface RemoveEvent {
+        item: any;
+        oldIndex: number;
+    }
+
+    interface StartEvent {
+        item: any;
+        index: number;
+    }
+
+    interface EndEvent {
+        item: any;
+        oldIndex: number;
+        newIndex: number;
+    }
 
     interface DraggableProps {
         modelValue: any[];
@@ -116,13 +161,16 @@
     });
 
     const emit = defineEmits<{
-        'update:modelValue': [value: any[]];
-        change: [event: { oldIndex: number; newIndex: number; item: any }];
-        add: [event: { item: any; newIndex: number }];
-        remove: [event: { item: any; oldIndex: number }];
-        start: [event: { item: any; index: number }];
-        end: [event: { item: any; oldIndex: number; newIndex: number }];
+        (e: 'update:modelValue', value: any[]): void;
+        (e: 'change', event: ChangeEvent): void;
+        (e: 'add', event: AddEvent): void;
+        (e: 'remove', event: RemoveEvent): void;
+        (e: 'start', event: StartEvent): void;
+        (e: 'end', event: EndEvent): void;
     }>();
+
+    // 生成唯一 ID
+    const containerId = `draggable-${Math.random().toString(36).substr(2, 9)}`;
 
     const containerRef = ref<HTMLElement>();
     const localData = ref<any[]>([...props.modelValue]);
@@ -130,12 +178,19 @@
     const dropIndex = ref<number>(-1);
     const dragItem = ref<any>(null);
     const isDragOver = ref(false);
+    const isDragging = ref(false);
     const dragEnterCount = ref(0);
+    const isFromOtherContainer = ref(false);
+
+    // 全局拖拽状态存储
+    const DRAG_KEY = '__DRAGGABLE_DATA__';
 
     watch(
         () => props.modelValue,
         (newVal) => {
-            localData.value = [...newVal];
+            if (!isDragging.value) {
+                localData.value = [...newVal];
+            }
         },
         { deep: true }
     );
@@ -148,78 +203,127 @@
     }));
 
     const containerStyle = computed(() => {
-        if (props.layout === 'grid') {
-            return {
-                display: 'grid',
-                gridTemplateColumns: `repeat(${props.columns}, 1fr)`,
-                gap: `${props.gap}px`,
-            };
-        }
-        return {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: `${props.gap}px`,
-        };
+        const baseStyle: Record<string, string> = {};
+        return baseStyle;
     });
 
-    const getItemKey = (item: any, index: number) => {
+    const getDraggable = (item: DraggableItem): boolean => {
+        if (props.disabled || item.disabled) return false;
+        return !props.handle;
+    };
+
+    const getItemKey = (item: DraggableItem, index: number): string | number => {
         if (typeof props.itemKey === 'function') {
             return props.itemKey(item);
         }
         return item[props.itemKey] ?? index;
     };
 
-    const getItemClasses = (item: any, index: number) => ({
-        'is-dragging': dragIndex.value === index,
+    const getItemClasses = (item: DraggableItem, index: number) => ({
+        'is-dragging': dragIndex.value === index && isDragging.value,
         'is-drop-target': dropIndex.value === index && dragIndex.value !== index,
         'is-disabled': item.disabled,
-        [props.ghostClass]: dragIndex.value === index && props.ghostClass,
-        [props.chosenClass]: dragIndex.value === index && props.chosenClass,
-        [props.dragClass]: dragIndex.value === index && props.dragClass,
+        [props.ghostClass]: dragIndex.value === index && isDragging.value && props.ghostClass,
+        [props.chosenClass]: dragIndex.value === index && isDragging.value && props.chosenClass,
+        [props.dragClass]: dragIndex.value === index && isDragging.value && props.dragClass,
     });
 
-    const getItemStyle = (item: any) => {
+    const getItemStyle = (item: DraggableItem) => {
         return item.style || {};
     };
 
-    const placeholderPosition = computed(() => {
-        if (dragIndex.value < dropIndex.value) {
+    // 🔥 修复提示线位置逻辑
+    const getPlaceholderPosition = (index: number): string => {
+        // 跨容器拖拽，始终显示在目标位置上方
+        if (isFromOtherContainer.value) {
+            return 'before';
+        }
+
+        // 同容器拖拽
+        if (dragIndex.value === -1) {
+            return 'before';
+        }
+
+        // 从上往下拖：提示线在目标元素下方（因为原位置在上面，删除后位置前移）
+        if (dragIndex.value < index) {
             return 'after';
         }
-        return 'before';
-    });
+        // 从下往上拖：提示线在目标元素上方
+        else {
+            return 'before';
+        }
+    };
 
-    const handleDragStart = (event: DragEvent, item: any, index: number) => {
+    const handleItemDragStart = (event: DragEvent, item: DraggableItem, index: number) => {
+        if (props.handle) {
+            event.preventDefault();
+            return;
+        }
+        startDrag(event, item, index);
+    };
+
+    const handleHandleDragStart = (event: DragEvent, item: DraggableItem, index: number) => {
+        startDrag(event, item, index);
+    };
+
+    const startDrag = (event: DragEvent, item: DraggableItem, index: number) => {
         if (props.disabled || item.disabled) {
             event.preventDefault();
             return;
         }
 
+        isDragging.value = true;
         dragIndex.value = index;
         dragItem.value = props.clone ? JSON.parse(JSON.stringify(item)) : item;
+        isFromOtherContainer.value = false;
+
+        // 🔥 创建删除回调函数
+        const removeCallback = () => {
+            console.log('🗑️ Remove callback executed, removing item at index:', index);
+            const newData = [...localData.value];
+            newData.splice(index, 1);
+            localData.value = newData;
+            emit('update:modelValue', newData);
+            emit('remove', { item, oldIndex: index });
+        };
+
+        const dragData: DragData = {
+            group: props.group,
+            index,
+            item: props.clone ? JSON.parse(JSON.stringify(item)) : item,
+            sourceId: containerId,
+            removeCallback: props.clone ? undefined : removeCallback, // clone 模式不需要删除
+        };
+
+        // 存储到全局
+        (window as any)[DRAG_KEY] = dragData;
 
         if (event.dataTransfer) {
             event.dataTransfer.effectAllowed = props.clone ? 'copy' : 'move';
-            event.dataTransfer.setData('text/plain', JSON.stringify({ group: props.group, index, item }));
-
-            // 设置拖拽图像
-            const dragImage = (event.target as HTMLElement).cloneNode(true) as HTMLElement;
-            dragImage.style.opacity = '0.8';
-            dragImage.style.transform = 'rotate(3deg)';
-            document.body.appendChild(dragImage);
-            event.dataTransfer.setDragImage(dragImage, 0, 0);
-            setTimeout(() => document.body.removeChild(dragImage), 0);
+            const dataString = JSON.stringify({
+                group: dragData.group,
+                index: dragData.index,
+                item: dragData.item,
+                sourceId: dragData.sourceId,
+            });
+            event.dataTransfer.setData('text/plain', dataString);
+            event.dataTransfer.setData('application/json', dataString);
         }
 
         emit('start', { item, index });
     };
 
     const handleDragEnd = () => {
-        dragIndex.value = -1;
-        dropIndex.value = -1;
-        dragItem.value = null;
-        isDragOver.value = false;
-        dragEnterCount.value = 0;
+        setTimeout(() => {
+            isDragging.value = false;
+            dragIndex.value = -1;
+            dropIndex.value = -1;
+            dragItem.value = null;
+            isDragOver.value = false;
+            dragEnterCount.value = 0;
+            isFromOtherContainer.value = false;
+            // 注意：不要删除 DRAG_KEY，因为 drop 可能还没执行完
+        }, 100);
     };
 
     const handleDragOver = (event: DragEvent) => {
@@ -230,59 +334,131 @@
         }
     };
 
-    const handleDragEnter = () => {
+    const handleDragEnter = (event: DragEvent) => {
         dragEnterCount.value++;
         if (dragEnterCount.value === 1) {
             isDragOver.value = true;
+
+            const dragData = (window as any)[DRAG_KEY] as DragData;
+            if (dragData && dragData.sourceId !== containerId && dragData.group === props.group) {
+                isFromOtherContainer.value = true;
+            }
         }
     };
 
-    const handleDragLeave = () => {
+    const handleDragLeave = (event: DragEvent) => {
         dragEnterCount.value--;
         if (dragEnterCount.value === 0) {
             isDragOver.value = false;
+            dropIndex.value = -1;
         }
     };
 
-    const handleItemDragEnter = (index: number) => {
-        if (dragIndex.value === -1 || dragIndex.value === index) return;
+    const handleItemDragOver = (event: DragEvent, index: number) => {
+        if (props.disabled) return;
+        event.preventDefault();
         dropIndex.value = index;
     };
 
     const handleDrop = (event: DragEvent) => {
         event.preventDefault();
+        event.stopPropagation();
+
         isDragOver.value = false;
         dragEnterCount.value = 0;
 
-        if (props.disabled) return;
+        if (props.disabled) {
+            handleDragEnd();
+            return;
+        }
 
-        try {
-            const data = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}');
+        // 获取拖拽数据
+        let dragData = (window as any)[DRAG_KEY] as DragData;
 
-            // 跨容器拖拽
-            if (data.group !== props.group) {
-                const targetIndex = dropIndex.value >= 0 ? dropIndex.value : localData.value.length;
-                localData.value.splice(targetIndex, 0, data.item);
-                emit('update:modelValue', localData.value);
-                emit('add', { item: data.item, newIndex: targetIndex });
+        if (!dragData) {
+            try {
+                let dataStr = event.dataTransfer?.getData('application/json') || '';
+                if (!dataStr) {
+                    dataStr = event.dataTransfer?.getData('text/plain') || '';
+                }
+                if (dataStr) {
+                    const parsedData = JSON.parse(dataStr);
+                    dragData = {
+                        ...parsedData,
+                        removeCallback: (window as any)[DRAG_KEY]?.removeCallback,
+                    };
+                }
+            } catch (error) {
+                console.error('Parse drag data error:', error);
+            }
+        }
+
+        if (!dragData) {
+            console.warn('❌ No drag data found');
+            handleDragEnd();
+            return;
+        }
+
+        if (dragData.group !== props.group) {
+            console.warn('❌ Group mismatch:', dragData.group, props.group);
+            handleDragEnd();
+            return;
+        }
+
+        // 🔥 跨容器拖拽
+        if (dragData.sourceId !== containerId) {
+            console.log('🔄 Cross-container drag detected');
+            let targetIndex = dropIndex.value;
+            if (targetIndex < 0 || targetIndex >= localData.value.length) {
+                targetIndex = localData.value.length;
+            }
+
+            // 添加到目标容器
+            const newData = [...localData.value];
+            newData.splice(targetIndex, 0, dragData.item);
+            localData.value = newData;
+            emit('update:modelValue', newData);
+            emit('add', { item: dragData.item, newIndex: targetIndex });
+
+            // 🔥 调用源容器的删除回调
+            if (dragData.removeCallback) {
+                console.log('🗑️ Calling remove callback from source container');
+                dragData.removeCallback();
+            }
+
+            console.log('✅ Cross-container drag completed');
+
+            // 清理全局数据
+            setTimeout(() => {
+                delete (window as any)[DRAG_KEY];
+            }, 200);
+
+            handleDragEnd();
+            return;
+        }
+
+        // 同容器拖拽
+        if (dragIndex.value >= 0 && dropIndex.value >= 0) {
+            if (dragIndex.value === dropIndex.value) {
                 handleDragEnd();
                 return;
             }
 
-            // 同容器拖拽
-            if (dragIndex.value >= 0 && dropIndex.value >= 0 && dragIndex.value !== dropIndex.value) {
-                const newData = [...localData.value];
-                const [removed] = newData.splice(dragIndex.value, 1);
-                const insertIndex = dragIndex.value < dropIndex.value ? dropIndex.value - 1 : dropIndex.value;
-                newData.splice(insertIndex, 0, removed);
+            const newData = [...localData.value];
+            const [removed] = newData.splice(dragIndex.value, 1);
 
-                localData.value = newData;
-                emit('update:modelValue', newData);
-                emit('change', { oldIndex: dragIndex.value, newIndex: insertIndex, item: removed });
-                emit('end', { item: removed, oldIndex: dragIndex.value, newIndex: insertIndex });
+            // 🔥 修复插入位置计算
+            let insertIndex = dropIndex.value;
+            if (dragIndex.value < dropIndex.value) {
+                insertIndex = dropIndex.value; // 从上往下拖，位置不变
             }
-        } catch (error) {
-            console.error('Drop error:', error);
+
+            newData.splice(insertIndex, 0, removed);
+
+            localData.value = newData;
+            emit('update:modelValue', newData);
+            emit('change', { oldIndex: dragIndex.value, newIndex: insertIndex, item: removed });
+            emit('end', { item: removed, oldIndex: dragIndex.value, newIndex: insertIndex });
         }
 
         handleDragEnd();
@@ -290,8 +466,10 @@
 
     const removeItem = (index: number) => {
         const item = localData.value[index];
-        localData.value.splice(index, 1);
-        emit('update:modelValue', localData.value);
+        const newData = [...localData.value];
+        newData.splice(index, 1);
+        localData.value = newData;
+        emit('update:modelValue', newData);
         emit('remove', { item, oldIndex: index });
     };
 
@@ -304,13 +482,11 @@
     .draggable-container {
         position: relative;
         min-height: 60px;
-        padding: 12px;
         border-radius: 12px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background 0.2s, border-color 0.2s;
 
         &.is-drag-over {
-            background: rgba(102, 126, 234, 0.08);
-            border-color: rgba(102, 126, 234, 0.4);
+            background: rgba(102, 126, 234, 0.05);
         }
 
         &.is-disabled {
@@ -321,6 +497,51 @@
                 cursor: not-allowed;
             }
         }
+
+        &.layout-grid {
+            .draggable-list {
+                display: grid;
+                grid-template-columns: repeat(var(--grid-columns, 3), 1fr);
+                gap: var(--grid-gap, 16px);
+            }
+
+            .draggable-item {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0 !important;
+
+                .drag-handle {
+                    position: absolute;
+                    top: 8px;
+                    left: 8px;
+                    z-index: 10;
+                }
+
+                .item-remove {
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    z-index: 10;
+                }
+
+                .item-content {
+                    padding: 0;
+                }
+            }
+        }
+    }
+
+    .draggable-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--list-gap, 12px);
+        min-height: 60px;
+    }
+
+    .draggable-container.layout-grid .draggable-list {
+        display: grid !important;
+        grid-template-columns: repeat(var(--grid-columns, 3), 1fr) !important;
+        gap: var(--grid-gap, 16px) !important;
     }
 
     .draggable-item {
@@ -332,30 +553,29 @@
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 10px;
-        cursor: grab;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         user-select: none;
+
+        &[draggable='true'] {
+            cursor: grab;
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
 
         &:hover {
             background: rgba(255, 255, 255, 0.05);
             border-color: rgba(102, 126, 234, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        &:active {
-            cursor: grabbing;
         }
 
         &.is-dragging {
             opacity: 0.4;
             cursor: grabbing;
-            transform: scale(0.95);
         }
 
         &.is-drop-target {
             border-color: rgba(102, 126, 234, 0.6);
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }
 
         &.is-disabled {
@@ -364,6 +584,7 @@
 
             .drag-handle {
                 opacity: 0.3;
+                cursor: not-allowed;
             }
         }
     }
@@ -379,6 +600,7 @@
         cursor: grab;
         border-radius: 6px;
         transition: all 0.2s;
+        background: rgba(255, 255, 255, 0.03);
 
         &:hover {
             background: rgba(102, 126, 234, 0.15);
@@ -414,6 +636,8 @@
         cursor: pointer;
         border-radius: 6px;
         transition: all 0.2s;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.03);
 
         &:hover {
             background: rgba(245, 108, 108, 0.15);
@@ -431,9 +655,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(102, 126, 234, 0.2);
+        background: rgba(102, 126, 234, 0.1);
         border-radius: 10px;
-        backdrop-filter: blur(2px);
+        pointer-events: none;
 
         .drag-icon {
             font-size: 32px;
@@ -461,8 +685,9 @@
         height: 3px;
         background: linear-gradient(90deg, #667eea, #764ba2);
         border-radius: 2px;
-        box-shadow: 0 0 12px rgba(102, 126, 234, 0.6);
-        animation: placeholder-glow 1s ease infinite;
+        box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+        pointer-events: none;
+        z-index: 100;
 
         &.before {
             top: -7px;
@@ -482,7 +707,7 @@
             height: 8px;
             background: #667eea;
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.8);
+            box-shadow: 0 0 6px rgba(102, 126, 234, 0.8);
         }
 
         &::before {
@@ -491,16 +716,6 @@
 
         &::after {
             right: -4px;
-        }
-    }
-
-    @keyframes placeholder-glow {
-        0%,
-        100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.6;
         }
     }
 
@@ -537,94 +752,35 @@
         background: rgba(102, 126, 234, 0.08);
         border: 2px dashed rgba(102, 126, 234, 0.4);
         border-radius: 12px;
-        animation: hint-pulse 1.5s ease infinite;
+        pointer-events: none;
 
         .hint-icon {
             font-size: 24px;
         }
     }
 
-    @keyframes hint-pulse {
-        0%,
-        100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.02);
-        }
-    }
-
     // 动画
     .flip-list-move {
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.3s ease;
     }
 
     .flip-list-enter-active {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
     }
 
     .flip-list-leave-active {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s ease;
         position: absolute;
+        opacity: 0;
     }
 
     .flip-list-enter-from {
         opacity: 0;
-        transform: scale(0.8) translateY(-20px);
+        transform: translateY(-10px);
     }
 
     .flip-list-leave-to {
         opacity: 0;
-        transform: scale(0.8) translateX(30px);
-    }
-
-    // 网格布局特殊样式
-    .layout-grid {
-        .draggable-item {
-            flex-direction: column;
-            align-items: stretch;
-
-            .drag-handle {
-                align-self: flex-start;
-            }
-
-            .item-remove {
-                position: absolute;
-                top: 8px;
-                right: 8px;
-            }
-        }
-
-        .drop-placeholder {
-            &.before {
-                left: -7px;
-                top: 0;
-                bottom: 0;
-                width: 3px;
-                height: auto;
-            }
-
-            &.after {
-                right: -7px;
-                left: auto;
-                top: 0;
-                bottom: 0;
-                width: 3px;
-                height: auto;
-            }
-
-            &::before {
-                top: -4px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            &::after {
-                bottom: -4px;
-                top: auto;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-        }
+        transform: translateX(20px);
     }
 </style>
