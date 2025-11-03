@@ -232,6 +232,14 @@
         },
         {
             id: 5,
+            name: '拖拽排序',
+            summarize: '自定义看板，可视化配置，提升交互体验',
+            description: '列表拖拽排序，网格布局拖拽，跨容器拖拽，拖拽预览和占位',
+            iconPath: 'M12 4v16m0-16l-2 2m2-2l2 2m-2 14l-2-2m2 2l2-2M4 12h16M4 12l2-2m-2 2l2 2m14-2l-2-2m2 2l-2 2',
+            component: DraggableCore,
+        },
+        {
+            id: 6,
             name: '通知系统',
             summarize: '现代化通知组件，支持多种类型和位置',
             description: '现代化通知组件，支持多种类型和位置',
@@ -239,7 +247,7 @@
             component: Notice,
         },
         {
-            id: 6,
+            id: 7,
             name: '数据表格',
             summarize: '大数据表格，支持排序、筛选等功能',
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
@@ -247,21 +255,13 @@
             component: VirtualizedTable,
         },
         {
-            id: 7,
+            id: 8,
             name: '数据卡片',
             summarize: '美观的数据展示卡片，支持图表和指标显示',
             description: '美观的数据展示卡片，支持图表和指标显示',
             iconPath:
                 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
             component: DataCard,
-        },
-        {
-            id: 8,
-            name: '拖拽排序',
-            summarize: '自定义看板，可视化配置，提升交互体验',
-            description: '列表拖拽排序，网格布局拖拽，跨容器拖拽，拖拽预览和占位',
-            iconPath: 'M12 4v16m0-16l-2 2m2-2l2 2m-2 14l-2-2m2 2l2-2M4 12h16M4 12l2-2m-2 2l2 2m14-2l-2-2m2 2l-2 2',
-            component: DraggableCore,
         },
     ]);
 
