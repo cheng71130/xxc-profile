@@ -333,7 +333,7 @@
         }
     };
 
-    const handleDragEnter = (event: DragEvent) => {
+    const handleDragEnter = () => {
         dragEnterCount.value++;
         if (dragEnterCount.value === 1) {
             isDragOver.value = true;
@@ -345,7 +345,7 @@
         }
     };
 
-    const handleDragLeave = (event: DragEvent) => {
+    const handleDragLeave = () => {
         dragEnterCount.value--;
         if (dragEnterCount.value === 0) {
             isDragOver.value = false;
