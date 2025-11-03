@@ -304,10 +304,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 20px;
-        padding: 20px 24px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         backdrop-filter: blur(10px);
         flex-wrap: wrap;
 

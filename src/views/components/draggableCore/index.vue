@@ -14,7 +14,7 @@
         </div>
 
         <!-- 列表排序 -->
-        <div v-if="currentDemo === 'list'" class="demo-section">
+        <div v-if="currentDemo === 'list'">
             <div class="section-header">
                 <h3>📋 任务列表拖拽排序</h3>
                 <el-tag type="info">{{ listData.length }} 项</el-tag>
@@ -59,12 +59,12 @@
         </div>
 
         <!-- 网格布局 -->
-        <div v-if="currentDemo === 'grid'" class="demo-section">
+        <div v-if="currentDemo === 'grid'">
             <div class="section-header">
                 <h3>🎨 图片画廊拖拽</h3>
                 <div class="header-actions">
                     <el-input-number v-model="gridColumns" :min="2" :max="8" size="small" />
-                    <span style="margin-left: 8px; color: rgba(255, 255, 255, 0.6)">列</span>
+                    <span style="margin-left: 12px; color: rgba(255, 255, 255, 0.6)">列</span>
                 </div>
             </div>
 
@@ -105,7 +105,7 @@
         </div>
 
         <!-- 拖拽手柄 -->
-        <div v-if="currentDemo === 'handle'" class="demo-section">
+        <div v-if="currentDemo === 'handle'">
             <div class="section-header">
                 <h3>✋ 手柄拖拽模式</h3>
                 <el-tag type="warning">只能通过手柄拖拽</el-tag>
@@ -142,7 +142,7 @@
         </div>
 
         <!-- 多容器拖拽 -->
-        <div v-if="currentDemo === 'multi'" class="demo-section">
+        <div v-if="currentDemo === 'multi'">
             <div class="section-header">
                 <h3>🔄 跨容器拖拽</h3>
                 <el-tag type="success">支持容器间拖拽</el-tag>
@@ -224,7 +224,7 @@
         </div>
 
         <!-- 看板系统 -->
-        <div v-if="currentDemo === 'kanban'" class="demo-section">
+        <div v-if="currentDemo === 'kanban'">
             <div class="section-header">
                 <h3>📊 项目看板系统</h3>
                 <div class="header-actions">
@@ -674,7 +674,12 @@
         },
     ];
 
-    const kanbanColumns = ref<KanbanColumn[]>(JSON.parse(JSON.stringify(initialKanbanColumns)));
+    const kanbanColumns = ref<KanbanColumn[]>(
+        initialKanbanColumns.map((col) => ({
+            ...col,
+            items: [...col.items.map((item) => ({ ...item }))],
+        }))
+    );
 
     const getPriorityType = (priority: string): '' | 'danger' | 'warning' | 'info' => {
         const map: Record<string, '' | 'danger' | 'warning' | 'info'> = {
@@ -743,7 +748,10 @@
         todoItems.value = [...initialTodoItems];
         doingItems.value = [...initialDoingItems];
         doneItems.value = [...initialDoneItems];
-        kanbanColumns.value = JSON.parse(JSON.stringify(initialKanbanColumns));
+        kanbanColumns.value = initialKanbanColumns.map((col) => ({
+            ...col,
+            items: [...col.items.map((item) => ({ ...item }))],
+        }));
         currentDemo.value = 'list';
         ElMessage.info('数据已重置');
     };
@@ -762,10 +770,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 20px;
-        padding: 20px 24px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         backdrop-filter: blur(10px);
         flex-wrap: wrap;
 
@@ -789,20 +795,13 @@
         }
     }
 
-    .demo-section {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        padding: 24px;
-    }
-
     .section-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        // padding-bottom: 16px;
+        // border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
         h3 {
             margin: 0;
@@ -814,7 +813,6 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
         }
     }
 
@@ -873,7 +871,7 @@
         cursor: pointer;
 
         &:hover {
-            transform: translateY(-4px);
+            // transform: translateY(-4px);
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 
             .image-overlay {
@@ -1071,18 +1069,6 @@
     }
 
     .kanban-card {
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(102, 126, 234, 0.3);
-        }
-
         .card-header {
             display: flex;
             align-items: center;

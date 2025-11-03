@@ -6,8 +6,8 @@
             <div class="sidebar-header p-8 flex-shrink-0">
                 <div class="header-content">
                     <div class="title-section">
-                        <h1 class="main-title">前端展馆</h1>
-                        <h2 class="sub-title">展示台</h2>
+                        <h1 class="main-title">Front-end</h1>
+                        <h2 class="sub-title">gallery</h2>
                     </div>
                     <div class="header-decoration">
                         <div class="decoration-line"></div>
@@ -257,10 +257,10 @@
         },
         {
             id: 8,
-            name: '导航菜单',
-            summarize: '响应式导航菜单，支持多级嵌套和折叠',
-            description: '响应式导航菜单，支持多级嵌套和折叠',
-            iconPath: 'M4 6h16M4 12h16M4 18h16',
+            name: '拖拽排序',
+            summarize: '自定义看板，可视化配置，提升交互体验',
+            description: '列表拖拽排序，网格布局拖拽，跨容器拖拽，拖拽预览和占位',
+            iconPath: 'M12 4v16m0-16l-2 2m2-2l2 2m-2 14l-2-2m2 2l2-2M4 12h16M4 12l2-2m-2 2l2 2m14-2l-2-2m2 2l-2 2',
             component: DraggableCore,
         },
     ]);

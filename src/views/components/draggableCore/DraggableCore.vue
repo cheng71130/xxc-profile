@@ -1,4 +1,3 @@
-<!-- DraggableCore.vue - 完整修复版 -->
 <template>
     <div
         ref="containerRef"
@@ -65,7 +64,7 @@
         </TransitionGroup>
 
         <!-- 空状态 -->
-        <div v-if="localData.length === 0" class="empty-state">
+        <div v-if="localData.length === 0 && !isDragOver" class="empty-state">
             <slot name="empty">
                 <el-icon class="empty-icon"><FolderOpened /></el-icon>
                 <p class="empty-text">{{ emptyText }}</p>
@@ -447,10 +446,9 @@
             const newData = [...localData.value];
             const [removed] = newData.splice(dragIndex.value, 1);
 
-            // 🔥 修复插入位置计算
             let insertIndex = dropIndex.value;
             if (dragIndex.value < dropIndex.value) {
-                insertIndex = dropIndex.value; // 从上往下拖，位置不变
+                insertIndex = dropIndex.value;
             }
 
             newData.splice(insertIndex, 0, removed);
@@ -551,7 +549,7 @@
         gap: 12px;
         padding: 16px;
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        // border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 10px;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         user-select: none;
