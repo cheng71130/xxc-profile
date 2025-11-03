@@ -80,12 +80,7 @@
             >
                 <template #default="{ item }">
                     <div class="image-card">
-                        <div class="image-wrapper">
-                            <img :src="item.url" :alt="item.title" />
-                            <div class="image-overlay">
-                                <el-icon class="overlay-icon"><ZoomIn /></el-icon>
-                            </div>
-                        </div>
+                        <LazyImage :src="item.url" aspectRatio="4/3" :alt="item.title" />
                         <div class="image-info">
                             <div class="image-title">{{ item.title }}</div>
                             <div class="image-stats">
@@ -311,7 +306,6 @@
         Clock,
         User,
         Edit,
-        ZoomIn,
         View,
         Star,
         Box,
@@ -330,6 +324,7 @@
     } from '@element-plus/icons-vue';
     import { ElMessage } from 'element-plus';
     import type { Component } from 'vue';
+    import LazyImage from '../lazyImage/LazyImage.vue';
 
     interface TaskItem {
         id: number;
@@ -491,20 +486,6 @@
             title: '星空银河',
             views: '5.1k',
             likes: 421,
-        },
-        {
-            id: 9,
-            url: 'https://picsum.photos/800/600?random=9',
-            title: '雪山之巅',
-            views: '3.9k',
-            likes: 356,
-        },
-        {
-            id: 10,
-            url: 'https://picsum.photos/800/600?random=10',
-            title: '沙漠绿洲',
-            views: '2.5k',
-            likes: 198,
         },
     ];
 
@@ -800,8 +781,6 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 24px;
-        // padding-bottom: 16px;
-        // border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
         h3 {
             margin: 0;
@@ -880,35 +859,9 @@
         }
     }
 
-    .image-wrapper {
-        position: relative;
-        width: 100%;
-        padding-bottom: 75%;
-        overflow: hidden;
-
-        img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.6);
-            opacity: 0;
-            transition: opacity 0.3s;
-
-            .overlay-icon {
-                font-size: 40px;
-                color: #ffffff;
-            }
-        }
+    :deep(.lazy-image-container),
+    :deep(.image-skeleton) {
+        border-radius: unset;
     }
 
     .image-info {

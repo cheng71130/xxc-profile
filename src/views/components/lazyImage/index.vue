@@ -346,6 +346,11 @@
         gap: 24px;
     }
 
+    :deep(.demo-grid-error .lazy-image-container),
+    :deep(.demo-grid-error .image-skeleton) {
+        border-radius: unset;
+    }
+
     .image-card {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.06);
