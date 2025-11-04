@@ -32,14 +32,26 @@
         <!-- 渐进式加载 -->
         <div v-if="currentDemo === 'progressive'" class="demo-grid" :key="progressiveKey">
             <LazyImage
-                v-for="item in hdImages"
+                v-for="(item, index) in hdImages"
                 :key="`progressive-${item.id}-${progressiveKey}`"
                 :src="item.src"
                 progressive
                 :thumbnail-width="100"
                 aspect-ratio="16/9"
                 alt="渐进式加载"
+                show-mask
             >
+                <template #mask>
+                    <div class="hover-mask">
+                        <div class="mask-content">
+                            <h3 class="mask-title">完美适配</h3>
+                            <p class="mask-desc">ImagePreview</p>
+                            <div class="mask-actions">
+                                <el-button type="info" plain :icon="Search" circle @click="previewRef?.open(index)" />
+                            </div>
+                        </div>
+                    </div>
+                </template>
                 <template #badge>
                     <el-tag type="success" effect="dark" size="small">
                         <el-icon><Picture /></el-icon>
@@ -47,6 +59,7 @@
                     </el-tag>
                 </template>
             </LazyImage>
+            <ImagePreview ref="previewRef" :images="hdImages" :loop="true" :downloadable="true" />
         </div>
 
         <!-- 失败重试 -->
@@ -197,10 +210,22 @@
 <script setup lang="ts">
     import { ref } from 'vue';
     import LazyImage from './LazyImage.vue';
+    import ImagePreview from '@/views/components/imagePreview/ImagePreview.vue';
     import VirtualScroll from '../virtualScroll/VirtualScroll.vue';
-    import { RefreshRight, Picture, ZoomIn, Download, Share, Clock, View, Document } from '@element-plus/icons-vue';
+    import {
+        RefreshRight,
+        Picture,
+        ZoomIn,
+        Download,
+        Share,
+        Clock,
+        View,
+        Document,
+        Search,
+    } from '@element-plus/icons-vue';
 
     const currentDemo = ref('skeleton');
+    const previewRef = ref();
 
     // 每个 tab 独立的 key
     const skeletonKey = ref(0);
@@ -213,22 +238,27 @@
         {
             id: 1,
             src: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba',
+            thumb: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=100',
         },
         {
             id: 2,
             src: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
+            thumb: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=100',
         },
         {
             id: 3,
             src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
+            thumb: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100',
         },
         {
             id: 4,
             src: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65',
+            thumb: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=100',
         },
         {
             id: 5,
             src: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e',
+            thumb: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=100',
         },
     ];
 

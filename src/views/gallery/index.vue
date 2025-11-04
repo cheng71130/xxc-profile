@@ -181,11 +181,11 @@
     import LargeFileUpload from '@/views/components/largeFileUpload/index.vue';
     import VirtualizedTable from '@/views/components/virtualizedTable/index.vue';
     import ConfigurableLoading from '@/views/components/configurableLoading/index.vue';
-    import DataCard from '@/views/components/dataCard/index.vue';
     import Notice from '@/views/components/notice/index.vue';
     import VirtualScroll from '@/views/components/virtualScroll/index.vue';
     import LazyImage from '@/views/components/lazyImage/index.vue';
     import DraggableCore from '@/views/components/draggableCore/index.vue';
+    // import ImagePreview from '@/views/components/imagePreview/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -225,7 +225,7 @@
             id: 4,
             name: '图片懒加载',
             summarize: '原生不支持自定义占位、失败处理差',
-            description: '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级',
+            description: '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级，配合ImagePreview效果完美',
             iconPath:
                 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14.414M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
             component: LazyImage,
@@ -261,7 +261,7 @@
             description: '美观的数据展示卡片，支持图表和指标显示',
             iconPath:
                 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
-            component: DataCard,
+            // component: ImagePreview,
         },
     ]);
 
