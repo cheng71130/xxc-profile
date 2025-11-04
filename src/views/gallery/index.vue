@@ -185,7 +185,7 @@
     import VirtualScroll from '@/views/components/virtualScroll/index.vue';
     import LazyImage from '@/views/components/lazyImage/index.vue';
     import DraggableCore from '@/views/components/draggableCore/index.vue';
-    // import ImagePreview from '@/views/components/imagePreview/index.vue';
+    import SkeletonWrapper from '@/views/components/skeletonWrapper/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -258,12 +258,12 @@
         },
         {
             id: 8,
-            name: '数据卡片',
-            summarize: '美观的数据展示卡片，支持图表和指标显示',
-            description: '美观的数据展示卡片，支持图表和指标显示',
+            name: '智能骨架屏',
+            summarize: '自动生成骨架屏，平滑过渡加载状态',
+            description: '智能识别内容结构自动生成骨架屏，支持手动模式和多种预设样式，提供丝滑的加载过渡效果',
             iconPath:
-                'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
-            // component: ImagePreview,
+                'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
+            component: SkeletonWrapper,
         },
     ]);
 
