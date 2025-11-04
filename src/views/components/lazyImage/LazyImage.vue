@@ -210,6 +210,8 @@
     const currentSrc = ref('');
     const thumbnailSrc = ref('');
 
+    let loadingId = 0; // 防止竞态
+    let webpCache: boolean | null = null; // 缓存 WebP 检测
     let observer: IntersectionObserver | null = null;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -229,6 +231,17 @@
         return style;
     });
 
+    // 清理函数防止内存泄露
+    const cleanupObserver = () => {
+        if (observer) {
+            if (containerRef.value) {
+                observer.unobserve(containerRef.value);
+            }
+            observer.disconnect();
+            observer = null;
+        }
+    };
+
     const buildImageUrl = (url: string, width?: number): string => {
         if (!url) return '';
 
@@ -247,16 +260,25 @@
         }
     };
 
-    const checkWebPSupport = (): Promise<boolean> => {
+    const checkWebPSupport = async (): Promise<boolean> => {
+        if (webpCache !== null) return webpCache;
+
         return new Promise((resolve) => {
             if (!props.webpFallback) {
+                webpCache = true;
                 resolve(true);
                 return;
             }
 
             const webP = new Image();
-            webP.onload = () => resolve(webP.width === 1);
-            webP.onerror = () => resolve(false);
+            webP.onload = () => {
+                webpCache = webP.width === 1;
+                resolve(webpCache);
+            };
+            webP.onerror = () => {
+                webpCache = false;
+                resolve(false);
+            };
             webP.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=';
         });
     };
@@ -286,6 +308,8 @@
     const loadImage = async () => {
         if (!props.src) return;
 
+        const currentId = ++loadingId; // ← 关键：递增 ID
+
         loading.value = true;
         error.value = false;
         imageLoaded.value = false;
@@ -293,16 +317,24 @@
 
         if (props.progressive) {
             const thumbUrl = buildImageUrl(props.src, props.thumbnailWidth);
-            thumbnailSrc.value = await getRealSrc(thumbUrl);
+            const thumbRealSrc = await getRealSrc(thumbUrl);
+
+            if (currentId !== loadingId) return; // ← 检查是否过期
+
+            thumbnailSrc.value = thumbRealSrc;
         }
 
         const mainUrl = props.imageWidth ? buildImageUrl(props.src, props.imageWidth) : props.src;
         const realSrc = await getRealSrc(mainUrl);
+
+        if (currentId !== loadingId) return; // ← 再次检查
+
         currentSrc.value = realSrc;
 
         if (props.timeout > 0) {
             timeoutId = setTimeout(() => {
-                if (!imageLoaded.value) {
+                if (currentId === loadingId && !imageLoaded.value) {
+                    // ← 加上 ID 检查
                     handleError(new Event('timeout'));
                 }
             }, props.timeout);
@@ -315,13 +347,10 @@
             timeoutId = null;
         }
 
-        setTimeout(() => {
-            loading.value = false;
-            imageLoaded.value = true;
-            error.value = false;
-
-            emit('load', e);
-        }, 150);
+        loading.value = false;
+        imageLoaded.value = true;
+        error.value = false;
+        emit('load', e);
     };
 
     const handleError = (e: Event) => {
@@ -355,10 +384,13 @@
         imageLoaded.value = false;
         thumbnailLoaded.value = false;
 
+        const currentId = ++loadingId; // ← 递增 ID
+
         const tempSrc = currentSrc.value;
         currentSrc.value = '';
 
         setTimeout(() => {
+            if (currentId !== loadingId) return; // ← 检查是否过期
             currentSrc.value = tempSrc;
         }, 100);
 
@@ -367,7 +399,7 @@
                 clearTimeout(timeoutId);
             }
             timeoutId = setTimeout(() => {
-                if (!imageLoaded.value) {
+                if (currentId === loadingId && !imageLoaded.value) {
                     handleError(new Event('timeout'));
                 }
             }, props.timeout);
@@ -416,10 +448,7 @@
     });
 
     onBeforeUnmount(() => {
-        if (observer && containerRef.value) {
-            observer.unobserve(containerRef.value);
-            observer.disconnect();
-        }
+        cleanupObserver();
 
         if (timeoutId) {
             clearTimeout(timeoutId);
@@ -430,11 +459,7 @@
         () => props.src,
         async (newSrc, oldSrc) => {
             if (!newSrc || newSrc === oldSrc) return;
-
-            // observer清理避免内存泄露
-            if (observer && containerRef.value) {
-                observer.unobserve(containerRef.value);
-            }
+            cleanupObserver();
 
             imageLoaded.value = false;
             thumbnailLoaded.value = false;
