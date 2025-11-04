@@ -59,7 +59,7 @@
                     </el-tag>
                 </template>
             </LazyImage>
-            <ImagePreview ref="previewRef" :images="hdImages" :loop="true" :downloadable="true" />
+            <ImagePreview ref="previewRef" :images="hdImages" :maskClosable="false" />
         </div>
 
         <!-- 失败重试 -->

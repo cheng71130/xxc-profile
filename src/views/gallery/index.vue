@@ -23,7 +23,7 @@
             <!-- 搜索 -->
             <div class="search-section px-8 mb-8 flex-shrink-0">
                 <div class="search-container">
-                    <input v-model="searchQuery" type="text" placeholder="搜索组件" class="search-input" />
+                    <input v-model="searchQuery" type="text" placeholder="搜索组件 / 插件" class="search-input" />
                     <div class="search-icon">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -214,6 +214,16 @@
         },
         {
             id: 3,
+            name: '图片懒加载',
+            summarize: '原生不支持自定义占位、失败处理差',
+            description:
+                '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级，配合ImagePreview效果完美',
+            iconPath:
+                'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14.414M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
+            component: LazyImage,
+        },
+        {
+            id: 4,
             name: '虚拟滚动',
             summarize: '解决长列表渲染卡顿、内存占用高',
             description: '自动计算可视区域，只渲染必要DOM，支持动态高度、懒加载、滚动定位，（1000+条）轻松渲染',
@@ -221,15 +231,7 @@
                 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
             component: VirtualScroll,
         },
-        {
-            id: 4,
-            name: '图片懒加载',
-            summarize: '原生不支持自定义占位、失败处理差',
-            description: '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级，配合ImagePreview效果完美',
-            iconPath:
-                'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14.414M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
-            component: LazyImage,
-        },
+
         {
             id: 5,
             name: '拖拽排序',
