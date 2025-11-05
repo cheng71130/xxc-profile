@@ -65,6 +65,6 @@ document.head.appendChild(style);
 
 export default {
     install(app: App) {
-        app.directive('configurable-loading', loadingDirective);
+        app.directive('elegant-loading', loadingDirective);
     }
 };

@@ -18,7 +18,7 @@
             <!-- 示例 1: 简单用法（布尔值） -->
             <div class="demo-box">
                 <h3>简单用法（默认样式）</h3>
-                <el-table v-configurable-loading="loading1" :data="tableData" style="width: 100%">
+                <el-table v-elegant-loading="loading1" :data="tableData" style="width: 100%">
                     <el-table-column prop="name" label="姓名" />
                     <el-table-column prop="age" label="年龄" />
                     <el-table-column prop="address" label="地址" />
@@ -29,7 +29,7 @@
             <div class="demo-box">
                 <h3>自定义样式 + 文字</h3>
                 <el-table
-                    v-configurable-loading="{
+                    v-elegant-loading="{
                         show: loading2,
                         type: currentStyle,
                         text: '加载中...',
@@ -49,7 +49,7 @@
             <div class="demo-box">
                 <h3>深色背景适配</h3>
                 <div
-                    v-configurable-loading="{
+                    v-elegant-loading="{
                         show: loading3,
                         type: currentStyle,
                         color: 'var(--el-color-primary)',
@@ -67,7 +67,7 @@
                 <h3>颜色设置</h3>
                 <div class="color-grid">
                     <div
-                        v-configurable-loading="{
+                        v-elegant-loading="{
                             show: loadingColors.red,
                             type: currentStyle,
                             color: '#f56c6c',
@@ -78,7 +78,7 @@
                         <p>红色 Loading</p>
                     </div>
                     <div
-                        v-configurable-loading="{
+                        v-elegant-loading="{
                             show: loadingColors.green,
                             type: currentStyle,
                             color: '#67c23a',
@@ -89,7 +89,7 @@
                         <p>绿色 Loading</p>
                     </div>
                     <div
-                        v-configurable-loading="{
+                        v-elegant-loading="{
                             show: loadingColors.orange,
                             type: currentStyle,
                             color: '#e6a23c',
@@ -100,7 +100,7 @@
                         <p>橙色 Loading</p>
                     </div>
                     <div
-                        v-configurable-loading="{
+                        v-elegant-loading="{
                             show: loadingColors.purple,
                             type: currentStyle,
                             color: '#9b59b6',
