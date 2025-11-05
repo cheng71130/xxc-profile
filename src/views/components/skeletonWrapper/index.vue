@@ -469,14 +469,18 @@
 
     // 展示网格
     .showcase-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-wrap: wrap;
         gap: 32px;
         padding: 0 40px 60px;
 
         .showcase-item {
+            flex: 0 0 calc(50% - 16px);
+            max-width: calc(50% - 16px);
+
             &.wide {
-                grid-column: span 2;
+                flex: 0 0 100%;
+                max-width: 100%;
             }
         }
     }

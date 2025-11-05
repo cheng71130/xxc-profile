@@ -1,7 +1,7 @@
 <template>
     <div class="skeleton-wrapper">
         <!-- 骨架屏层 - 绝对定位覆盖 -->
-        <div v-show="loading" class="skeleton-layer" :style="{ opacity: loading ? 1 : 0 }">
+        <div v-show="loading" class="skeleton-layer" :style="{ opacity: loading ? 1 : 0, ...skeletonContainerStyle }">
             <!-- 自动生成的骨架屏 -->
             <template v-if="auto && skeletonNodes.length > 0">
                 <div
@@ -67,6 +67,7 @@
 
     const contentRef = ref<HTMLElement>();
     const skeletonNodes = ref<SkeletonNode[]>([]);
+    const skeletonContainerStyle = ref<Record<string, string>>({});
     let resizeObserver: ResizeObserver | null = null;
     let throttleTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -136,13 +137,11 @@
         const rect = element.getBoundingClientRect();
         const computedStyle = window.getComputedStyle(element);
 
-        let offsetParent = element.offsetParent as HTMLElement;
         let parentRect = { top: 0, left: 0 };
 
-        if (offsetParent) {
-            parentRect = offsetParent.getBoundingClientRect();
-        } else if (contentRef.value) {
-            parentRect = contentRef.value.getBoundingClientRect();
+        if (contentRef.value && contentRef.value.children.length > 0) {
+            const containerElement = contentRef.value.children[0] as HTMLElement;
+            parentRect = containerElement.getBoundingClientRect();
         }
 
         const style: Record<string, string> = {
@@ -178,7 +177,6 @@
 
         return style;
     };
-
     // 分析元素
     const analyzeElement = (element: HTMLElement, nodes: SkeletonNode[]): void => {
         if (shouldIgnore(element)) return;
@@ -215,6 +213,27 @@
 
         const nodes: SkeletonNode[] = [];
         const children = Array.from(contentRef.value.children) as HTMLElement[];
+
+        // 👇 新增：提取第一个子元素的容器样式
+        if (children.length > 0) {
+            const firstChild = children[0];
+            const computedStyle = window.getComputedStyle(firstChild);
+
+            // 提取需要的样式属性
+            const containerStyle = {
+                background: computedStyle.background,
+                backgroundColor: computedStyle.backgroundColor,
+                border: computedStyle.border,
+                borderRadius: computedStyle.borderRadius,
+                boxShadow: computedStyle.boxShadow,
+                backdropFilter: computedStyle.backdropFilter,
+                padding: computedStyle.padding,
+            };
+
+            // 将容器样式存储到某个地方，后面应用到 skeleton-layer
+            skeletonContainerStyle.value = containerStyle;
+        }
+
         children.forEach((child) => {
             analyzeElement(child, nodes);
         });
