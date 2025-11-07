@@ -40,6 +40,11 @@ const routes = [
         name: '3d_urdf',
         component: () => import('@/views/others/3d_urdf/index.vue'),
     },
+    {
+        path: '/test',
+        name: 'test',
+        component: () => import('@/views/others/test/index.vue'),
+    },
 ];
 
 const router = createRouter({

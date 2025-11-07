@@ -1,5 +1,5 @@
 <template>
-    <div class="myLogicFlow animate__animated animate__slideInLeft">
+    <div class="myLogicFlow animate__animated animate__fadeIn">
         <el-card shadow="always" style="min-height: 64px">
             <el-page-header @back="router.go(-1)">
                 <template #title>
@@ -27,7 +27,7 @@
                     class="cardLeft"
                     shadow="always"
                     :body-style="{ padding: 0 }"
-                    v-loading="state.dndPanelLoading"
+                    v-elegant-loading="{ show: state.canvasLoading, type: 'bars' }"
                 >
                     <el-scrollbar>
                         <!-- 左边栏 -->
@@ -136,7 +136,12 @@
                     </el-scrollbar>
                 </el-card>
             </left-right-collapse>
-            <el-card class="cardRight" shadow="always" :body-style="{ padding: 0 }" v-loading="state.canvasLoading">
+            <el-card
+                class="cardRight"
+                shadow="always"
+                :body-style="{ padding: 0 }"
+                v-elegant-loading="{ show: state.canvasLoading, type: 'bars' }"
+            >
                 <!-- 画布 -->
                 <div class="h-full" ref="LogicFlowContainer"></div>
                 <TeleportContainer :flow-id="flowId" />
