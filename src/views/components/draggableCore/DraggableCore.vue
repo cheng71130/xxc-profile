@@ -17,7 +17,7 @@
                 class="draggable-item"
                 :class="getItemClasses(item, index)"
                 :style="getItemStyle(item)"
-                @mousedown="handleMouseDown($event, item, index)"
+                @mousedown="handleMouseDown($event, item)"
                 @dragstart="handleItemDragStart($event, item, index)"
                 @dragend="handleDragEnd"
                 @dragover.prevent="handleItemDragOver($event, index)"
@@ -260,8 +260,8 @@
         return false;
     };
 
-    // 新增：mousedown 事件处理
-    const handleMouseDown = (event: MouseEvent, item: DraggableItem, index: number) => {
+    // mousedown 事件处理
+    const handleMouseDown = (event: MouseEvent, item: DraggableItem) => {
         if (props.disabled || item.disabled) {
             canDrag.value = false;
             return;
@@ -550,6 +550,7 @@
 
         &.is-drop-target {
             // 用户可以通过插槽自定义样式，这里不添加默认样式
+            min-height: 0;
         }
 
         &.is-disabled {
