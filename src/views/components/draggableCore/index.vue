@@ -17,41 +17,55 @@
         <div v-if="currentDemo === 'list'">
             <div class="section-header">
                 <h3>📋 任务列表拖拽排序</h3>
-                <el-tag type="info">{{ listData.length }} 项</el-tag>
+                <el-tag type="info" effect="dark">{{ listData.length }} 项任务</el-tag>
             </div>
 
             <DraggableCore
                 v-model="listData"
-                :removable="true"
                 animation="flip-list"
                 :style="{ '--list-gap': '12px' }"
                 @change="handleListChange"
-                @remove="handleListRemove"
             >
                 <template #default="{ item }">
-                    <div class="task-item">
+                    <div class="task-item" :class="{ 'is-completed': item.completed }">
                         <el-checkbox
                             :model-value="item.completed"
-                            @update:model-value="(val:any) => handleTaskToggle(item, val)"
+                            @update:model-value="(val: any) => handleTaskToggle(item, val)"
+                            size="large"
+                            class="task-checkbox"
                         />
+
                         <div class="task-content">
-                            <div class="task-title" :class="{ completed: item.completed }">{{ item.title }}</div>
+                            <div class="task-title" :class="{ completed: item.completed }">
+                                {{ item.title }}
+                            </div>
                             <div class="task-meta">
-                                <el-tag :type="getPriorityType(item.priority)" size="small">
-                                    {{ item.priority }}
-                                </el-tag>
-                                <span class="task-time">
+                                <span class="meta-item">
                                     <el-icon><Clock /></el-icon>
                                     {{ item.dueDate }}
                                 </span>
-                                <span class="task-assignee">
+                                <span class="meta-item">
                                     <el-icon><User /></el-icon>
                                     {{ item.assignee }}
                                 </span>
+                                <el-tag
+                                    :type="getPriorityType(item.priority)"
+                                    size="small"
+                                    effect="dark"
+                                    class="priority-tag"
+                                >
+                                    {{ item.priority }}优先级
+                                </el-tag>
                             </div>
                         </div>
+
                         <div class="task-actions">
-                            <el-button text :icon="Edit" size="small" @click.stop />
+                            <button class="action-btn edit-btn" @click.stop>
+                                <el-icon><Edit /></el-icon>
+                            </button>
+                            <button class="action-btn delete-btn" @click.stop>
+                                <el-icon><Delete /></el-icon>
+                            </button>
                         </div>
                     </div>
                 </template>
@@ -73,10 +87,8 @@
                 layout="grid"
                 :columns="gridColumns"
                 :gap="16"
-                :removable="true"
                 :style="{ '--grid-columns': gridColumns, '--grid-gap': '16px' }"
                 @change="handleGridChange"
-                @remove="handleGridRemove"
             >
                 <template #default="{ item }">
                     <div class="image-card">
@@ -94,6 +106,9 @@
                                 </span>
                             </div>
                         </div>
+                        <button class="image-delete-btn" @click.stop>
+                            <el-icon><Close /></el-icon>
+                        </button>
                     </div>
                 </template>
             </DraggableCore>
@@ -108,19 +123,43 @@
 
             <DraggableCore
                 v-model="handleData"
-                :handle="true"
-                :removable="true"
+                handle=".drag-handle"
                 :style="{ '--list-gap': '12px' }"
                 @change="handleHandleChange"
-                @remove="handleHandleRemove"
             >
                 <template #default="{ item }">
                     <div class="handle-item">
-                        <el-avatar :src="item.avatar" :size="48" />
+                        <div class="drag-handle">
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <line x1="8" y1="6" x2="8" y2="6" stroke-linecap="round" />
+                                <line x1="8" y1="12" x2="8" y2="12" stroke-linecap="round" />
+                                <line x1="8" y1="18" x2="8" y2="18" stroke-linecap="round" />
+                                <line x1="16" y1="6" x2="16" y2="6" stroke-linecap="round" />
+                                <line x1="16" y1="12" x2="16" y2="12" stroke-linecap="round" />
+                                <line x1="16" y1="18" x2="16" y2="18" stroke-linecap="round" />
+                                <circle cx="8" cy="6" r="2" fill="currentColor" />
+                                <circle cx="8" cy="12" r="2" fill="currentColor" />
+                                <circle cx="8" cy="18" r="2" fill="currentColor" />
+                                <circle cx="16" cy="6" r="2" fill="currentColor" />
+                                <circle cx="16" cy="12" r="2" fill="currentColor" />
+                                <circle cx="16" cy="18" r="2" fill="currentColor" />
+                            </svg>
+                        </div>
+
+                        <el-avatar :src="item.avatar" :size="56" />
+
                         <div class="handle-content">
                             <div class="handle-title">{{ item.name }}</div>
                             <div class="handle-desc">{{ item.role }} · {{ item.department }}</div>
                         </div>
+
                         <div class="handle-stats">
                             <div class="stat-item">
                                 <span class="stat-value">{{ item.projects }}</span>
@@ -131,6 +170,10 @@
                                 <span class="stat-label">任务</span>
                             </div>
                         </div>
+
+                        <button class="action-btn delete-btn" @click.stop>
+                            <el-icon><Delete /></el-icon>
+                        </button>
                     </div>
                 </template>
             </DraggableCore>
@@ -153,16 +196,20 @@
                     <DraggableCore
                         v-model="todoItems"
                         group="shared"
-                        :removable="true"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
-                        :style="{ '--list-gap': '8px' }"
+                        :style="{ '--list-gap': '10px' }"
                         @add="handleTodoAdd"
                     >
                         <template #default="{ item }">
-                            <div class="multi-item" :style="{ borderLeftColor: item.color }">
-                                <div class="multi-title">{{ item.title }}</div>
-                                <div class="multi-tag">{{ item.tag }}</div>
+                            <div class="multi-item" :style="{ '--item-color': item.color }">
+                                <div class="multi-content">
+                                    <div class="multi-title">{{ item.title }}</div>
+                                    <div class="multi-tag">{{ item.tag }}</div>
+                                </div>
+                                <button class="action-btn delete-btn mini" @click.stop>
+                                    <el-icon><Close /></el-icon>
+                                </button>
                             </div>
                         </template>
                     </DraggableCore>
@@ -177,16 +224,20 @@
                     <DraggableCore
                         v-model="doingItems"
                         group="shared"
-                        :removable="true"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
-                        :style="{ '--list-gap': '8px' }"
+                        :style="{ '--list-gap': '10px' }"
                         @add="handleDoingAdd"
                     >
                         <template #default="{ item }">
-                            <div class="multi-item" :style="{ borderLeftColor: item.color }">
-                                <div class="multi-title">{{ item.title }}</div>
-                                <div class="multi-tag">{{ item.tag }}</div>
+                            <div class="multi-item" :style="{ '--item-color': item.color }">
+                                <div class="multi-content">
+                                    <div class="multi-title">{{ item.title }}</div>
+                                    <div class="multi-tag">{{ item.tag }}</div>
+                                </div>
+                                <button class="action-btn delete-btn mini" @click.stop>
+                                    <el-icon><Close /></el-icon>
+                                </button>
                             </div>
                         </template>
                     </DraggableCore>
@@ -201,16 +252,20 @@
                     <DraggableCore
                         v-model="doneItems"
                         group="shared"
-                        :removable="true"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
-                        :style="{ '--list-gap': '8px' }"
+                        :style="{ '--list-gap': '10px' }"
                         @add="handleDoneAdd"
                     >
                         <template #default="{ item }">
-                            <div class="multi-item" :style="{ borderLeftColor: item.color }">
-                                <div class="multi-title">{{ item.title }}</div>
-                                <div class="multi-tag">{{ item.tag }}</div>
+                            <div class="multi-item" :style="{ '--item-color': item.color }">
+                                <div class="multi-content">
+                                    <div class="multi-title">{{ item.title }}</div>
+                                    <div class="multi-tag">{{ item.tag }}</div>
+                                </div>
+                                <button class="action-btn delete-btn mini" @click.stop>
+                                    <el-icon><Close /></el-icon>
+                                </button>
                             </div>
                         </template>
                     </DraggableCore>
@@ -251,18 +306,22 @@
                     >
                         <template #default="{ item }">
                             <div class="kanban-card">
+                                <div class="kanban-drag-handle">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                                        <circle cx="5" cy="4" r="1.5" />
+                                        <circle cx="5" cy="9" r="1.5" />
+                                        <circle cx="5" cy="14" r="1.5" />
+                                        <circle cx="13" cy="4" r="1.5" />
+                                        <circle cx="13" cy="9" r="1.5" />
+                                        <circle cx="13" cy="14" r="1.5" />
+                                    </svg>
+                                </div>
+
                                 <div class="card-header">
                                     <el-tag :type="item.type" size="small">{{ item.label }}</el-tag>
-                                    <el-dropdown trigger="click">
-                                        <el-icon class="card-more"><MoreFilled /></el-icon>
-                                        <template #dropdown>
-                                            <el-dropdown-menu>
-                                                <el-dropdown-item :icon="Edit">编辑</el-dropdown-item>
-                                                <el-dropdown-item :icon="CopyDocument">复制</el-dropdown-item>
-                                                <el-dropdown-item :icon="Delete" divided>删除</el-dropdown-item>
-                                            </el-dropdown-menu>
-                                        </template>
-                                    </el-dropdown>
+                                    <button class="action-btn delete-btn mini" @click.stop>
+                                        <el-icon><Close /></el-icon>
+                                    </button>
                                 </div>
 
                                 <div class="card-title">{{ item.title }}</div>
@@ -286,7 +345,7 @@
                                         </span>
                                     </div>
                                     <el-avatar-group :max="3" size="small">
-                                        <el-avatar v-for="avatar in item.assignees" :key="avatar" :src="avatar" />
+                                        <el-avatar v-for="avatar in item.assignees" :key="avatar" :src="avatar" style="margin-left: 4px;"/>
                                     </el-avatar-group>
                                 </div>
                             </div>
@@ -313,14 +372,13 @@
         CircleCheck,
         Plus,
         Filter,
-        MoreFilled,
-        CopyDocument,
         Delete,
         Paperclip,
         ChatDotRound,
         Warning,
         Clock as ClockIcon,
         CircleCheckFilled,
+        Close,
     } from '@element-plus/icons-vue';
     import { ElMessage } from 'element-plus';
     import type { Component } from 'vue';
@@ -381,7 +439,7 @@
     }
 
     const currentDemo = ref<string>('list');
-    const gridColumns = ref<number>(5);
+    const gridColumns = ref<number>(4);
 
     // 列表数据
     const initialListData: TaskItem[] = [
@@ -429,7 +487,7 @@
 
     const listData = ref<TaskItem[]>([...initialListData]);
 
-    // 网格数据 - 800x600 图片
+    // 网格数据
     const initialGridData: ImageItem[] = [
         {
             id: 1,
@@ -671,35 +729,19 @@
         return map[priority] || 'info';
     };
 
-    // 列表事件处理
     const handleListChange = (event: any) => {
         ElMessage.success('从位置 ' + (event.oldIndex + 1) + ' 移动到 ' + (event.newIndex + 1));
     };
 
-    const handleListRemove = (event: any) => {
-        ElMessage.warning('移除了任务: ' + event.item.title);
-    };
-
-    // 网格事件处理
     const handleGridChange = (event: any) => {
         console.log('Grid changed:', event);
         ElMessage.success('图片位置已更新');
     };
 
-    const handleGridRemove = (event: any) => {
-        ElMessage.warning('移除了图片: ' + event.item.title);
-    };
-
-    // 手柄事件处理
     const handleHandleChange = (event: any) => {
         ElMessage.success(event.item.name + ' 位置已更新');
     };
 
-    const handleHandleRemove = (event: any) => {
-        ElMessage.warning('移除了成员: ' + event.item.name);
-    };
-
-    // 多容器事件处理
     const handleTodoAdd = (event: any) => {
         ElMessage.success('"' + event.item.title + '" 已添加到待处理');
     };
@@ -712,7 +754,6 @@
         ElMessage.success('"' + event.item.title + '" 已添加到已完成');
     };
 
-    // 看板事件处理
     const handleKanbanAdd = (columnTitle: string, event: any) => {
         ElMessage.success('任务 "' + event.item.title + '" 移动到 ' + columnTitle);
     };
@@ -795,81 +836,179 @@
         }
     }
 
+    // 通用按钮样式
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        &.edit-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        &.delete-btn:hover {
+            background: rgba(245, 108, 108, 0.2);
+            color: #f56c6c;
+        }
+
+        &.mini {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+        }
+    }
+
     // 任务列表样式
     .task-item {
         display: flex;
         align-items: center;
         gap: 16px;
-        width: 100%;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid #667eea;
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: grab;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-        .task-content {
-            flex: 1;
-            min-width: 0;
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.08) 100%);
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        &.is-completed {
+            opacity: 0.65;
+            border-left-color: #67c23a;
 
             .task-title {
-                font-size: 15px;
-                font-weight: 500;
-                color: #ffffff;
-                margin-bottom: 8px;
-                transition: all 0.3s;
-
-                &.completed {
-                    color: rgba(255, 255, 255, 0.4);
-                    text-decoration: line-through;
-                }
+                text-decoration: line-through;
             }
+        }
+    }
 
-            .task-meta {
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                font-size: 13px;
-                color: rgba(255, 255, 255, 0.5);
-                flex-wrap: wrap;
+    .task-checkbox {
+        flex-shrink: 0;
 
-                .task-time,
-                .task-assignee {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
+        :deep(.el-checkbox__inner) {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+        }
+    }
+
+    .task-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .task-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+        line-height: 1.4;
+
+        &.completed {
+            color: rgba(255, 255, 255, 0.4);
+        }
+    }
+
+    .task-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+
+            .el-icon {
+                color: rgba(102, 126, 234, 0.8);
             }
         }
 
-        .task-actions {
-            flex-shrink: 0;
+        .priority-tag {
+            font-weight: 500;
+        }
+    }
+
+    .task-actions {
+        flex-shrink: 0;
+        display: flex;
+        gap: 8px;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+
+        .task-item:hover & {
+            opacity: 1;
         }
     }
 
     // 图片卡片样式
     .image-card {
+        position: relative;
         overflow: hidden;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.03);
-        transition: all 0.3s;
-        cursor: pointer;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: grab;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+
+        &:active {
+            cursor: grabbing;
+        }
 
         &:hover {
-            // transform: translateY(-4px);
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.3);
 
-            .image-overlay {
+            .image-delete-btn {
                 opacity: 1;
+                transform: translate(0, 0);
             }
         }
     }
 
-    :deep(.lazy-image-container),
-    :deep(.image-skeleton) {
-        border-radius: unset;
-    }
-
     .image-info {
-        padding: 12px;
+        padding: 16px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
 
         .image-title {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 15px;
+            font-weight: 600;
             color: #ffffff;
             margin-bottom: 8px;
         }
@@ -877,8 +1016,8 @@
         .image-stats {
             display: flex;
             gap: 16px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
 
             span {
                 display: flex;
@@ -888,33 +1027,88 @@
         }
     }
 
+    .image-delete-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(245, 108, 108, 0.95);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+        opacity: 0;
+        transform: translate(8px, -8px);
+        transition: all 0.3s;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(245, 108, 108, 0.4);
+
+        &:hover {
+            background: #f56c6c;
+            transform: translate(0, 0) scale(1.05);
+        }
+    }
+
     // 手柄样式
     .handle-item {
         display: flex;
         align-items: center;
-        gap: 16px;
-        width: 100%;
+        gap: 20px;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .drag-handle {
+            flex-shrink: 0;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: grab;
+            transition: all 0.3s;
+            padding: 6px;
+            border-radius: 8px;
+
+            &:hover {
+                color: #667eea;
+                background: rgba(102, 126, 234, 0.1);
+            }
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
 
         .handle-content {
             flex: 1;
-            min-width: 0;
 
             .handle-title {
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 600;
                 color: #ffffff;
-                margin-bottom: 4px;
+                margin-bottom: 6px;
             }
 
             .handle-desc {
-                font-size: 13px;
-                color: rgba(255, 255, 255, 0.5);
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.6);
             }
         }
 
         .handle-stats {
             display: flex;
-            gap: 24px;
+            gap: 32px;
 
             .stat-item {
                 display: flex;
@@ -923,9 +1117,10 @@
                 gap: 4px;
 
                 .stat-value {
-                    font-size: 20px;
+                    font-size: 22px;
                     font-weight: 700;
                     color: #667eea;
+                    line-height: 1;
                 }
 
                 .stat-label {
@@ -944,20 +1139,21 @@
     }
 
     .container-wrapper {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
         overflow: hidden;
 
         .container-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.06);
             font-weight: 600;
+            font-size: 15px;
             color: #ffffff;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .drag-container {
@@ -967,23 +1163,48 @@
     }
 
     .multi-item {
-        padding: 16px;
-        border-left: 3px solid;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+        // border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid var(--item-color);
+        border-radius: 12px;
+        cursor: grab;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(4px);
+        }
+
+        .multi-content {
+            flex: 1;
+            min-width: 0;
+        }
 
         .multi-title {
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             color: #ffffff;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .multi-tag {
             display: inline-block;
-            padding: 4px 12px;
-            background: rgba(102, 126, 234, 0.2);
+            padding: 3px 10px;
+            background: color-mix(in srgb, var(--item-color) 20%, transparent);
             border-radius: 6px;
             font-size: 12px;
-            color: #667eea;
+            color: var(--item-color);
+            font-weight: 500;
         }
     }
 
@@ -995,18 +1216,19 @@
     }
 
     .kanban-column {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
         overflow: hidden;
 
         .column-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px;
+            padding: 18px;
             color: #ffffff;
             font-weight: 600;
+            font-size: 15px;
 
             .column-title {
                 display: flex;
@@ -1022,34 +1244,64 @@
     }
 
     .kanban-card {
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
+        position: relative;
+        padding: 18px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+        // border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        cursor: grab;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-            .card-more {
-                cursor: pointer;
-                color: rgba(255, 255, 255, 0.4);
-                transition: color 0.2s;
+        &:active {
+            cursor: grabbing;
+        }
 
-                &:hover {
-                    color: #667eea;
-                }
+        &:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+
+            .kanban-drag-handle {
+                opacity: 1;
             }
         }
 
+        .kanban-drag-handle {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transition: all 0.3s;
+            padding: 4px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+
+            &:hover {
+                color: #667eea;
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
         .card-title {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             color: #ffffff;
             margin-bottom: 8px;
+            line-height: 1.4;
         }
 
         .card-desc {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 14px;
             line-height: 1.5;
         }
 
@@ -1057,26 +1309,26 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .card-footer {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            align-items: center;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
 
             .card-meta {
                 display: flex;
-                gap: 12px;
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.5);
+                gap: 14px;
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.6);
 
                 span {
                     display: flex;
                     align-items: center;
-                    gap: 4px;
+                    gap: 5px;
                 }
             }
         }
@@ -1101,16 +1353,9 @@
     @media (max-width: 768px) {
         .demo-actions {
             flex-direction: column;
-            align-items: stretch;
 
             :deep(.el-radio-group) {
                 width: 100%;
-                display: flex;
-                flex-direction: column;
-
-                .el-radio-button {
-                    width: 100%;
-                }
             }
         }
 

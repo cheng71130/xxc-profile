@@ -3,7 +3,6 @@
         ref="containerRef"
         class="draggable-container"
         :class="containerClasses"
-        :style="containerStyle"
         @dragover.prevent="handleDragOver"
         @drop="handleDrop"
         @dragenter.prevent="handleDragEnter"
@@ -14,47 +13,26 @@
                 v-for="(item, index) in localData"
                 :key="getItemKey(item, index)"
                 :draggable="getDraggable(item)"
+                :data-draggable-item="index"
                 class="draggable-item"
                 :class="getItemClasses(item, index)"
                 :style="getItemStyle(item)"
+                @mousedown="handleMouseDown($event, item, index)"
                 @dragstart="handleItemDragStart($event, item, index)"
                 @dragend="handleDragEnd"
                 @dragover.prevent="handleItemDragOver($event, index)"
             >
-                <!-- 拖拽手柄 -->
-                <div
-                    v-if="handle"
-                    class="drag-handle"
-                    :draggable="true"
-                    @dragstart.stop="handleHandleDragStart($event, item, index)"
-                    @dragend.stop="handleDragEnd"
-                    @click.stop
-                >
-                    <slot name="handle" :item="item" :index="index">
-                        <el-icon><Rank /></el-icon>
-                    </slot>
-                </div>
-
                 <!-- 主内容 -->
-                <div class="item-content" :class="{ 'with-handle': handle }">
-                    <slot :item="item" :index="index">
-                        {{ item }}
-                    </slot>
-                </div>
-
-                <!-- 删除按钮 -->
-                <div v-if="removable" class="item-remove" @click.stop="removeItem(index)">
-                    <slot name="remove" :item="item" :index="index">
-                        <el-icon><Close /></el-icon>
-                    </slot>
-                </div>
+                <slot :item="item" :index="index">
+                    {{ item }}
+                </slot>
 
                 <!-- 拖拽遮罩 -->
                 <div v-if="dragIndex === index && isDragging" class="drag-mask">
                     <el-icon class="drag-icon"><Rank /></el-icon>
                 </div>
 
-                <!-- 占位指示器 - 修复位置逻辑 -->
+                <!-- 占位指示器 -->
                 <div
                     v-if="showPlaceholder && dropIndex === index && dragIndex !== index"
                     class="drop-placeholder"
@@ -81,7 +59,7 @@
 
 <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
-    import { Rank, Close, FolderOpened, Plus } from '@element-plus/icons-vue';
+    import { Rank, FolderOpened, Plus } from '@element-plus/icons-vue';
 
     type DraggableItem = Record<string, any>;
 
@@ -125,14 +103,12 @@
         itemKey?: string | ((item: any) => string | number);
         disabled?: boolean;
         animation?: string;
-        handle?: boolean;
-        removable?: boolean;
+        handle?: string; // CSS 选择器，指定拖拽手柄
         group?: string;
         clone?: boolean;
         layout?: 'list' | 'grid';
         gap?: number;
         columns?: number;
-        tag?: string;
         emptyText?: string;
         showPlaceholder?: boolean;
         ghostClass?: string;
@@ -144,14 +120,12 @@
         itemKey: 'id',
         disabled: false,
         animation: 'flip-list',
-        handle: false,
-        removable: false,
+        handle: '',
         group: 'default',
         clone: false,
         layout: 'list',
         gap: 12,
         columns: 3,
-        tag: 'div',
         emptyText: '暂无数据，拖拽添加',
         showPlaceholder: true,
         ghostClass: '',
@@ -180,6 +154,7 @@
     const isDragging = ref(false);
     const dragEnterCount = ref(0);
     const isFromOtherContainer = ref(false);
+    const canDrag = ref<boolean>(false); // 新增：控制是否允许拖拽
 
     // 全局拖拽状态存储
     const DRAG_KEY = '__DRAGGABLE_DATA__';
@@ -198,17 +173,15 @@
         [`layout-${props.layout}`]: true,
         'is-disabled': props.disabled,
         'is-drag-over': isDragOver.value,
-        'has-handle': props.handle,
+        'has-handle': !!props.handle,
     }));
 
-    const containerStyle = computed(() => {
-        const baseStyle: Record<string, string> = {};
-        return baseStyle;
-    });
-
     const getDraggable = (item: DraggableItem): boolean => {
+        // 如果禁用或 item 被禁用，返回 false
         if (props.disabled || item.disabled) return false;
-        return !props.handle;
+
+        // 如果有 handle，返回 true，但实际拖拽通过 mousedown 控制
+        return true;
     };
 
     const getItemKey = (item: DraggableItem, index: number): string | number => {
@@ -231,54 +204,106 @@
         return item.style || {};
     };
 
-    // 🔥 修复提示线位置逻辑
     const getPlaceholderPosition = (index: number): string => {
-        // 跨容器拖拽，始终显示在目标位置上方
         if (isFromOtherContainer.value) {
             return 'before';
         }
 
-        // 同容器拖拽
         if (dragIndex.value === -1) {
             return 'before';
         }
 
-        // 从上往下拖：提示线在目标元素下方（因为原位置在上面，删除后位置前移）
         if (dragIndex.value < index) {
             return 'after';
-        }
-        // 从下往上拖：提示线在目标元素上方
-        else {
+        } else {
             return 'before';
         }
     };
 
-    const handleItemDragStart = (event: DragEvent, item: DraggableItem, index: number) => {
-        if (props.handle) {
-            event.preventDefault();
+    // 检查是否点击了拖拽手柄
+    const isHandleTarget = (target: HTMLElement): boolean => {
+        if (!props.handle) return true;
+
+        // 向上查找，检查是否在 draggable-item 内
+        let currentElement: HTMLElement | null = target;
+        let itemElement: HTMLElement | null = null;
+
+        // 先找到 draggable-item
+        while (currentElement) {
+            if (currentElement.hasAttribute('data-draggable-item')) {
+                itemElement = currentElement;
+                break;
+            }
+            currentElement = currentElement.parentElement;
+        }
+
+        if (!itemElement) {
+            return false;
+        }
+
+        // 查找手柄元素
+        const handleElement = itemElement.querySelector(props.handle);
+        if (!handleElement) {
+            console.warn(`[Draggable] Handle selector "${props.handle}" not found in item`);
+            return true;
+        }
+
+        // 检查 target 是否是 handleElement 或其子元素
+        currentElement = target;
+        while (currentElement && currentElement !== itemElement) {
+            if (currentElement === handleElement) {
+                return true;
+            }
+            currentElement = currentElement.parentElement;
+        }
+
+        return false;
+    };
+
+    // 新增：mousedown 事件处理
+    const handleMouseDown = (event: MouseEvent, item: DraggableItem, index: number) => {
+        if (props.disabled || item.disabled) {
+            canDrag.value = false;
             return;
         }
-        startDrag(event, item, index);
+
+        // 如果指定了 handle，检查是否点击了手柄
+        if (props.handle) {
+            const target = event.target as HTMLElement;
+            canDrag.value = isHandleTarget(target);
+
+            if (!canDrag.value) {
+                // 阻止默认拖拽行为
+                event.preventDefault();
+            }
+        } else {
+            canDrag.value = true;
+        }
     };
 
-    const handleHandleDragStart = (event: DragEvent, item: DraggableItem, index: number) => {
-        startDrag(event, item, index);
-    };
-
-    const startDrag = (event: DragEvent, item: DraggableItem, index: number) => {
+    const handleItemDragStart = (event: DragEvent, item: DraggableItem, index: number) => {
         if (props.disabled || item.disabled) {
             event.preventDefault();
             return;
         }
 
+        // 如果指定了 handle，但没有通过 mousedown 检查，则阻止拖拽
+        if (props.handle && !canDrag.value) {
+            event.preventDefault();
+            return;
+        }
+
+        startDrag(event, item, index);
+    };
+
+    const startDrag = (event: DragEvent, item: DraggableItem, index: number) => {
         isDragging.value = true;
         dragIndex.value = index;
         dragItem.value = props.clone ? JSON.parse(JSON.stringify(item)) : item;
         isFromOtherContainer.value = false;
 
-        // 🔥 创建删除回调函数
+        // 创建删除回调函数
         const removeCallback = () => {
-            console.log('🗑️ Remove callback executed, removing item at index:', index);
             const newData = [...localData.value];
             newData.splice(index, 1);
             localData.value = newData;
@@ -291,7 +316,7 @@
             index,
             item: props.clone ? JSON.parse(JSON.stringify(item)) : item,
             sourceId: containerId,
-            removeCallback: props.clone ? undefined : removeCallback, // clone 模式不需要删除
+            removeCallback: props.clone ? undefined : removeCallback,
         };
 
         // 存储到全局
@@ -321,7 +346,7 @@
             isDragOver.value = false;
             dragEnterCount.value = 0;
             isFromOtherContainer.value = false;
-            // 注意：不要删除 DRAG_KEY，因为 drop 可能还没执行完
+            canDrag.value = false;
         }, 100);
     };
 
@@ -388,25 +413,24 @@
                     };
                 }
             } catch (error) {
-                console.error('Parse drag data error:', error);
+                console.error('[Draggable] Parse drag data error:', error);
             }
         }
 
         if (!dragData) {
-            console.warn('❌ No drag data found');
+            console.warn('[Draggable] No drag data found');
             handleDragEnd();
             return;
         }
 
         if (dragData.group !== props.group) {
-            console.warn('❌ Group mismatch:', dragData.group, props.group);
+            console.warn('[Draggable] Group mismatch:', dragData.group, props.group);
             handleDragEnd();
             return;
         }
 
-        // 🔥 跨容器拖拽
+        // 跨容器拖拽
         if (dragData.sourceId !== containerId) {
-            console.log('🔄 Cross-container drag detected');
             let targetIndex = dropIndex.value;
             if (targetIndex < 0 || targetIndex >= localData.value.length) {
                 targetIndex = localData.value.length;
@@ -419,13 +443,10 @@
             emit('update:modelValue', newData);
             emit('add', { item: dragData.item, newIndex: targetIndex });
 
-            // 🔥 调用源容器的删除回调
+            // 调用源容器的删除回调
             if (dragData.removeCallback) {
-                console.log('🗑️ Calling remove callback from source container');
                 dragData.removeCallback();
             }
-
-            console.log('✅ Cross-container drag completed');
 
             // 清理全局数据
             setTimeout(() => {
@@ -462,15 +483,6 @@
         handleDragEnd();
     };
 
-    const removeItem = (index: number) => {
-        const item = localData.value[index];
-        const newData = [...localData.value];
-        newData.splice(index, 1);
-        localData.value = newData;
-        emit('update:modelValue', newData);
-        emit('remove', { item, oldIndex: index });
-    };
-
     defineExpose({
         containerRef,
     });
@@ -496,35 +508,17 @@
             }
         }
 
+        &.has-handle {
+            .draggable-item {
+                cursor: default;
+            }
+        }
+
         &.layout-grid {
             .draggable-list {
                 display: grid;
                 grid-template-columns: repeat(var(--grid-columns, 3), 1fr);
                 gap: var(--grid-gap, 16px);
-            }
-
-            .draggable-item {
-                flex-direction: column;
-                align-items: stretch;
-                padding: 0 !important;
-
-                .drag-handle {
-                    position: absolute;
-                    top: 8px;
-                    left: 8px;
-                    z-index: 10;
-                }
-
-                .item-remove {
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    z-index: 10;
-                }
-
-                .item-content {
-                    padding: 0;
-                }
             }
         }
     }
@@ -536,21 +530,8 @@
         min-height: 60px;
     }
 
-    .draggable-container.layout-grid .draggable-list {
-        display: grid !important;
-        grid-template-columns: repeat(var(--grid-columns, 3), 1fr) !important;
-        gap: var(--grid-gap, 16px) !important;
-    }
-
     .draggable-item {
         position: relative;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.03);
-        // border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         user-select: none;
 
@@ -562,88 +543,18 @@
             }
         }
 
-        &:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(102, 126, 234, 0.3);
-        }
-
         &.is-dragging {
             opacity: 0.4;
             cursor: grabbing;
         }
 
         &.is-drop-target {
-            border-color: rgba(102, 126, 234, 0.6);
+            // 用户可以通过插槽自定义样式，这里不添加默认样式
         }
 
         &.is-disabled {
             opacity: 0.5;
             cursor: not-allowed;
-
-            .drag-handle {
-                opacity: 0.3;
-                cursor: not-allowed;
-            }
-        }
-    }
-
-    .drag-handle {
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        color: rgba(255, 255, 255, 0.4);
-        cursor: grab;
-        border-radius: 6px;
-        transition: all 0.2s;
-        background: rgba(255, 255, 255, 0.03);
-
-        &:hover {
-            background: rgba(102, 126, 234, 0.15);
-            color: #667eea;
-        }
-
-        &:active {
-            cursor: grabbing;
-        }
-
-        .el-icon {
-            font-size: 18px;
-        }
-    }
-
-    .item-content {
-        flex: 1;
-        min-width: 0;
-
-        &.with-handle {
-            cursor: default;
-        }
-    }
-
-    .item-remove {
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        color: rgba(255, 255, 255, 0.4);
-        cursor: pointer;
-        border-radius: 6px;
-        transition: all 0.2s;
-        z-index: 10;
-        background: rgba(255, 255, 255, 0.03);
-
-        &:hover {
-            background: rgba(245, 108, 108, 0.15);
-            color: #f56c6c;
-        }
-
-        .el-icon {
-            font-size: 16px;
         }
     }
 
@@ -656,6 +567,7 @@
         background: rgba(102, 126, 234, 0.1);
         border-radius: 10px;
         pointer-events: none;
+        z-index: 1000;
 
         .drag-icon {
             font-size: 32px;
