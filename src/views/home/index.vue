@@ -161,19 +161,19 @@
             title: 'Visualization',
             path: '/visualizationScreen',
             description: 'This is a cool card with some awesome content.',
-            img: 'https://picsum.photos/1600/1200?random=1',
+            img: 'https://picsum.photos/id/30/1600/1200',
         },
         {
             title: 'Mine',
             path: '/mine',
             description: 'This card has even more amazing stuff to show.',
-            img: 'https://picsum.photos/1600/1200?random=2',
+            img: 'https://picsum.photos/id/50/1600/1200',
         },
         {
             title: 'LogicFlow',
             path: '/flowDemo',
             description: 'Check out this card with its fantastic details.',
-            img: 'https://picsum.photos/1600/1200?random=3',
+            img: 'https://picsum.photos/id/90/1600/1200.webp',
         },
     ]);
 
@@ -193,7 +193,7 @@
 
     const preloadBackgroundImage = () => {
         const bgImage = new Image();
-        bgImage.src = 'https://picsum.photos/3840/2160?random=4';
+        bgImage.src = 'https://picsum.photos/id/11/3840/2160.webp';
 
         bgImage.onload = () => {
             console.log('Background loaded');

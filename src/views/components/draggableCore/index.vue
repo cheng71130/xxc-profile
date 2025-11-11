@@ -306,17 +306,6 @@
                     >
                         <template #default="{ item }">
                             <div class="kanban-card">
-                                <div class="kanban-drag-handle">
-                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-                                        <circle cx="5" cy="4" r="1.5" />
-                                        <circle cx="5" cy="9" r="1.5" />
-                                        <circle cx="5" cy="14" r="1.5" />
-                                        <circle cx="13" cy="4" r="1.5" />
-                                        <circle cx="13" cy="9" r="1.5" />
-                                        <circle cx="13" cy="14" r="1.5" />
-                                    </svg>
-                                </div>
-
                                 <div class="card-header">
                                     <el-tag :type="item.type" size="small">{{ item.label }}</el-tag>
                                     <button class="action-btn delete-btn mini" @click.stop>
@@ -1261,26 +1250,6 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
             transform: translateY(-2px);
-
-            .kanban-drag-handle {
-                opacity: 1;
-            }
-        }
-
-        .kanban-drag-handle {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            opacity: 0;
-            transition: all 0.3s;
-            padding: 4px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-
-            &:hover {
-                color: #667eea;
-            }
         }
 
         .card-header {
