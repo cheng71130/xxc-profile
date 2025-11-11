@@ -52,6 +52,7 @@
 		"axios": "^1.9.0",
 		"echarts": "^5.4.3",
 		"element-plus": "^2.11.5",
+		"gsap": "^3.13.0",
 		"spark-md5": "^3.0.2",
 		"three": "^0.174.0",
 		"three-viewport-gizmo": "^2.2.0",
