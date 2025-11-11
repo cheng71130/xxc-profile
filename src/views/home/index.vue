@@ -161,13 +161,13 @@
             title: 'Visualization',
             path: '/visualizationScreen',
             description: 'This is a cool card with some awesome content.',
-            img: 'https://picsum.photos/id/30/1600/1200',
+            img: 'https://picsum.photos/id/30/1600/1200.webp',
         },
         {
             title: 'Mine',
             path: '/mine',
             description: 'This card has even more amazing stuff to show.',
-            img: 'https://picsum.photos/id/50/1600/1200',
+            img: 'https://picsum.photos/id/50/1600/1200.webp',
         },
         {
             title: 'LogicFlow',
