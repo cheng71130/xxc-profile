@@ -1,4 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
+// 直接导入，不使用懒加载
+import Screen from '@/views/visualizationScreen/index.vue'
+import Mine from '@/views/mine/index.vue'
+import Flow from '@/views/logicFlow/index.vue'
+import Gallery from '@/views/gallery/index.vue'
 
 const routes = [
     {
@@ -13,22 +18,22 @@ const routes = [
     {
         path: '/visualizationScreen',
         name: 'Screen',
-        component: () => import('@/views/visualizationScreen/index.vue'),
+        component: Screen,
     },
     {
         path: '/mine',
         name: 'Mine',
-        component: () => import('@/views/mine/index.vue'),
+        component: Mine,
     },
     {
         path: '/flowDemo',
         name: 'Flow',
-        component: () => import('@/views/logicFlow/index.vue'),
+        component: Flow,
     },
     {
         path: '/gallery',
         name: 'Gallery',
-        component: () => import('@/views/gallery/index.vue'),
+        component: Gallery,
     },
     {
         path: '/3d_model',
