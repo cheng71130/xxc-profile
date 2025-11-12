@@ -1,7 +1,7 @@
 <template>
     <el-container v-show="loaded" class="main-container animate__animated animate__fadeIn">
         <div class="particles">
-            <div class="particle" v-for="i in 50" :key="i" :style="particleStyle(i)"></div>
+            <div class="particle" v-for="i in 30" :key="i" :style="particleStyle(i)"></div>
         </div>
 
         <div class="neon-grid"></div>
@@ -45,10 +45,8 @@
                         />
                         <div class="image-overlay"></div>
 
-                        <!-- 优化后的hover遮罩层 -->
                         <div class="image-hover-overlay">
                             <div class="overlay-content">
-                                <!-- 带圆形背景和动画的箭头图标 -->
                                 <div class="icon-circle">
                                     <svg
                                         width="32"
@@ -105,6 +103,10 @@
                 </button>
             </div>
         </el-main>
+
+        <el-footer class="footer">
+            <p>© 2025 HOME. Built with ❤️ by cheng71130</p>
+        </el-footer>
     </el-container>
 
     <div v-if="!loaded" class="load-container">
@@ -228,24 +230,26 @@
     @use './style/loading.scss';
 
     @keyframes particle-float {
-        0%,
-        100% {
+        0% {
             transform: translate(0, 0);
             opacity: 0;
         }
-        10%,
+        10% {
+            opacity: 1;
+        }
         90% {
             opacity: 1;
         }
-        50% {
+        100% {
             transform: translate(var(--tx), var(--ty));
+            opacity: 0;
         }
     }
 
     @keyframes float {
         0%,
         100% {
-            transform: translateY(0px);
+            transform: translateY(0);
         }
         50% {
             transform: translateY(-20px);
@@ -255,7 +259,7 @@
     @keyframes title-wave {
         0%,
         100% {
-            transform: translateY(0px);
+            transform: translateY(0);
         }
         50% {
             transform: translateY(-10px);
@@ -286,12 +290,10 @@
     @keyframes neon-glow {
         0%,
         100% {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2),
-                inset 0 0 20px rgba(168, 85, 247, 0.1);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(168, 85, 247, 0.1);
         }
         50% {
-            box-shadow: 0 0 30px rgba(236, 72, 153, 0.6), 0 0 60px rgba(236, 72, 153, 0.3),
-                inset 0 0 30px rgba(236, 72, 153, 0.2);
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.4), 0 0 60px rgba(236, 72, 153, 0.2);
         }
     }
 
@@ -369,10 +371,10 @@
     @keyframes icon-glow {
         0%,
         100% {
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
         }
         50% {
-            filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 35px rgba(168, 85, 247, 0.6));
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
         }
     }
 
@@ -392,6 +394,7 @@
             border-radius: 50%;
             animation: particle-float infinite ease-in-out;
             box-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+            will-change: transform, opacity;
         }
     }
 
@@ -400,16 +403,17 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 300px;
-        background-image: linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px);
+        height: 500px;
+        background-image: linear-gradient(rgba(168, 85, 247, 0.6) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(168, 85, 247, 0.6) 1px, transparent 1px);
         background-size: 50px 50px;
         transform: perspective(500px) rotateX(60deg);
         transform-origin: center bottom;
         pointer-events: none;
         z-index: 0;
-        animation: grid-move 20s linear infinite;
+        animation: grid-move 60s linear infinite;
         opacity: 0.3;
+        will-change: transform;
     }
 
     .main-container {
@@ -460,6 +464,7 @@
             animation: float 3s ease-in-out infinite;
             filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.8));
             z-index: 2;
+            will-change: transform;
         }
 
         .header-glow {
@@ -469,6 +474,7 @@
             animation: glow-pulse 4s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
+            will-change: opacity;
         }
 
         .title {
@@ -489,6 +495,7 @@
             .title-word {
                 display: inline-block;
                 animation: title-wave 3s ease-in-out infinite;
+                will-change: transform;
             }
         }
     }
@@ -524,6 +531,7 @@
                 border: 1px solid rgba(168, 85, 247, 0.3);
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 animation: slide-up 0.6s ease-out backwards, neon-glow 3s ease-in-out infinite;
+                will-change: transform, box-shadow;
 
                 &::before {
                     content: '';
@@ -558,10 +566,11 @@
                     left: -50%;
                     width: 200%;
                     height: 200%;
-                    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.15) 50%, transparent 70%);
-                    animation: shine-flow 8s ease-in-out infinite;
+                    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+                    animation: shine-flow 10s ease-in-out infinite;
                     pointer-events: none;
                     z-index: 1;
+                    will-change: transform;
                 }
 
                 .card-glow-pulse {
@@ -573,6 +582,7 @@
                     transition: opacity 0.4s ease;
                     pointer-events: none;
                     z-index: 0;
+                    will-change: opacity;
                 }
 
                 &:hover {
@@ -633,6 +643,7 @@
                     height: 100%;
                     object-fit: cover;
                     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    will-change: transform;
                 }
 
                 .image-overlay {
@@ -662,6 +673,7 @@
                     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
                     z-index: 3;
                     border-radius: 16px;
+                    will-change: opacity, visibility;
 
                     &::before {
                         content: '';
@@ -681,6 +693,7 @@
                         transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
                         position: relative;
                         z-index: 1;
+                        will-change: transform;
                     }
 
                     .icon-circle {
@@ -712,6 +725,7 @@
                         animation: arrow-bounce 1.5s ease-in-out infinite, icon-glow 2s ease-in-out infinite;
                         position: relative;
                         z-index: 2;
+                        will-change: transform, filter;
                     }
 
                     .icon-ring,
@@ -721,6 +735,7 @@
                         border-radius: 50%;
                         border: 2px solid rgba(255, 255, 255, 0.6);
                         pointer-events: none;
+                        will-change: transform, opacity;
                     }
 
                     .icon-ring {
@@ -825,6 +840,7 @@
                         color: #ec4899;
                         transition: transform 0.3s ease;
                         filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.6));
+                        will-change: transform;
                     }
                 }
             }
@@ -855,7 +871,7 @@
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 box-shadow: 0 10px 40px rgba(168, 85, 247, 0.4), 0 0 60px rgba(236, 72, 153, 0.3),
                     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(10px);
+                will-change: transform, box-shadow;
 
                 .btn-text {
                     position: relative;
@@ -869,6 +885,7 @@
                     display: flex;
                     align-items: center;
                     transition: transform 0.3s ease;
+                    will-change: transform;
                 }
 
                 .btn-shine {
@@ -877,8 +894,9 @@
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-                    animation: btn-shine-flow 3s ease-in-out infinite;
+                    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+                    animation: btn-shine-flow 4s ease-in-out infinite;
+                    will-change: transform;
                 }
 
                 &::before {
@@ -896,7 +914,7 @@
 
                 &:hover {
                     transform: translateY(-3px);
-                    box-shadow: 0 20px 60px rgba(168, 85, 247, 0.6), 0 0 80px rgba(236, 72, 153, 0.5),
+                    box-shadow: 0 15px 50px rgba(168, 85, 247, 0.6), 0 0 75px rgba(236, 72, 153, 0.5),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
                     border-color: rgba(236, 72, 153, 0.8);
 
@@ -913,6 +931,18 @@
                     transform: translateY(-1px);
                 }
             }
+        }
+    }
+
+    .footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1; 
+
+        p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
         }
     }
 
