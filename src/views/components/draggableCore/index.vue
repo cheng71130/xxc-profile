@@ -334,7 +334,12 @@
                                         </span>
                                     </div>
                                     <el-avatar-group :max="3" size="small">
-                                        <el-avatar v-for="avatar in item.assignees" :key="avatar" :src="avatar" style="margin-left: 4px;"/>
+                                        <el-avatar
+                                            v-for="avatar in item.assignees"
+                                            :key="avatar"
+                                            :src="avatar"
+                                            style="margin-left: 4px"
+                                        />
                                     </el-avatar-group>
                                 </div>
                             </div>
@@ -369,7 +374,7 @@
         CircleCheckFilled,
         Close,
     } from '@element-plus/icons-vue';
-    import { ElMessage } from 'element-plus';
+    import { Notification } from '@/components/Notification';
     import type { Component } from 'vue';
     import LazyImage from '../lazyImage/LazyImage.vue';
 
@@ -719,37 +724,37 @@
     };
 
     const handleListChange = (event: any) => {
-        ElMessage.success('从位置 ' + (event.oldIndex + 1) + ' 移动到 ' + (event.newIndex + 1));
+        Notification.success('操作成功', '从位置 ' + (event.oldIndex + 1) + ' 移动到 ' + (event.newIndex + 1));
     };
 
     const handleGridChange = (event: any) => {
         console.log('Grid changed:', event);
-        ElMessage.success('图片位置已更新');
+        Notification.success('操作成功', '图片位置已更新');
     };
 
     const handleHandleChange = (event: any) => {
-        ElMessage.success(event.item.name + ' 位置已更新');
+        Notification.success('操作成功', event.item.name + ' 位置已更新');
     };
 
     const handleTodoAdd = (event: any) => {
-        ElMessage.success('"' + event.item.title + '" 已添加到待处理');
+        Notification.success('操作成功', '"' + event.item.title + '" 已添加到待处理');
     };
 
     const handleDoingAdd = (event: any) => {
-        ElMessage.success('"' + event.item.title + '" 已添加到进行中');
+        Notification.success('操作成功', '"' + event.item.title + '" 已添加到进行中');
     };
 
     const handleDoneAdd = (event: any) => {
-        ElMessage.success('"' + event.item.title + '" 已添加到已完成');
+        Notification.success('操作成功', '"' + event.item.title + '" 已添加到已完成');
     };
 
     const handleKanbanAdd = (columnTitle: string, event: any) => {
-        ElMessage.success('任务 "' + event.item.title + '" 移动到 ' + columnTitle);
+        Notification.success('操作成功', '任务 "' + event.item.title + '" 移动到 ' + columnTitle);
     };
 
     const handleTaskToggle = (task: TaskItem, value: boolean) => {
         task.completed = value;
-        ElMessage.success(value ? '任务已完成 ✅' : '任务已重新开启');
+        Notification.success('操作成功', value ? '任务已完成 ✅' : '任务已重新开启');
     };
 
     const resetData = () => {
@@ -764,7 +769,7 @@
             items: [...col.items.map((item) => ({ ...item }))],
         }));
         currentDemo.value = 'list';
-        ElMessage.info('数据已重置');
+        Notification.info('系统提示', '数据已重置');
     };
 </script>
 
