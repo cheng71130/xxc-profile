@@ -586,9 +586,9 @@
                 }
 
                 &:hover {
-                    transform: translateY(-8px);
+                    transform: scale(1.03);
                     border-color: rgba(236, 72, 153, 0.6);
-                    box-shadow: 0 20px 60px rgba(168, 85, 247, 0.4), 0 0 80px rgba(236, 72, 153, 0.3),
+                    box-shadow: 0 30px 80px rgba(168, 85, 247, 0.5), 0 0 120px rgba(236, 72, 153, 0.4),
                         inset 0 0 60px rgba(168, 85, 247, 0.1);
 
                     &::before {
@@ -938,7 +938,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1; 
+        z-index: 1;
 
         p {
             color: rgba(255, 255, 255, 0.4);
