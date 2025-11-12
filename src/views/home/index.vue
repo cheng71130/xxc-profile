@@ -105,7 +105,7 @@
         </el-main>
 
         <el-footer class="footer">
-            <p>© 2025 HOME. Built with ❤️ by cheng71130</p>
+            <p>© 2025 FRONT END. Built with ❤️ by cheng71130</p>
         </el-footer>
     </el-container>
 
