@@ -1,9 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// 直接导入，不使用懒加载
-import Screen from '@/views/visualizationScreen/index.vue'
-import Mine from '@/views/mine/index.vue'
-import Flow from '@/views/logicFlow/index.vue'
-import Gallery from '@/views/gallery/index.vue'
 
 const routes = [
     {
@@ -18,22 +13,26 @@ const routes = [
     {
         path: '/visualizationScreen',
         name: 'Screen',
-        component: Screen,
+        component: () => import('@/views/visualizationScreen/index.vue'),
+        meta: { preload: true },
     },
     {
         path: '/mine',
         name: 'Mine',
-        component: Mine,
+        component: () => import('@/views/mine/index.vue'),
+        meta: { preload: true },
     },
     {
         path: '/flowDemo',
         name: 'Flow',
-        component: Flow,
+        component: () => import('@/views/logicFlow/index.vue'),
+        meta: { preload: true },
     },
     {
         path: '/gallery',
         name: 'Gallery',
-        component: Gallery,
+        component: () => import('@/views/gallery/index.vue'),
+        meta: { preload: true },
     },
     {
         path: '/3d_model',
@@ -55,6 +54,28 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+// 首屏加载完成后，预加载重要路由
+router.isReady().then(() => {
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            routes.forEach((route) => {
+                if (route.meta?.preload) {
+                    // 提前加载
+                    route.component();
+                }
+            });
+        });
+    } else {
+        setTimeout(() => {
+            routes.forEach((route) => {
+                if (route.meta?.preload) {
+                    route.component();
+                }
+            });
+        }, 2000);
+    }
 });
 
 export default router;
