@@ -8,7 +8,7 @@ import electron from 'vite-plugin-electron'
 
 export default defineConfig(({}) => {
 	const alias = {
-		'@/': `${resolve(__dirname, 'src')}/`
+		'@': resolve(__dirname, 'src') 
 	}
 
 	const plugins = [
