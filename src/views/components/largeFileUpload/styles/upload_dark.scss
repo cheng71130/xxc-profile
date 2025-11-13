@@ -1,0 +1,434 @@
+.file-uploader-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
+    .upload-area {
+        border: 2px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        transition: all 0.3s;
+        background-color: rgba(255, 255, 255, 0.03);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        min-height: 290px;
+
+        &.is-dragOver {
+            border-color: var(--el-color-primary);
+            background-color: rgba(64, 158, 255, 0.1);
+            box-shadow: 0 2px 16px rgba(64, 158, 255, 0.2);
+        }
+
+        .upload-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+
+            .upload-icon {
+                font-size: 60px;
+                color: var(--el-color-primary);
+                margin-bottom: 20px;
+                opacity: 0.9;
+            }
+
+            .upload-text {
+                font-size: 18px;
+                color: rgba(255, 255, 255, 0.85);
+                margin-bottom: 16px;
+
+                .upload-button {
+                    color: var(--el-color-primary);
+                    font-weight: 600;
+                    cursor: pointer;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    margin: 0 4px;
+                    transition: all 0.2s;
+
+                    &:hover {
+                        background-color: rgba(64, 158, 255, 0.15);
+                    }
+                }
+            }
+
+            .upload-tip {
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.45);
+            }
+
+            .hidden-input {
+                display: none;
+            }
+        }
+
+        .upload-progress {
+            padding: 10px 0;
+
+            .file-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+                background-color: rgba(255, 255, 255, 0.05);
+                padding: 16px;
+                border-radius: 10px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+
+                .file-name-wrapper {
+                    display: flex;
+                    align-items: center;
+                    max-width: 80%;
+
+                    .file-icon {
+                        font-size: 24px;
+                        margin-right: 12px;
+                        color: var(--el-color-primary);
+                    }
+
+                    .file-name {
+                        font-weight: 500;
+                        word-break: break-all;
+                        font-size: 16px;
+                        color: rgba(255, 255, 255, 0.9);
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+
+                .file-size {
+                    color: rgba(255, 255, 255, 0.45);
+                    font-size: 14px;
+                }
+            }
+
+            .upload-stats {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin: 16px 0;
+                color: rgba(255, 255, 255, 0.75);
+                font-size: 14px;
+                background-color: rgba(255, 255, 255, 0.05);
+                padding: 25px 16px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+                .progress-wrapper {
+                    display: flex;
+                    align-items: center;
+
+                    .progress-bar {
+                        flex: 1;
+                        height: 10px;
+                        background-color: rgba(255, 255, 255, 0.1);
+                        border-radius: 100px;
+                        overflow: hidden;
+                        margin-right: 12px;
+
+                        .progress-inner {
+                            height: 100%;
+                            background: linear-gradient(90deg, var(--el-color-primary), #52b7ff);
+                            border-radius: 100px;
+                            transition: width 0.3s ease;
+                            position: relative;
+                            overflow: hidden;
+
+                            &.uploading::before {
+                                content: '';
+                                position: absolute;
+                                top: 0;
+                                left: -100%;
+                                width: 100%;
+                                height: 100%;
+                                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                                animation: shimmer 2s infinite;
+                            }
+
+                            @keyframes shimmer {
+                                0% {
+                                    left: -100%;
+                                }
+                                100% {
+                                    left: 100%;
+                                }
+                            }
+
+                            &.success {
+                                background: linear-gradient(90deg, #67c23a, #85ce61);
+                            }
+
+                            &.error {
+                                background: linear-gradient(90deg, #f56c6c, #f78989);
+                            }
+
+                            &.paused {
+                                background: linear-gradient(90deg, #e6a23c, #f3b760);
+                            }
+                        }
+                    }
+
+                    .progress-text {
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: rgba(255, 255, 255, 0.85);
+                        min-width: 45px;
+                        text-align: right;
+                    }
+                }
+
+                .upload-info-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    min-height: 28px;
+                }
+            }
+        }
+    }
+
+    // 状态显示样式
+    .status-display {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+
+        .hash-calculating {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .success-message,
+        .error-message,
+        .paused-message {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 8px;
+
+            .el-icon {
+                margin-right: 8px;
+            }
+        }
+
+        .success-message {
+            background-color: rgba(103, 194, 58, 0.15);
+            color: #95d475;
+        }
+
+        .error-message {
+            background-color: rgba(245, 108, 108, 0.15);
+            color: #f89898;
+        }
+
+        .paused-message {
+            background-color: rgba(230, 162, 60, 0.15);
+            color: #f3c078;
+        }
+
+        .upload-bytes,
+        .upload-speed,
+        .upload-time {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .upload-bytes {
+            color: var(--el-color-primary);
+        }
+    }
+
+    // 操作按钮样式
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+
+        .action-button {
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &.icon-button {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+                .el-icon {
+                    font-size: 20px;
+                }
+            }
+
+            &.pause-button,
+            &.resume-button {
+                background-color: rgba(64, 158, 255, 0.15);
+                color: #66b3ff;
+
+                &:hover {
+                    background-color: rgba(64, 158, 255, 0.25);
+                    transform: translateY(-2px);
+                }
+            }
+
+            &.cancel-button {
+                background-color: rgba(245, 108, 108, 0.15);
+                color: #f89898;
+
+                &:hover {
+                    background-color: rgba(245, 108, 108, 0.25);
+                    transform: translateY(-2px);
+                }
+            }
+        }
+    }
+
+    // 文件列表样式
+    .file-list-container {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+        .file-list-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            font-weight: 600;
+            position: relative;
+            padding-left: 16px;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 4px;
+                height: 16px;
+                background-color: var(--el-color-primary);
+                border-radius: 2px;
+            }
+        }
+
+        .file-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+
+            .file-card {
+                background-color: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                transition: all 0.2s;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+                &:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                    background-color: rgba(255, 255, 255, 0.06);
+
+                    .file-card-actions {
+                        opacity: 1;
+                    }
+                }
+
+                .file-card-icon {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 12px;
+
+                    .el-icon {
+                        font-size: 40px;
+                        color: var(--el-color-primary);
+                    }
+                }
+
+                .file-card-content {
+                    flex: 1;
+
+                    .file-card-name {
+                        font-weight: 500;
+                        font-size: 15px;
+                        color: rgba(255, 255, 255, 0.9);
+                        margin-bottom: 8px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .file-card-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        font-size: 13px;
+                        color: rgba(255, 255, 255, 0.45);
+
+                        .file-card-size {
+                            background-color: rgba(64, 158, 255, 0.15);
+                            padding: 2px 8px;
+                            border-radius: 4px;
+                            display: inline-block;
+                            width: fit-content;
+                            color: #66b3ff;
+                        }
+                    }
+                }
+
+                .file-card-actions {
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    opacity: 0;
+                    transition: opacity 0.2s;
+
+                    .card-button {
+                        background-color: rgba(255, 255, 255, 0.1);
+                        border: none;
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        color: var(--el-color-primary);
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                        transition: all 0.2s;
+
+                        &:hover {
+                            background-color: var(--el-color-primary);
+                            color: white;
+                            transform: scale(1.05);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .upload-complete {
+        margin-top: 50px;
+        text-align: center;
+    }
+}

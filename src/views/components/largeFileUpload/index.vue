@@ -86,5 +86,6 @@
 </script>
 
 <style lang="scss">
-	@use './styles/upload.scss';
+	// @use './styles/upload.scss';
+	@use './styles/upload_dark.scss';
 </style>
