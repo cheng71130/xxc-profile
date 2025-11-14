@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import uploadApi from '../utils/uploadApi.js'
+import { Notification } from '@/components/Notification';
 
 export function useFileList() {
 	const fileList = ref([])
@@ -14,12 +15,12 @@ export function useFileList() {
 			if (result.code === 0) {
 				fileList.value = result.data || [] // 确保有默认值
 			} else {
-				ElMessage.warning('获取文件列表失败')
+				Notification.error('错误', '获取文件列表失败');
 				fileList.value = []
 			}
 		} catch (error) {
 			console.error('获取文件列表失败:', error)
-			ElMessage.error('获取文件列表失败')
+			Notification.error('错误', '获取文件列表失败');
 			fileList.value = []
 		} finally {
 			loading.value = false
