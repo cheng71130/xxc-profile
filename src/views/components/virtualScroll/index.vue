@@ -219,7 +219,7 @@
     // 组件挂载后初始化数据
     onMounted(() => {
         console.log('Demo组件已挂载，开始生成数据...');
-        listData.value = generateData(0, 500000);
+        listData.value = generateData(0, 1000);
         console.log('数据生成完成，共', listData.value.length, '条');
     });
 
