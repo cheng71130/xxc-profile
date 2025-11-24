@@ -6,7 +6,8 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import SvgIcon from './components/svgIcon.vue';
 import DataVVue3 from '@kjgl77/datav-vue3';
-import elegantLoading from './directives/elegantLoading/index';
+import elegantLoading from './directives/elegantLoading';
+import debounceThrottle from './directives/debounce-throttle';
 import './styles/index.scss';
 import '@/assets/fonts/dsFont.css'; // 电子字体样式
 import 'virtual:uno.css';
@@ -24,4 +25,5 @@ app.use(ElementPlus, { locale: zhCn });
 app.use(router);
 app.use(DataVVue3);
 app.use(elegantLoading);
+app.use(debounceThrottle);
 app.mount('#app');

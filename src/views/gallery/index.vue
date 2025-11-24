@@ -186,6 +186,7 @@
     import LazyImage from '@/views/components/lazyImage/index.vue';
     import DraggableCore from '@/views/components/draggableCore/index.vue';
     import SkeletonWrapper from '@/views/components/skeletonWrapper/index.vue';
+    import Debounce from '@/views/components/debounce/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -242,19 +243,19 @@
         },
         {
             id: 6,
+            name: '防抖节流',
+            summarize: '封装插件，方便好用',
+            description: 'v-debounce，v-throttle指令式，代码极简，功能俱全，不用再每次导入然后再套触发函数',
+            iconPath: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+            component: Debounce,
+        },
+        {
+            id: 7,
             name: '通知系统',
             summarize: '现代化通知组件，支持多种类型和位置',
             description: '现代化通知组件，支持多种类型和位置',
             iconPath: 'M15 17h5l-5 5v-5zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
             component: Notice,
-        },
-        {
-            id: 7,
-            name: '数据表格',
-            summarize: '大数据表格，支持排序、筛选等功能',
-            description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
-            iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
-            component: VirtualizedTable,
         },
         {
             id: 8,
@@ -264,6 +265,14 @@
             iconPath:
                 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
             component: SkeletonWrapper,
+        },
+        {
+            id: 9,
+            name: '数据表格',
+            summarize: '大数据表格，支持排序、筛选等功能',
+            description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
+            iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
+            component: VirtualizedTable,
         },
     ]);
 
