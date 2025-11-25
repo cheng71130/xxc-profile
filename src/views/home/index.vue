@@ -586,7 +586,7 @@
                 }
 
                 &:hover {
-                    transform: scale(1.03);
+                    transform: scale(1.03) translateY(-8px);
                     border-color: rgba(236, 72, 153, 0.6);
                     box-shadow: 0 30px 80px rgba(168, 85, 247, 0.5), 0 0 120px rgba(236, 72, 153, 0.4),
                         inset 0 0 60px rgba(168, 85, 247, 0.1);

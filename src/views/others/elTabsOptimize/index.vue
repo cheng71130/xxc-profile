@@ -45,7 +45,7 @@
                                 </template>
                             </el-table-column>
                             <el-table-column label="操作" fixed="right">
-                                <template #default="{ row }">
+                                <template #default>
                                     <el-button size="small" type="primary">编辑</el-button>
                                     <el-button size="small" type="danger">删除</el-button>
                                 </template>
