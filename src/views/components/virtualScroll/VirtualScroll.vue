@@ -130,7 +130,16 @@
 
     // 可视区域结束索引
     const endIndex = computed(() => {
-        positionVersion.value; // 依赖版本号
+        positionVersion.value;
+
+        // 接近底部时强制包含最后一项（解决留白问题）
+        const container = containerRef.value;
+        if (container) {
+            const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+            if (distanceToBottom < containerHeight.value) {
+                return props.dataSource.length - 1;
+            }
+        }
 
         let end = binarySearch(scrollTop.value + containerHeight.value);
         end = Math.min(props.dataSource.length - 1, end + props.bufferSize);

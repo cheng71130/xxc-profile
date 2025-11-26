@@ -58,15 +58,15 @@
     const error = ref(false);
     const noMore = ref(false);
     const page = ref(1);
-    const pageSize = 10;
-    const totalPages = 4;
+    const pageSize = 20;
+    const totalPages = 5;
 
     const lastScrollTop = ref(0);
     const isScrollingDown = ref(true);
 
     const showFooter = computed(() => loading.value || error.value || noMore.value);
 
-    let hideTimer: number | null = null;
+    let hideTimer: any = null;
     watch(noMore, (val) => {
         if (val) {
             if (hideTimer) clearTimeout(hideTimer);
