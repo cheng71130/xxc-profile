@@ -100,7 +100,7 @@
             <VirtualScroll
                 ref="virtualScrollRef"
                 :data-source="listData"
-                :estimated-item-height="120"
+                :estimated-item-height="130"
                 :buffer-size="5"
                 :dynamic-height="true"
                 item-key="id"

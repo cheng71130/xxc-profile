@@ -132,20 +132,33 @@
     const endIndex = computed(() => {
         positionVersion.value;
 
-        // 接近底部时强制包含最后一项（解决留白问题）
+        let end = binarySearch(scrollTop.value + containerHeight.value);
+        end = Math.min(props.dataSource.length - 1, end + props.bufferSize);
+
+        // 在真正接近底部时强制包含最后一项（解决底部留白）
         const container = containerRef.value;
-        if (container) {
-            const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-            if (distanceToBottom < containerHeight.value) {
-                return props.dataSource.length - 1;
+        if (container && props.dataSource.length > 0) {
+            const scrollHeight = container.scrollHeight;
+            const currentScrollTop = scrollTop.value;
+            const clientHeight = containerHeight.value;
+
+            const distanceToBottom = scrollHeight - currentScrollTop - clientHeight;
+
+            // 只在距离底部不足 1.5 屏且确实在底部区域时才强制
+            if (distanceToBottom < clientHeight * 1.5 && distanceToBottom >= 0) {
+                // 不直接覆盖 end，而是确保至少包含最后一项
+                const lastIndex = props.dataSource.length - 1;
+                if (end < lastIndex - props.bufferSize) {
+                    // 如果 end 离最后一项太远，说明不在底部区域，不做处理
+                    return end;
+                }
+                // 在底部区域，确保包含最后一项
+                end = Math.max(end, lastIndex);
             }
         }
 
-        let end = binarySearch(scrollTop.value + containerHeight.value);
-        end = Math.min(props.dataSource.length - 1, end + props.bufferSize);
         return end;
     });
-
     // ==================== 对象缓存复用，减少 DOM 重建 ====================
     interface VisibleItem {
         key: string | number;
