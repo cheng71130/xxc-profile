@@ -198,7 +198,6 @@
                 return;
             }
 
-            // 收集所有高度变化
             const heightChanges: Array<{ index: number; oldHeight: number; newHeight: number }> = [];
 
             nodes.forEach((node) => {
@@ -211,14 +210,13 @@
                 const oldHeight = pos.height;
                 const newHeight = rect.height;
 
+                // ✅ 关键：即使高度一样，也要标记为"已测量"
                 if (Math.abs(oldHeight - newHeight) > 1) {
                     heightChanges.push({ index, oldHeight, newHeight });
                 }
             });
 
-            // 批量处理高度变化
             if (heightChanges.length > 0) {
-                // 按索引排序，从小到大更新
                 heightChanges.sort((a, b) => a.index - b.index);
 
                 let accumulatedDiff = 0;
@@ -228,7 +226,6 @@
                     const pos = positionCache.get(index);
                     if (!pos) return;
 
-                    // 更新中间跳过的项
                     if (lastIndex >= 0 && index > lastIndex + 1) {
                         for (let i = lastIndex + 1; i < index; i++) {
                             const midPos = positionCache.get(i);
@@ -242,14 +239,12 @@
                     const diff = newHeight - oldHeight;
                     accumulatedDiff += diff;
 
-                    // 更新当前项
                     pos.height = newHeight;
                     pos.bottom = pos.top + newHeight;
 
                     lastIndex = index;
                 });
 
-                // 更新后续所有项（只在有变化时执行）
                 if (lastIndex >= 0 && accumulatedDiff !== 0) {
                     for (let i = lastIndex + 1; i < props.dataSource.length; i++) {
                         const pos = positionCache.get(i);
@@ -260,7 +255,6 @@
                     }
                 }
 
-                // 手动触发响应式更新
                 positionVersion.value++;
             }
 
@@ -268,52 +262,43 @@
         });
     };
 
-    // ==================== RAF 节流滚动处理 ====================
-    let rafId: number | null = null;
-    let lastEmitTime = 0;
-    const EMIT_THROTTLE = 100;
-
     const handleScroll = () => {
         if (!containerRef.value) return;
 
         scrollTop.value = containerRef.value.scrollTop;
 
-        // 动态高度更新
         if (props.dynamicHeight) {
             nextTick(() => {
                 updateItemHeight();
             });
         }
 
-        // RAF 节流发射事件
-        if (rafId !== null) {
-            cancelAnimationFrame(rafId);
+        const scrollHeight = containerRef.value.scrollHeight;
+        const scrollTopValue = containerRef.value.scrollTop;
+        const clientHeight = containerRef.value.clientHeight;
+        const distanceToBottom = scrollHeight - scrollTopValue - clientHeight;
+
+        // 滚到最后一个数据项时，强制刷新高度
+        const isLastItemVisible = endIndex.value >= props.dataSource.length - 1;
+
+        if (isLastItemVisible && props.dynamicHeight) {
+            nextTick(() => {
+                updateItemHeight();
+                // 再延迟一次确保准确
+                setTimeout(() => updateItemHeight(), 100);
+            });
         }
 
-        rafId = requestAnimationFrame(() => {
-            const now = Date.now();
+        const isBottom = isLastItemVisible && distanceToBottom < 50;
 
-            if (now - lastEmitTime >= EMIT_THROTTLE) {
-                const isBottom =
-                    containerRef.value!.scrollHeight -
-                        containerRef.value!.scrollTop -
-                        containerRef.value!.clientHeight <
-                    10;
+        emit('scroll', {
+            scrollTop: scrollTopValue,
+            isBottom,
+        });
 
-                emit('scroll', {
-                    scrollTop: scrollTop.value,
-                    isBottom,
-                });
-
-                emit('visibleChange', {
-                    startIndex: startIndex.value,
-                    endIndex: endIndex.value,
-                });
-
-                lastEmitTime = now;
-            }
-
-            rafId = null;
+        emit('visibleChange', {
+            startIndex: startIndex.value,
+            endIndex: endIndex.value,
         });
     };
 
@@ -365,9 +350,6 @@
 
     onBeforeUnmount(() => {
         resizeObserver?.disconnect();
-        if (rafId !== null) {
-            cancelAnimationFrame(rafId);
-        }
     });
 
     // 监听数据源变化

@@ -4,7 +4,7 @@
             <div class="particle" v-for="i in 30" :key="i" :style="particleStyle(i)"></div>
         </div>
 
-        <div class="neon-grid"></div>
+        <!-- <div class="neon-grid"></div> -->
 
         <el-header class="header">
             <div class="header-content">
