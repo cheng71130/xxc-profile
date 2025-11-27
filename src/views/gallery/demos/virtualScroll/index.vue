@@ -168,7 +168,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import VirtualScroll from './VirtualScroll.vue';
+    import VirtualScroll from '@/components/VirtualScroll/index.vue';
 
     interface ListItem {
         id: string;

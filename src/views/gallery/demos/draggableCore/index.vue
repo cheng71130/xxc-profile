@@ -352,8 +352,7 @@
 </template>
 
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import DraggableCore from './DraggableCore.vue';
+    import { ref, type Component } from 'vue';
     import {
         RefreshRight,
         Clock,
@@ -375,8 +374,8 @@
         Close,
     } from '@element-plus/icons-vue';
     import { Notification } from '@/components/Notification';
-    import type { Component } from 'vue';
-    import LazyImage from '../lazyImage/LazyImage.vue';
+    import DraggableCore from '@/components/DraggableCore/index.vue';
+    import LazyImage from '@/components/LazyImage/index.vue';
 
     interface TaskItem {
         id: number;

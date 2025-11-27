@@ -323,8 +323,8 @@
 
 <script setup lang="ts">
     import { ref, computed } from 'vue';
-    import SkeletonWrapper from './SkeletonWrapper.vue';
-    import SkeletonPresets from './SkeletonPresets.vue';
+    import SkeletonWrapper from '@/components/SkeletonWrapper/SkeletonWrapper.vue';
+    import SkeletonPresets from '@/components/SkeletonWrapper/SkeletonPresets.vue';
 
     const loading1 = ref(true);
     const loading2 = ref(true);

@@ -178,15 +178,15 @@
 
 <script setup>
     import { ref, computed } from 'vue';
-    import LargeFileUpload from '@/views/components/largeFileUpload/index.vue';
-    import VirtualizedTable from '@/views/components/virtualizedTable/index.vue';
-    import ElegantLoading from '@/views/components/elegantLoading/index.vue';
-    import Notice from '@/views/components/notice/index.vue';
-    import VirtualScroll from '@/views/components/virtualScroll/index.vue';
-    import LazyImage from '@/views/components/lazyImage/index.vue';
-    import DraggableCore from '@/views/components/draggableCore/index.vue';
-    import SkeletonWrapper from '@/views/components/skeletonWrapper/index.vue';
-    import Debounce from '@/views/components/debounce/index.vue';
+    import LargeFileUpload from './demos/largeFileUpload/index.vue';
+    import VirtualizedTable from './demos/virtualizedTable/index.vue';
+    import ElegantLoading from './demos/elegantLoading/index.vue';
+    import Notice from './demos/notice/index.vue';
+    import VirtualScroll from './demos/virtualScroll/index.vue';
+    import LazyImage from './demos/lazyImage/index.vue';
+    import DraggableCore from './demos/draggableCore/index.vue';
+    import SkeletonWrapper from './demos/skeletonWrapper/index.vue';
+    import Debounce from './demos/debounce/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');

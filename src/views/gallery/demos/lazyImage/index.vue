@@ -209,9 +209,9 @@
 
 <script setup lang="ts">
     import { ref } from 'vue';
-    import LazyImage from './LazyImage.vue';
-    import ImagePreview from '@/views/components/imagePreview/ImagePreview.vue';
-    import VirtualScroll from '../virtualScroll/VirtualScroll.vue';
+    import LazyImage from '@/components/LazyImage/index.vue';
+    import ImagePreview from '@/components/ImagePreview/index.vue';
+    import VirtualScroll from '@/components/VirtualScroll/index.vue';
     import {
         RefreshRight,
         Picture,
