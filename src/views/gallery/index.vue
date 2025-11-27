@@ -187,6 +187,7 @@
     import DraggableCore from './demos/draggableCore/index.vue';
     import SkeletonWrapper from './demos/skeletonWrapper/index.vue';
     import Debounce from './demos/debounce/index.vue';
+    import ResizableLayout from './demos/resizableLayout/index.vue';
 
     // 响应式数据
     const searchQuery = ref('');
@@ -273,6 +274,14 @@
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
             iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
             component: VirtualizedTable,
+        },
+        {
+            id: 10,
+            name: '数据表格',
+            summarize: '大数据表格，支持排序、筛选等功能',
+            description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
+            iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
+            component: ResizableLayout,
         },
     ]);
 

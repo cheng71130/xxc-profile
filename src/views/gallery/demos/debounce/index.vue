@@ -306,7 +306,6 @@
 <style scoped lang="scss">
     .demo-container {
         width: 100%;
-        padding: 8px;
     }
 
     // 分区标题

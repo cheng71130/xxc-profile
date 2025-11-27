@@ -237,7 +237,6 @@
 <style scoped lang="scss">
     .demo-container {
         width: 100%;
-        padding: 8px;
     }
 
     .style-selector-section {
