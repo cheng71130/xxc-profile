@@ -6,6 +6,12 @@
                 <el-radio-button label="vertical">垂直分割</el-radio-button>
                 <el-radio-button label="nested">嵌套布局</el-radio-button>
             </el-radio-group>
+
+            <!-- 新增提示文字 -->
+            <div class="demo-tip">
+                <i class="tip-icon">💡</i>
+                <span class="tip-text">拖拽中间分隔线可调整面板大小</span>
+            </div>
         </div>
 
         <div
@@ -322,8 +328,6 @@
         { id: 1, time: '10:23:45', type: 'info', message: '应用启动成功' },
         { id: 2, time: '10:23:46', type: 'log', message: 'Result: 30' },
         { id: 3, time: '10:23:47', type: 'success', message: '代码执行完成' },
-        // { id: 4, time: '10:23:48', type: 'warning', message: '检测到性能问题' },
-        // { id: 5, time: '10:23:49', type: 'info', message: '正在监听文件变化...' },
     ];
 </script>
 
@@ -341,6 +345,10 @@
         flex-shrink: 0;
         padding-bottom: 20px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
 
         :deep(.el-radio-button) {
             --el-radio-button-checked-bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -364,6 +372,46 @@
             border-color: #667eea;
             color: #ffffff;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+    }
+
+    .demo-tip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: default;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(102, 126, 234, 0.3);
+
+            .tip-icon {
+                transform: scale(1.1) rotate(10deg);
+            }
+
+            .tip-text {
+                color: rgba(255, 255, 255, 0.95);
+            }
+        }
+
+        .tip-icon {
+            font-style: normal;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .tip-text {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            transition: color 0.3s ease;
+            user-select: none;
         }
     }
 
@@ -790,6 +838,10 @@
 
     @media (max-width: 768px) {
         .demo-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+
             :deep(.el-radio-group) {
                 width: 100%;
                 display: flex;
@@ -797,6 +849,10 @@
                 .el-radio-button {
                     flex: 1;
                 }
+            }
+
+            .demo-tip {
+                justify-content: center;
             }
         }
 
