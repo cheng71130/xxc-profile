@@ -274,7 +274,7 @@
     // =====================================================================================
     import { ElMessage } from 'element-plus';
     import { Search } from '@element-plus/icons-vue';
-    import LeftRightCollapse from '@/components/leftRightCollapse.vue';
+    import LeftRightCollapse from '@/components/LeftRightCollapse/index.vue';
     import { debounce } from '@/utils/debounce';
 
     import { register, getTeleport } from '@logicflow/vue-node-registry';

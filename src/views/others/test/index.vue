@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
-    import VirtualScroll from '@/views/components/virtualScroll/VirtualScroll.vue';
+    import VirtualScroll from '@/components/VirtualScroll/index.vue';
 
     interface ListItem {
         id: string;
