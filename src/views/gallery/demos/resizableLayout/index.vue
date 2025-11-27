@@ -17,7 +17,7 @@
                 direction="horizontal"
                 :default-size="300"
                 :min-first-size="250"
-                :min-second-size="300"
+                :min-second-size="350"
                 :gap="12"
             >
                 <template #first>
@@ -160,7 +160,7 @@
                     </div>
                 </template>
                 <template #second>
-                    <ResizableLayout direction="vertical" :default-size="430" :gap="12">
+                    <ResizableLayout direction="vertical" :default-size="430" :min-first-size="280" :gap="12">
                         <template #first>
                             <div class="panel-content nested-editor">
                                 <div class="panel-header">
@@ -242,7 +242,7 @@
         {
             label: '总访问量',
             value: '45,821',
-            change: '+12.5%',
+            change: '+ 12.5%',
             trend: 'up',
             progress: 75,
             color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -250,7 +250,7 @@
         {
             label: '活跃用户',
             value: '8,234',
-            change: '+8.2%',
+            change: '+ 8.2%',
             trend: 'up',
             progress: 62,
             color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -258,7 +258,7 @@
         {
             label: '新增订单',
             value: '1,429',
-            change: '-3.1%',
+            change: '- 3.1%',
             trend: 'down',
             progress: 45,
             color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
@@ -266,7 +266,7 @@
         {
             label: '收入统计',
             value: '¥38,920',
-            change: '+15.7%',
+            change: '+ 15.7%',
             trend: 'up',
             progress: 88,
             color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',

@@ -1,19 +1,15 @@
 <template>
-    <div class="resizable-layout" ref="containerRef" :class="{ 'is-vertical': direction === 'vertical' }">
+    <div
+        class="resizable-layout"
+        ref="containerRef"
+        :class="{ 'is-vertical': direction === 'vertical', 'is-horizontal': direction === 'horizontal' }"
+    >
         <div class="first-panel" :style="firstPanelStyle">
             <slot name="first"></slot>
         </div>
 
-        <div class="gap-area" :style="gapStyle">
-            <div
-                class="resizer"
-                @mousedown="startResize"
-                @mouseenter="isHovering = true"
-                @mouseleave="handleMouseLeave"
-                :class="{
-                    'resizer-visible': isHovering || isResizing,
-                }"
-            ></div>
+        <div class="gap-area" :style="gapStyle" @mousedown="startResize">
+            <div class="resizer" :class="{ 'is-resizing': isResizing }"></div>
         </div>
 
         <div class="second-panel">
@@ -44,12 +40,10 @@
     const containerRef = ref<HTMLElement | null>(null);
     const size = ref(props.defaultSize);
     const isResizing = ref(false);
-    const isHovering = ref(false);
 
     let startPos = 0;
     let startSize = 0;
 
-    // 计算第一个面板的样式
     const firstPanelStyle = computed(() => {
         if (props.direction === 'horizontal') {
             return { width: `${size.value}px` };
@@ -58,12 +52,19 @@
         }
     });
 
-    // 计算间隙区域的样式
     const gapStyle = computed(() => {
         if (props.direction === 'horizontal') {
-            return { width: `${props.gap}px` };
+            return {
+                width: `${props.gap}px`,
+                height: '100%',
+                cursor: 'ew-resize',
+            };
         } else {
-            return { height: `${props.gap}px` };
+            return {
+                width: '100%',
+                height: `${props.gap}px`,
+                cursor: 'ns-resize',
+            };
         }
     });
 
@@ -76,6 +77,9 @@
         document.addEventListener('mouseup', stopResize);
         document.body.style.cursor = props.direction === 'horizontal' ? 'ew-resize' : 'ns-resize';
         document.body.style.userSelect = 'none';
+
+        e.stopPropagation();
+        e.preventDefault();
     };
 
     const handleResize = (e: MouseEvent) => {
@@ -87,7 +91,6 @@
 
         const containerSize =
             props.direction === 'horizontal' ? containerRef.value.offsetWidth : containerRef.value.offsetHeight;
-
         const maxSize = containerSize - props.minSecondSize - props.gap;
 
         if (newSize >= props.minFirstSize && newSize <= maxSize) {
@@ -103,18 +106,13 @@
         document.body.style.userSelect = '';
     };
 
-    const handleMouseLeave = () => {
-        if (!isResizing.value) {
-            isHovering.value = false;
-        }
-    };
-
     onMounted(() => {
         if (containerRef.value) {
             const containerSize =
                 props.direction === 'horizontal' ? containerRef.value.offsetWidth : containerRef.value.offsetHeight;
             const maxSize = containerSize - props.minSecondSize - props.gap;
-            if (size.value > maxSize) {
+            // 初始化时校验尺寸
+            if (size.value > maxSize && maxSize > 0) {
                 size.value = maxSize;
             }
         }
@@ -136,6 +134,10 @@
         &.is-vertical {
             flex-direction: column;
         }
+
+        &.is-horizontal {
+            flex-direction: row;
+        }
     }
 
     .first-panel {
@@ -146,47 +148,68 @@
     .gap-area {
         flex-shrink: 0;
         position: relative;
+        z-index: 10;
         display: flex;
         align-items: center;
         justify-content: center;
+
+        // 这里的 hover 控制子元素 resizer 的显隐
+        &:hover .resizer {
+            opacity: 1;
+            background-color: var(--el-color-primary);
+
+            // Hover 时的尺寸膨胀逻辑
+            &.horizontal-bar {
+                height: 4px; // 垂直布局时的横条，变粗
+            }
+            &.vertical-bar {
+                width: 4px; // 水平布局时的竖条，变粗
+            }
+        }
     }
 
     .resizer {
         background-color: #d1d5db;
-        border-radius: 20px;
+        border-radius: 4px;
         opacity: 0;
-        transition: all 0.2s ease;
+        transition: opacity 0.2s ease, background-color 0.2s ease; // 只过渡颜色和透明度，不过渡尺寸防止抖动
+        pointer-events: none; // 穿透，不影响鼠标事件
 
-        .resizable-layout:not(.is-vertical) & {
-            width: 4px;
-            height: 100%;
-            cursor: ew-resize;
-        }
-
-        .resizable-layout.is-vertical & {
-            width: 100%;
-            height: 4px;
-            cursor: ns-resize;
-        }
-
-        &.resizer-visible {
+        // 拖拽中状态
+        &.is-resizing {
             opacity: 1;
             background-color: var(--el-color-primary);
         }
+    }
 
-        &.resizer-visible {
-            .resizable-layout:not(.is-vertical) & {
-                width: 5px;
-            }
+    // 垂直布局场景（上下分布，中间是横条）
+    .is-vertical > .gap-area > .resizer {
+        width: 100%; // 关键：横条要铺满宽度
+        height: 2px; // 默认高度
+        min-height: 2px; // 防止被压缩
+    }
+    // Hover/Active 状态变粗 (可选)
+    .is-vertical > .gap-area:hover > .resizer,
+    .is-vertical > .gap-area > .resizer.is-resizing {
+        height: 4px;
+    }
 
-            .resizable-layout.is-vertical & {
-                height: 5px;
-            }
-        }
+    // 水平布局场景（左右分布，中间是竖条）
+    .is-horizontal > .gap-area > .resizer {
+        height: 100%; // 关键：竖条要铺满高度
+        width: 2px; // 默认宽度
+        min-width: 2px; // 防止被压缩
+    }
+    // Hover/Active 状态变粗 (可选)
+    .is-horizontal > .gap-area:hover > .resizer,
+    .is-horizontal > .gap-area > .resizer.is-resizing {
+        width: 4px;
     }
 
     .second-panel {
         flex: 1;
         overflow: auto;
+        // 关键：确保第二面板也是 flex 容器或者占满空间，防止内部嵌套坍塌
+        position: relative;
     }
 </style>
