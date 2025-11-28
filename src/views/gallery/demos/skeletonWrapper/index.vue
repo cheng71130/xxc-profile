@@ -472,7 +472,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 32px;
-        padding: 0 40px 60px;
 
         .showcase-item {
             flex: 0 0 calc(50% - 16px);
