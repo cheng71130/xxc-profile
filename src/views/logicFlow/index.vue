@@ -1,5 +1,5 @@
 <template>
-    <div class="myLogicFlow animate__animated animate__fadeIn">
+    <div class="myLogicFlow">
         <el-card shadow="always" style="min-height: 64px">
             <el-page-header @back="router.go(-1)">
                 <template #title>

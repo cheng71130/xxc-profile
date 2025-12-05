@@ -1,10 +1,10 @@
 <template>
-    <el-container v-show="loaded" class="main-container animate__animated animate__fadeIn">
+    <el-container v-show="loaded" class="main-container">
         <div class="particles">
             <div class="particle" v-for="i in 30" :key="i" :style="particleStyle(i)"></div>
         </div>
 
-        <!-- <div class="neon-grid"></div> -->
+        <div class="neon-grid"></div>
 
         <el-header class="header">
             <div class="header-content">
@@ -443,7 +443,7 @@
         justify-content: center;
         align-items: center;
         background: rgba(15, 10, 30, 0.6);
-        backdrop-filter: blur(10px);
+        // backdrop-filter: blur(10px);
         padding: 2rem 1rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(168, 85, 247, 0.3);
         border-bottom: 1px solid rgba(168, 85, 247, 0.2);
@@ -518,7 +518,7 @@
 
             .card {
                 background: rgba(20, 15, 40, 0.7);
-                backdrop-filter: blur(20px);
+                // backdrop-filter: blur(20px);
                 border-radius: 24px;
                 padding: 2.2rem;
                 width: 380px;
@@ -706,7 +706,7 @@
                         background: rgba(255, 255, 255, 0.15);
                         border-radius: 50%;
                         border: 2px solid rgba(255, 255, 255, 0.3);
-                        backdrop-filter: blur(5px);
+                        // backdrop-filter: blur(5px);
                         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3),
                             0 0 0 1px rgba(255, 255, 255, 0.1);
                         transition: all 0.4s ease;
