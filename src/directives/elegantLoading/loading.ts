@@ -3,6 +3,7 @@ import { Directive, DirectiveBinding } from 'vue';
 interface LoadingElement extends HTMLElement {
     __loadingInstance?: HTMLElement;
     __originalPosition?: string;
+    __cachedBorderRadius?: string;
 }
 
 interface LoadingOptions {
@@ -11,6 +12,7 @@ interface LoadingOptions {
     text?: string;
     color?: string;
     background?: string;
+    backdropFilter?: boolean;
 }
 
 const loadingDirective: Directive = {
@@ -221,10 +223,17 @@ function createLoadingElement(el: HTMLElement, options: LoadingOptions): HTMLEle
     loadingWrapper.className = 'custom-loading-mask';
 
     const bgColor = options.background || 'rgba(255, 255, 255, 0.9)';
+    
+    // backdropFilter 默认为 true，可以通过 options.backdropFilter = false 关闭
+    const enableBackdrop = options.backdropFilter !== false;
 
-    // 自动继承父元素的圆角
-    const computedStyle = window.getComputedStyle(el);
-    const borderRadius = computedStyle.borderRadius || '0';
+    // 缓存圆角以优化性能
+    const loadingEl = el as LoadingElement;
+    if (!loadingEl.__cachedBorderRadius) {
+        const computedStyle = window.getComputedStyle(el);
+        loadingEl.__cachedBorderRadius = computedStyle.borderRadius || '0';
+    }
+    const borderRadius = loadingEl.__cachedBorderRadius;
 
     loadingWrapper.style.cssText = `
         position: absolute;
@@ -237,11 +246,13 @@ function createLoadingElement(el: HTMLElement, options: LoadingOptions): HTMLEle
         align-items: center;
         justify-content: center;
         background-color: ${bgColor};
-        backdrop-filter: blur(2px);
+        ${enableBackdrop ? 'backdrop-filter: blur(2px);' : ''}
         z-index: 2000;
         opacity: 0;
         transition: opacity 0.3s ease;
         border-radius: ${borderRadius};
+        transform: translateZ(0);
+        will-change: opacity;
     `;
 
     // 根据类型选择样式
