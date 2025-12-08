@@ -53,12 +53,11 @@
                         event: 'input',
                     }"
                     v-model="searchText"
-                    placeholder="输入搜索关键词..."
                     clearable
                     class="search-input"
                 />
                 <div class="search-result">
-                    <span class="result-label">搜索内容:</span>
+                    <span class="result-label">搜索内容：</span>
                     <span class="result-value">{{ searchResult || '暂无' }}</span>
                 </div>
                 <div class="count-wrapper">
@@ -365,33 +364,9 @@
         padding: 24px;
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-
-        &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--el-color-primary), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        &:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-
-            &::before {
-                opacity: 1;
-            }
-        }
 
         &.full-width {
             grid-column: 1 / -1;
@@ -536,7 +511,7 @@
 
             &.is-focus {
                 border-color: var(--el-color-primary);
-                box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+                box-shadow: 0 0 0 2px rgba(167, 65, 214, 0.2);
             }
         }
     }
@@ -547,7 +522,7 @@
         background: rgba(0, 0, 0, 0.15);
         border-radius: 6px;
         display: flex;
-        gap: 8px;
+        align-items: baseline;
 
         .result-label {
             color: #909399;

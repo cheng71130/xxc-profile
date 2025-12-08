@@ -51,14 +51,7 @@
                         <div class="item-content">
                             <div class="item-left">
                                 <div class="component-icon">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            :d="component.iconPath"
-                                        />
-                                    </svg>
+                                    <SvgIcon :name="component.icon" size="24" />
                                 </div>
                                 <div class="component-info">
                                     <h3 class="component-name">{{ component.name }}</h3>
@@ -124,14 +117,7 @@
                     <div class="header-content">
                         <div class="component-meta">
                             <div class="meta-icon">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        :d="selectedComponent.iconPath"
-                                    />
-                                </svg>
+                                <SvgIcon :name="selectedComponent.icon" size="30" />
                             </div>
                             <div class="meta-text">
                                 <h1 class="preview-title">{{ selectedComponent.name }}</h1>
@@ -201,8 +187,7 @@
             summarize: '进度可视化大文件上传的高级组件',
             description:
                 '支持拖拽上传、智能分片（带重试机制）、并发控制、断点续传、进度追踪，web worker采样计算hash实现真正秒传，文件完整性校验待实现（一般不需要），对标阿里云盘，百度云上传等。',
-            iconPath:
-                'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5',
+            icon: 'upload',
             component: LargeFileUpload,
         },
         {
@@ -210,8 +195,7 @@
             name: '自定义loading',
             summarize: 'v-loading动画卡顿阻塞，完美平替',
             description: '高性能，动画丝滑流畅，减少CPU占用，自定义样式简单，纯CSS实现，0依赖',
-            iconPath:
-                'M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122',
+            icon: 'loading',
             component: ElegantLoading,
         },
         {
@@ -220,8 +204,7 @@
             summarize: '原生不支持自定义占位、失败处理差',
             description:
                 '骨架屏占位，渐进式加载（模糊到清晰），失败重试机制，支持WebP自动降级，配合ImagePreview效果完美',
-            iconPath:
-                'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14.414M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
+            icon: 'lazyImg',
             component: LazyImage,
         },
         {
@@ -229,8 +212,7 @@
             name: '虚拟滚动',
             summarize: '解决长列表渲染卡顿、内存占用高',
             description: '自动计算可视区域，只渲染必要DOM，支持动态高度、懒加载、滚动定位，（100000+条）轻松渲染',
-            iconPath:
-                'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+            icon: 'scroll',
             component: VirtualScroll,
         },
 
@@ -239,7 +221,7 @@
             name: '拖拽排序',
             summarize: '自定义看板，可视化配置，提升交互体验',
             description: '列表拖拽排序，网格布局拖拽，跨容器拖拽，拖拽预览和占位',
-            iconPath: 'M12 4v16m0-16l-2 2m2-2l2 2m-2 14l-2-2m2 2l2-2M4 12h16M4 12l2-2m-2 2l2 2m14-2l-2-2m2 2l-2 2',
+            icon: 'drag',
             component: DraggableCore,
         },
         {
@@ -247,15 +229,16 @@
             name: '防抖节流',
             summarize: '封装插件，方便好用',
             description: 'v-debounce，v-throttle指令式，代码极简，功能俱全，不用再每次导入然后再套触发函数',
-            iconPath: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+            icon: 'debounce',
             component: Debounce,
         },
         {
             id: 10,
             name: '分隔面板',
             summarize: '可拖拽响应式分割布局',
-            description: '一个轻量且可嵌套的分割布局组件，用于构建左右 / 上下可调节尺寸的面板，便于主题定制与无障碍优化',
-            iconPath: 'M3 6h18M3 12h18M3 18h18',
+            description:
+                '一个轻量且可嵌套的分割布局组件，用于构建左右 / 上下可调节尺寸的面板，便于主题定制与无障碍优化',
+            icon: 'separate',
             component: ResizableLayout,
         },
         {
@@ -263,7 +246,7 @@
             name: '通知系统',
             summarize: '现代化通知组件，支持多种类型和位置',
             description: '现代化通知组件，支持多种类型和位置',
-            iconPath: 'M15 17h5l-5 5v-5zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+            icon: 'notice',
             component: Notice,
         },
         {
@@ -271,8 +254,7 @@
             name: '智能骨架屏',
             summarize: '自动生成骨架屏，平滑过渡加载状态',
             description: '智能识别内容结构自动生成骨架屏，支持手动模式和多种预设样式，提供丝滑的加载过渡效果',
-            iconPath:
-                'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
+            icon: 'skeleton',
             component: SkeletonWrapper,
         },
         {
@@ -280,7 +262,7 @@
             name: '数据表格',
             summarize: '大数据表格，支持排序、筛选等功能',
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',
-            iconPath: 'M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z',
+            icon: 'table',
             component: VirtualizedTable,
         },
     ]);

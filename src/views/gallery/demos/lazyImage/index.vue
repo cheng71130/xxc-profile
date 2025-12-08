@@ -10,7 +10,10 @@
                 <el-radio-button label="virtual">虚拟滚动</el-radio-button>
             </el-radio-group>
 
-            <el-button type="primary" @click="reloadCurrent" :icon="RefreshRight"> 重新加载 </el-button>
+            <button class="reload-btn" @click="reloadCurrent">
+                <el-icon><RefreshRight /></el-icon>
+                <span>重新加载</span>
+            </button>
         </div>
 
         <!-- 骨架屏占位 -->
@@ -361,6 +364,42 @@
             border-color: #667eea;
             color: #ffffff;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .reload-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+            &:hover {
+                background: linear-gradient(135deg, #5568d3 0%, #633d8b 100%);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+
+            &:active {
+                background: linear-gradient(135deg, #4a5ac4 0%, #553478 100%);
+                transform: translateY(0);
+                box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+            }
+
+            .el-icon {
+                font-size: 16px;
+                transition: transform 0.3s;
+            }
+
+            &:hover .el-icon {
+                transform: rotate(180deg);
+            }
         }
     }
 
