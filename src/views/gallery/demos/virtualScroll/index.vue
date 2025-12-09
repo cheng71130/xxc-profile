@@ -14,7 +14,7 @@
                     </svg>
                 </div>
                 <div class="title-text">
-                    <h2>虚拟滚动列表</h2>
+                    <h2>示例列表</h2>
                     <span class="data-count">{{ totalCount.toLocaleString() }} 条数据</span>
                 </div>
             </div>
@@ -100,7 +100,7 @@
             <VirtualScroll
                 ref="virtualScrollRef"
                 :data-source="listData"
-                :estimated-item-height="130"
+                :estimated-item-height="100"
                 :buffer-size="5"
                 :dynamic-height="true"
                 item-key="id"
@@ -124,26 +124,6 @@
                             </div>
 
                             <p class="item-description">{{ item.description }}</p>
-
-                            <div class="item-footer">
-                                <div class="footer-tags">
-                                    <span class="tag" v-for="tag in item.tags" :key="tag">{{ tag }}</span>
-                                </div>
-                                <div class="footer-meta">
-                                    <span class="meta-item">
-                                        <svg viewBox="0 0 24 24" fill="none">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                                            <path
-                                                d="M12 6v6l4 2"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                            />
-                                        </svg>
-                                        {{ item.createTime }}
-                                    </span>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="item-right">
@@ -438,6 +418,7 @@
     // ===== 列表项 =====
     .list-item {
         display: flex;
+        align-items: center;
         gap: 20px;
         padding: 20px 32px;
         background: rgba(255, 255, 255, 0.02);
@@ -477,8 +458,8 @@
     }
 
     .item-avatar {
-        width: 72px;
-        height: 72px;
+        width: 50px;
+        height: 50px;
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
@@ -543,55 +524,6 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-    }
-
-    .item-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .footer-tags {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .tag {
-        padding: 4px 12px;
-        background: rgba(102, 126, 234, 0.15);
-        border: 1px solid rgba(102, 126, 234, 0.3);
-        border-radius: 6px;
-        font-size: 12px;
-        color: rgba(102, 126, 234, 1);
-        font-weight: 500;
-        transition: all 0.2s;
-
-        &:hover {
-            background: rgba(102, 126, 234, 0.25);
-            border-color: rgba(102, 126, 234, 0.5);
-        }
-    }
-
-    .footer-meta {
-        display: flex;
-        gap: 16px;
-    }
-
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.4);
-        font-variant-numeric: tabular-nums;
-
-        svg {
-            width: 14px;
-            height: 14px;
-        }
     }
 
     // 右侧操作
