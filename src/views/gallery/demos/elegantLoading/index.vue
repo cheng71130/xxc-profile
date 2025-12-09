@@ -1,5 +1,5 @@
 <template>
-    <div class="demo-container animate__animated animate__fadeIn">
+    <div class="demo-container">
         <!-- 顶部操作栏 -->
         <div class="demo-actions">
             <el-radio-group v-model="currentDemo" size="large">

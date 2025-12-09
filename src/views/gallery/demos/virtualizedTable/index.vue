@@ -1,5 +1,5 @@
 <template>
-    <div class="advanced-table-container animate__animated animate__fadeIn">
+    <div class="advanced-table-container">
         <!-- 工具栏 -->
         <div class="table-toolbar">
             <div class="toolbar-left">

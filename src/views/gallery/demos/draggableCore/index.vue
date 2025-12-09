@@ -1,5 +1,5 @@
 <template>
-    <div class="draggable-demo animate__animated animate__fadeIn">
+    <div class="draggable-demo">
         <!-- 顶部操作栏 -->
         <div class="demo-actions">
             <el-radio-group v-model="currentDemo" size="large">
@@ -816,7 +816,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 10px 20px;
+            padding: 9px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             border-radius: 30px;

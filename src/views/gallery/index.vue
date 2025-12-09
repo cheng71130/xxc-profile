@@ -140,7 +140,7 @@
                         <div class="grid-pattern"></div>
                     </div>
                     <div class="component-wrapper">
-                        <component :is="selectedComponent.component" v-if="selectedComponent.component" />
+                        <component :is="selectedComponent.component" v-if="selectedComponent.component" class="animate__animated animate__fadeIn"/>
                         <div v-else class="placeholder-content">
                             <div class="placeholder-icon">
                                 <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
