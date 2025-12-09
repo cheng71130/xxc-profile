@@ -19,7 +19,7 @@
         <!-- 列表排序 -->
         <div v-if="currentDemo === 'list'">
             <div class="section-header">
-                <h3>📋 任务列表拖拽排序</h3>
+                <h3>任务列表拖拽排序</h3>
                 <el-tag type="info" effect="dark">{{ listData.length }} 项任务</el-tag>
             </div>
 
@@ -78,7 +78,7 @@
         <!-- 网格布局 -->
         <div v-if="currentDemo === 'grid'">
             <div class="section-header">
-                <h3>🎨 图片画廊拖拽</h3>
+                <h3>图片画廊拖拽</h3>
                 <div class="header-actions">
                     <el-input-number v-model="gridColumns" :min="2" :max="8" size="small" />
                     <span style="margin-left: 12px; color: rgba(255, 255, 255, 0.6)">列</span>
@@ -120,7 +120,7 @@
         <!-- 拖拽手柄 -->
         <div v-if="currentDemo === 'handle'">
             <div class="section-header">
-                <h3>✋ 手柄拖拽模式</h3>
+                <h3>手柄拖拽模式</h3>
                 <el-tag type="warning">只能通过手柄拖拽</el-tag>
             </div>
 
@@ -185,7 +185,7 @@
         <!-- 多容器拖拽 -->
         <div v-if="currentDemo === 'multi'">
             <div class="section-header">
-                <h3>🔄 跨容器拖拽</h3>
+                <h3>跨容器拖拽</h3>
                 <el-tag type="success">支持容器间拖拽</el-tag>
             </div>
 
@@ -279,7 +279,7 @@
         <!-- 看板系统 -->
         <div v-if="currentDemo === 'kanban'">
             <div class="section-header">
-                <h3>📊 项目看板系统</h3>
+                <h3>项目看板系统</h3>
                 <div class="header-actions">
                     <el-button size="small" :icon="Plus" type="primary">新建任务</el-button>
                     <el-button size="small" :icon="Filter">筛选</el-button>

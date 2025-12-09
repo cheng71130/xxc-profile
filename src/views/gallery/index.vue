@@ -192,11 +192,11 @@
         },
         {
             id: 2,
-            name: '自定义loading',
-            summarize: 'v-loading动画卡顿阻塞，完美平替',
-            description: '高性能，动画丝滑流畅，减少CPU占用，自定义样式简单，纯CSS实现，0依赖',
-            icon: 'loading',
-            component: ElegantLoading,
+            name: '虚拟滚动',
+            summarize: '解决长列表渲染卡顿、内存占用高',
+            description: '自动计算可视区域，只渲染必要DOM，支持动态高度、懒加载、滚动定位，（100000+条）轻松渲染',
+            icon: 'scroll',
+            component: VirtualScroll,
         },
         {
             id: 3,
@@ -209,20 +209,19 @@
         },
         {
             id: 4,
-            name: '虚拟滚动',
-            summarize: '解决长列表渲染卡顿、内存占用高',
-            description: '自动计算可视区域，只渲染必要DOM，支持动态高度、懒加载、滚动定位，（100000+条）轻松渲染',
-            icon: 'scroll',
-            component: VirtualScroll,
-        },
-
-        {
-            id: 5,
             name: '拖拽排序',
             summarize: '自定义看板，可视化配置，提升交互体验',
             description: '列表拖拽排序，网格布局拖拽，跨容器拖拽，拖拽预览和占位',
             icon: 'drag',
             component: DraggableCore,
+        },
+        {
+            id: 5,
+            name: '自定义loading',
+            summarize: 'v-loading动画卡顿阻塞，完美平替',
+            description: '高性能插件，动画丝滑流畅，减少CPU占用，自定义样式简单，纯CSS实现，0依赖',
+            icon: 'loading',
+            component: ElegantLoading,
         },
         {
             id: 6,
@@ -233,7 +232,7 @@
             component: Debounce,
         },
         {
-            id: 10,
+            id: 7,
             name: '分隔面板',
             summarize: '可拖拽响应式分割布局',
             description:
@@ -242,7 +241,7 @@
             component: ResizableLayout,
         },
         {
-            id: 7,
+            id: 8,
             name: '通知系统',
             summarize: '现代化通知组件，支持多种类型和位置',
             description: '现代化通知组件，支持多种类型和位置',
@@ -250,7 +249,7 @@
             component: Notice,
         },
         {
-            id: 8,
+            id: 9,
             name: '智能骨架屏',
             summarize: '自动生成骨架屏，平滑过渡加载状态',
             description: '智能识别内容结构自动生成骨架屏，支持手动模式和多种预设样式，提供丝滑的加载过渡效果',
@@ -258,7 +257,7 @@
             component: SkeletonWrapper,
         },
         {
-            id: 9,
+            id: 10,
             name: '数据表格',
             summarize: '大数据表格，支持排序、筛选等功能',
             description: '高级数据表格，支持大数据渲染、排序、筛选和分页功能',

@@ -14,11 +14,7 @@
             </div>
         </div>
 
-        <div
-            v-if="currentDemo === 'horizontal'"
-            class="demo-container animate__animated animate__fadeIn"
-            key="horizontal"
-        >
+        <div v-if="currentDemo === 'horizontal'" class="demo-container" key="horizontal">
             <ResizableLayout
                 direction="horizontal"
                 :default-size="300"
@@ -68,7 +64,7 @@
             </ResizableLayout>
         </div>
 
-        <div v-if="currentDemo === 'vertical'" class="demo-container animate__animated animate__fadeIn" key="vertical">
+        <div v-if="currentDemo === 'vertical'" class="demo-container" key="vertical">
             <ResizableLayout
                 direction="vertical"
                 :default-size="220"
@@ -133,7 +129,7 @@
             </ResizableLayout>
         </div>
 
-        <div v-if="currentDemo === 'nested'" class="demo-container animate__animated animate__fadeIn" key="nested">
+        <div v-if="currentDemo === 'nested'" class="demo-container" key="nested">
             <ResizableLayout
                 direction="horizontal"
                 :default-size="280"
