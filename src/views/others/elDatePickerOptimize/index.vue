@@ -4,10 +4,9 @@
         <el-button type="primary" @click="drawerVisible = true">打开抽屉</el-button>
 
         <el-drawer v-model="drawerVisible" title="配置薪酬项" size="70%" destroy-on-close>
-            <div style="padding: 20px">
-                <el-button @click="loadData">加载19行数据</el-button>
-
-                <el-table :data="tableData" border v-loading="loading" height="800px" style="margin-top: 20px">
+            <div class="drawer-body">
+                <el-button @click="loadData">加载30行数据</el-button>
+                <el-table :data="tableData" border height="100%" v-loading="loading">
                     <el-table-column type="index" label="序号" width="80" align="center" />
                     <el-table-column label="薪酬种类" prop="configName" align="center" />
                     <el-table-column label="薪酬编码" prop="configCode" align="center">
@@ -109,6 +108,10 @@
                     </el-table-column>
                 </el-table>
             </div>
+            <template #footer>
+                <el-button>取消</el-button>
+                <el-button type="primary">确定</el-button>
+            </template>
         </el-drawer>
     </div>
 </template>
@@ -226,7 +229,7 @@
         loading.value = true;
 
         requestAnimationFrame(() => {
-            tableData.value = Array.from({ length: 19 }, (_, i) => ({
+            tableData.value = Array.from({ length: 30 }, (_, i) => ({
                 configRecordId: i + 1,
                 configName: `薪酬项${i + 1}`,
                 configCode: `CODE${String(i + 1).padStart(3, '0')}`,
@@ -240,4 +243,11 @@
     };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+    .drawer-body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+</style>

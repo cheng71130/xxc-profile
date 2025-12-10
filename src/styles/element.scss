@@ -18,6 +18,138 @@
     height: 100%;
 }
 
+/* Table 表格 */
+.el-table {
+    border-radius: 8px;
+    border: 1px solid #ebeef5;
+    // 表头背景色
+    --el-table-header-bg-color: #f5f7fa;
+
+    .el-button.is-text {
+        padding: 0;
+    }
+
+    // 表头字体颜色
+    thead {
+        color: rgb(61, 61, 61);
+
+        th {
+            font-weight: bold;
+        }
+    }
+}
+
+// 去除border属性的最外层边框(border属性的实质是加右边框和下边框)
+.el-table--border .el-table__inner-wrapper::after,
+.el-table--border::after,
+.el-table--border::before,
+.el-table__inner-wrapper::before {
+    background-color: transparent !important;
+}
+
+// 去除最后一行单元格的下边框
+.el-table .el-table__body tr:last-child td {
+    border-bottom: none;
+}
+
+.el-table__border-left-patch {
+    width: 0;
+}
+
+.el-table__body-wrapper .el-table__body tr > td:last-child,
+.el-table__header-wrapper .el-table__header tr > th:last-child {
+    border-right: none;
+}
+
+/* Dialog 对话框 */
+// .el-overlay {
+//     overflow: hidden;
+
+//     .el-overlay-dialog {
+//         display: flex;
+//         align-items: center;
+//         justify-content: center;
+//         position: unset !important;
+//         width: 100%;
+//         height: 100%;
+
+//         .el-dialog {
+//             padding: 0;
+//             border-radius: 10px 10px 8px 8px;
+//             margin: 0 auto !important;
+//             position: absolute;
+//         }
+//     }
+// }
+
+// .el-dialog__header {
+//     border-radius: 8px 8px 0 0;
+//     padding: 0 20px !important;
+//     height: 42px;
+//     display: flex;
+//     align-items: center;
+//     justify-content: space-between;
+//     background: var(--el-color-primary);
+
+//     .el-dialog__title {
+//         font-size: 14px;
+//         color: #fff;
+//     }
+
+//     .el-dialog__headerbtn {
+//         position: unset;
+//         width: unset;
+//         height: unset;
+//         margin-top: 2px;
+
+//         .el-dialog__close {
+//             color: #fff;
+//         }
+
+//         &:hover .el-dialog__close {
+//             color: var(--el-color-danger);
+//         }
+//     }
+// }
+
+// .el-dialog__body {
+//     padding: 20px;
+//     max-height: calc(100vh - 85px) !important;
+//     overflow-y: auto;
+//     overflow-x: auto;
+// }
+
+// .el-dialog__footer {
+//     border-top: 1px solid var(--el-color-info-light-7);
+//     padding: 10px 20px;
+// }
+
+/* Drawer 抽屉 */
+.el-drawer {
+    .el-drawer__header {
+        padding: 0 20px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+        border-bottom: 1px solid var(--el-border-color);
+        color: var(--el-text-color-primary);
+
+        .el-drawer__close-btn:hover .el-drawer__close {
+            color: var(--el-color-danger);
+        }
+    }
+
+    .el-drawer__footer {
+        padding: 0 20px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        border-top: 1px solid var(--el-border-color);
+    }
+}
+
 /* Form 表单 */
 .el-form {
     // 用于修改弹窗时表单内容间隔太大问题，如系统设置的新增菜单弹窗里的表单内容
@@ -60,7 +192,7 @@
     min-width: unset !important;
     padding: 15px !important;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.02);
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 /* Tabs 标签页 */
@@ -75,7 +207,7 @@
 
 /* Dropdown 下拉菜单 */
 .el-dropdown-menu {
-	// 修复 Dropdown 下拉菜单样式问题
+    // 修复 Dropdown 下拉菜单样式问题
     list-style: none !important;
 }
 
@@ -98,68 +230,6 @@
     font-size: 14px;
 }
 
-/* Dialog 对话框 */
-.el-overlay {
-    overflow: hidden;
-
-    .el-overlay-dialog {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: unset !important;
-        width: 100%;
-        height: 100%;
-
-        .el-dialog {
-            padding: 0;
-            border-radius: 10px 10px 4px 4px;
-            margin: 0 auto !important;
-            position: absolute;
-
-            .el-dialog__body {
-                padding: 20px !important;
-            }
-        }
-    }
-}
-
-.el-dialog__body {
-    max-height: calc(100vh - 85px) !important;
-    overflow-y: auto;
-    overflow-x: auto;
-}
-
-.el-dialog__title {
-    font-size: 14px;
-    color: #fff;
-    // font-weight: 700;
-}
-
-.el-dialog__header {
-    border-radius: 4px 4px 0 0;
-    // margin: -16px -16px 0px -16px;
-    padding: 8px 0px 8px 20px;
-    background: var(--el-color-primary);
-}
-
-.el-dialog__footer {
-    border-top: 1px solid var(--el-color-info-light-7);
-    padding: 10px 20px;
-}
-
-.el-dialog__headerbtn {
-    margin-top: -4px;
-    padding-right: 8px;
-
-    .el-dialog__close {
-        color: #fff;
-    }
-}
-
-.el-dialog__headerbtn:hover .el-dialog__close {
-    color: var(--el-color-danger) !important;
-}
-
 /* Card 卡片 */
 .el-card {
     border-radius: 8px;
@@ -171,67 +241,6 @@
 
 .el-card__header {
     padding: 15px 20px;
-}
-
-/* Table 表格 element plus 2.2.0 版本 */
-.el-table {
-    border-radius: 8px;
-    border: 1px solid #ebeef5;
-    // 表头背景色
-    --el-table-header-bg-color: #f5f7fa;
-
-    .el-button.is-text {
-        padding: 0;
-    }
-
-    // 表头字体颜色
-    thead {
-        // color: var(--el-text-color-regular);
-        color: rgb(61, 61, 61);
-
-        th {
-            font-weight: bold;
-        }
-    }
-}
-
-// 去除border属性的最外层边框(border属性的实质是加右边框和下边框)
-.el-table--border .el-table__inner-wrapper::after,
-.el-table--border::after,
-.el-table--border::before,
-.el-table__inner-wrapper::before {
-    background-color: transparent !important;
-    // background-color: #fff !important;
-}
-
-.el-table__border-left-patch {
-    width: 0;
-}
-
-.el-table__body-wrapper .el-table__body tr > td:last-child,
-.el-table__header-wrapper .el-table__header tr > th:last-child {
-    border-right: none;
-}
-
-/* Drawer 抽屉 */
-.el-drawer {
-    --el-drawer-padding-primary: unset !important;
-
-    .el-drawer__header {
-        padding: 0 15px !important;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        margin-bottom: 0 !important;
-        border-bottom: 1px solid var(--el-border-color);
-        color: var(--el-text-color-primary);
-    }
-
-    .el-drawer__body {
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-    }
 }
 
 /* popover 气泡框 */
@@ -249,6 +258,7 @@
     padding-left: 8px;
     display: flex;
     align-items: center;
+    border-radius: 6px;
 }
 
 .el-select-dropdown__list {
@@ -276,4 +286,20 @@
 /* tag 标签 */
 .el-tag {
     border-radius: 6px;
+}
+
+/* popper 气泡 */
+.el-popper {
+    --el-popper-border-radius: 8px;
+}
+
+/* checkbox 复选框 */
+.el-checkbox {
+    --el-checkbox-border-radius: 4px;
+}
+
+/* tree 树 */
+.el-tree-node__content {
+    border-radius: 6px;
+    margin-bottom: 1px;
 }
