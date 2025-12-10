@@ -359,8 +359,10 @@
 
         .empty-stats {
             .stat {
-                display: inline-block;
-                text-align: center;
+                display: flex;
+                align-items: baseline;
+                justify-content: center;
+                gap: 8px;
 
                 .stat-number {
                     display: block;

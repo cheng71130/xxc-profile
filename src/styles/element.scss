@@ -62,67 +62,67 @@
 }
 
 /* Dialog 对话框 */
-// .el-overlay {
-//     overflow: hidden;
+.el-overlay {
+    overflow: hidden;
 
-//     .el-overlay-dialog {
-//         display: flex;
-//         align-items: center;
-//         justify-content: center;
-//         position: unset !important;
-//         width: 100%;
-//         height: 100%;
+    .el-overlay-dialog {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: unset !important;
+        width: 100%;
+        height: 100%;
 
-//         .el-dialog {
-//             padding: 0;
-//             border-radius: 10px 10px 8px 8px;
-//             margin: 0 auto !important;
-//             position: absolute;
-//         }
-//     }
-// }
+        .el-dialog {
+            padding: 0;
+            border-radius: 10px 10px 8px 8px;
+            margin: 0 auto !important;
+            position: absolute;
+        }
+    }
+}
 
-// .el-dialog__header {
-//     border-radius: 8px 8px 0 0;
-//     padding: 0 20px !important;
-//     height: 42px;
-//     display: flex;
-//     align-items: center;
-//     justify-content: space-between;
-//     background: var(--el-color-primary);
+.el-dialog__header {
+    border-radius: 8px 8px 0 0;
+    padding: 0 20px !important;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--el-color-primary);
 
-//     .el-dialog__title {
-//         font-size: 14px;
-//         color: #fff;
-//     }
+    .el-dialog__title {
+        font-size: 14px;
+        color: #fff;
+    }
 
-//     .el-dialog__headerbtn {
-//         position: unset;
-//         width: unset;
-//         height: unset;
-//         margin-top: 2px;
+    .el-dialog__headerbtn {
+        position: unset;
+        width: unset;
+        height: unset;
+        margin-top: 2px;
 
-//         .el-dialog__close {
-//             color: #fff;
-//         }
+        .el-dialog__close {
+            color: #fff;
+        }
 
-//         &:hover .el-dialog__close {
-//             color: var(--el-color-danger);
-//         }
-//     }
-// }
+        &:hover .el-dialog__close {
+            color: var(--el-color-danger);
+        }
+    }
+}
 
-// .el-dialog__body {
-//     padding: 20px;
-//     max-height: calc(100vh - 85px) !important;
-//     overflow-y: auto;
-//     overflow-x: auto;
-// }
+.el-dialog__body {
+    padding: 20px;
+    max-height: calc(100vh - 85px) !important;
+    overflow-y: auto;
+    overflow-x: auto;
+}
 
-// .el-dialog__footer {
-//     border-top: 1px solid var(--el-color-info-light-7);
-//     padding: 10px 20px;
-// }
+.el-dialog__footer {
+    border-top: 1px solid var(--el-color-info-light-7);
+    padding: 10px 20px;
+}
 
 /* Drawer 抽屉 */
 .el-drawer {
