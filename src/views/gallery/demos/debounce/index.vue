@@ -675,10 +675,7 @@
     .scroll-container {
         height: 400px;
         overflow-y: auto;
-        background: rgba(0, 0, 0, 0.3);
         border-radius: 10px;
-        padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
 
         &::-webkit-scrollbar {
             width: 10px;
@@ -712,10 +709,17 @@
         border: 1px solid rgba(255, 255, 255, 0.05);
         transition: all 0.2s;
 
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
         &:hover {
             background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
             border-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(4px);
         }
 
         .item-index {
