@@ -5,9 +5,10 @@
 	import * as echarts from 'echarts'
 
 	const chart = ref(null)
+	const chartDom = ref(null)
 	onMounted(() => {
 		setTimeout(() => {
-			const chartDom = echarts.init(chart.value, 'dark')
+			chartDom.value = echarts.init(chart.value, 'dark')
 			const color = ['#4A99FF', '#4BFFFC'] //线条边框颜色
 			const legend = {
 				//data，就是取得每个series里面的name属性。
@@ -215,7 +216,12 @@
 				]
 			}
 
-			chartDom.setOption(option)
+			chartDom.value.setOption(option)
 		})
+	})
+	onUnmounted(() => {
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>

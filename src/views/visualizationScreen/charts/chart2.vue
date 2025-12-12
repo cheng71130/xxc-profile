@@ -5,10 +5,10 @@
 	import * as echarts from 'echarts'
 
 	const chart = ref(null)
-
+	const chartDom = ref(null)
 	onMounted(() => {
 		setTimeout(() => {
-			const chartDom = echarts.init(chart.value, 'dark')
+			chartDom.value = echarts.init(chart.value, 'dark')
 			const xAxisData = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '南京', '西安', '厦门']
 			const yAxisData = [54, 75, 122, 65, 50, 75, 130, 62, 34, 63]
 			const option = {
@@ -247,11 +247,11 @@
 					}
 				]
 			}
-			chartDom.setOption(option)
+			chartDom.value.setOption(option)
 			setInterval(function () {
 				yAxisData.shift()
 				yAxisData.push(Math.round(Math.random() * 150))
-				chartDom.setOption({
+				chartDom.value.setOption({
 					series: [
 						{
 							data: yAxisData
@@ -263,6 +263,11 @@
 				})
 			}, 2500)
 		})
+	})
+	onUnmounted(() => {
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>
 <style scoped lang="scss"></style>

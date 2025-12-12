@@ -5,10 +5,10 @@
 	import * as echarts from 'echarts'
 
 	const chart = ref(null)
-
+	const chartDom = ref(null)
 	onMounted(() => {
 		setTimeout(() => {
-			const chartDom = echarts.init(chart.value, 'dark')
+			chartDom.value = echarts.init(chart.value, 'dark')
 			let xAxisData = ['11-14', '11-15', '11-16', '11-17', '11-18']
 			let fwrs = [110, 120, 300, 200, 100]
 			let xdrs = [150, 160, 120, 130, 140]
@@ -258,8 +258,13 @@
 					}
 				]
 			}
-			chartDom.setOption(option)
+			chartDom.value.setOption(option)
 		})
+	})
+	onUnmounted(() => {
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>
 <style scoped lang="scss"></style>

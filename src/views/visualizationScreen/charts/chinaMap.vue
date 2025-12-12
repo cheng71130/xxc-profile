@@ -344,6 +344,9 @@
 		if (timer.value) {
 			clearInterval(timer.value)
 		}
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>
 

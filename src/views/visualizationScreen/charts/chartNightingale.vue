@@ -5,9 +5,10 @@
 	import * as echarts from 'echarts'
 
 	const chart = ref(null)
+	const chartDom = ref(null)
 	onMounted(() => {
 		setTimeout(() => {
-			const chartDom = echarts.init(chart.value, 'dark')
+			chartDom.value = echarts.init(chart.value, 'dark')
 			let information = {
 				dataArray: [
 					{
@@ -197,7 +198,12 @@
 				]
 			}
 
-			chartDom.setOption(option)
+			chartDom.value.setOption(option)
 		})
+	})
+	onUnmounted(() => {
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>

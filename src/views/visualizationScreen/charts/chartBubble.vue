@@ -5,9 +5,10 @@
 	import * as echarts from 'echarts'
 
 	const chart = ref(null)
+	const chartDom = ref(null)
 	onMounted(() => {
 		setTimeout(() => {
-			const chartDom = echarts.init(chart.value, 'dark')
+			chartDom.value = echarts.init(chart.value, 'dark')
 			const data = [
 				{ name: '项目组', value: 0.6, x: 10, y: 50, color: '#46B955' },
 				{ name: '磁粉', value: 18.8, x: 30, y: 80, color: '#26D4FF' },
@@ -85,7 +86,12 @@
 					}
 				]
 			}
-			chartDom.setOption(option)
+			chartDom.value.setOption(option)
 		})
+	})
+	onUnmounted(() => {
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>

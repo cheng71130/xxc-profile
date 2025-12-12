@@ -5,10 +5,10 @@
 	import * as echarts from 'echarts'
 
 	const chart = ref(null)
-
+	const chartDom = ref(null)
 	onMounted(() => {
 		setTimeout(() => {
-			const chartDom = echarts.init(chart.value, 'dark')
+			chartDom.value = echarts.init(chart.value, 'dark')
 			const xAxisData = ['本部', 'HY104', 'HY204', 'QS204', 'xxx']
 			const seriesData = [
 				{ measureUnit: '吨', value: 500 },
@@ -159,8 +159,13 @@
 					}
 				]
 			}
-			chartDom.setOption(option)
+			chartDom.value.setOption(option)
 		})
+	})
+	onUnmounted(() => {
+		if (chartDom.value) {
+			chartDom.value.dispose()
+		}
 	})
 </script>
 <style scoped lang="scss"></style>
