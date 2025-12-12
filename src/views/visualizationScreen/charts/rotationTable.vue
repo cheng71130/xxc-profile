@@ -35,7 +35,7 @@
 		// columnWidth: [50],
 	})
 </script>
-<style lang="less">
+<style lang="scss">
 	.dv-scroll-board .header {
 		font-size: 27px !important;
 		position: relative;
@@ -73,7 +73,7 @@
 	}
 </style>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 	.highlight {
 		position: absolute;
 		top: 305px;

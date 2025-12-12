@@ -45,7 +45,7 @@
 	})
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 	.svg-icon {
 		display: inline-block;
 		overflow: hidden;

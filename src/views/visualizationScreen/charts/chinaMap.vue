@@ -347,7 +347,7 @@
 	})
 </script>
 
-<style lang="less">
+<style lang="scss">
 	.echarts-custom-tooltip {
 		background: transparent !important;
 		border: none !important;
