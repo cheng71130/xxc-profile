@@ -6,6 +6,7 @@
                 <el-radio-button label="basic">基础用法</el-radio-button>
                 <el-radio-button label="styles">样式选择</el-radio-button>
                 <el-radio-button label="dark">深色背景</el-radio-button>
+                <el-radio-button label="optimize">性能优化</el-radio-button>
             </el-radio-group>
 
             <div class="demo-tip">
@@ -174,6 +175,37 @@
                 </div>
             </div>
         </div>
+
+        <!-- 性能优化 -->
+        <div v-if="currentDemo === 'optimize'" class="demo-content" key="optimize">
+            <el-button color="#626aef" @click="openDrawer">打开抽屉</el-button>
+            <el-drawer v-model="drawer" title="I am the title">
+                <div
+                    style="width: 100%; height: 100%"
+                    class="optimize-showcase"
+                    v-elegant-loading="{
+                        show: optimizeLoading1,
+                        type: 'ring',
+                        backdropFilter: false,
+                    }"
+                >
+                    <div class="optimize-content">
+                        <div class="optimize-icon">🤖</div>
+                        <h3>性能优先</h3>
+                        <p>为动画流畅优化的 Loading 效果</p>
+                    </div>
+                </div>
+            </el-drawer>
+            <div class="tip-card">
+                <div class="tip-icon">💡</div>
+                <div class="tip-content">
+                    <p class="tip-title">使用建议</p>
+                    <p class="tip-text">
+                        性能优化即去除 backdropFilter，适合在抽屉等有初始动画组件中使用，保证该类组件的动画流畅不卡顿
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -194,11 +226,11 @@
     const loading1 = ref(false);
     const loading2 = ref(false);
     const loading3 = ref(false);
-
     const currentStyle = ref('spinner');
     const styleLoading1 = ref(false);
-
     const darkLoading1 = ref(false);
+    const optimizeLoading1 = ref(false);
+    const drawer = ref(false);
 
     const toggleLoading = (key: string) => {
         switch (key) {
@@ -222,6 +254,10 @@
                 darkLoading1.value = true;
                 setTimeout(() => (darkLoading1.value = false), 2500);
                 break;
+            case 'optimizeLoading1':
+                optimizeLoading1.value = true;
+                setTimeout(() => (optimizeLoading1.value = false), 2000);
+                break;
         }
     };
 
@@ -238,8 +274,14 @@
             basic: '点击卡片体验 Loading 效果',
             styles: '选择不同的动画样式并点击预览区查看效果',
             dark: '点击预览区体验深色主题下的 Loading 效果',
+            optimize: '点击预览区体验性能区别',
         };
         return tips[currentDemo.value as keyof typeof tips];
+    };
+
+    const openDrawer = () => {
+        drawer.value = true;
+        toggleLoading('optimizeLoading1');
     };
 </script>
 
@@ -288,9 +330,10 @@
         gap: 8px;
         padding: 6px 16px;
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         transition: all 0.3s ease;
+        cursor: default;
 
         &:hover {
             background: rgba(255, 255, 255, 0.05);
@@ -306,8 +349,10 @@
         }
 
         .tip-icon {
+            font-style: normal;
             font-size: 16px;
             transition: transform 0.3s ease;
+            flex-shrink: 0;
         }
 
         .tip-text {
@@ -667,6 +712,41 @@
             p {
                 font-size: 16px;
                 color: #b0b0b0;
+                line-height: 1.6;
+                margin: 0;
+            }
+        }
+    }
+
+    // 性能优化
+    .optimize-showcase {
+        border-radius: 16px;
+        padding: 80px 40px;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .optimize-content {
+            text-align: center;
+            max-width: 500px;
+
+            .optimize-icon {
+                font-size: 80px;
+                margin-bottom: 24px;
+                filter: drop-shadow(0 8px 16px rgba(102, 126, 234, 1));
+            }
+
+            h3 {
+                font-size: 28px;
+                font-weight: 600;
+                color: #673fe0;
+                margin: 0 0 16px 0;
+            }
+
+            p {
+                font-size: 16px;
+                color: #5e5d5d;
                 line-height: 1.6;
                 margin: 0;
             }

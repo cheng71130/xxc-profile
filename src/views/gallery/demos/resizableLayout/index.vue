@@ -375,7 +375,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 4px 12px;
+        padding: 6px 16px;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
