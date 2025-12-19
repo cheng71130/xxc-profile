@@ -3,12 +3,13 @@
         ref="containerRef"
         class="draggable-container"
         :class="containerClasses"
+        :style="containerStyle"
         @dragover.prevent="handleDragOver"
         @drop="handleDrop"
         @dragenter.prevent="handleDragEnter"
         @dragleave.prevent="handleDragLeave"
     >
-        <TransitionGroup :name="animation" tag="div" class="draggable-list">
+        <TransitionGroup :name="animation" tag="div" class="draggable-list" :style="listStyle">
             <div
                 v-for="(item, index) in localData"
                 :key="getItemKey(item, index)"
@@ -103,9 +104,8 @@
         itemKey?: string | ((item: any) => string | number);
         disabled?: boolean;
         animation?: string;
-        handle?: string; // CSS 选择器，指定拖拽手柄
+        handle?: string;
         group?: string;
-        clone?: boolean;
         layout?: 'list' | 'grid';
         gap?: number;
         columns?: number;
@@ -122,7 +122,6 @@
         animation: 'flip-list',
         handle: '',
         group: 'default',
-        clone: false,
         layout: 'list',
         gap: 12,
         columns: 3,
@@ -142,7 +141,6 @@
         (e: 'end', event: EndEvent): void;
     }>();
 
-    // 生成唯一 ID
     const containerId = `draggable-${Math.random().toString(36).substr(2, 9)}`;
 
     const containerRef = ref<HTMLElement>();
@@ -154,10 +152,28 @@
     const isDragging = ref(false);
     const dragEnterCount = ref(0);
     const isFromOtherContainer = ref(false);
-    const canDrag = ref<boolean>(false); // 新增：控制是否允许拖拽
+    const canDrag = ref<boolean>(false);
 
-    // 全局拖拽状态存储
     const DRAG_KEY = '__DRAGGABLE_DATA__';
+
+    const containerStyle = computed(() => {
+        if (props.layout === 'grid') {
+            return {
+                '--grid-columns': props.columns,
+                '--grid-gap': `${props.gap}px`,
+            };
+        }
+        return {};
+    });
+
+    const listStyle = computed(() => {
+        if (props.layout === 'list') {
+            return {
+                '--list-gap': `${props.gap}px`,
+            };
+        }
+        return {};
+    });
 
     watch(
         () => props.modelValue,
@@ -177,10 +193,7 @@
     }));
 
     const getDraggable = (item: DraggableItem): boolean => {
-        // 如果禁用或 item 被禁用，返回 false
         if (props.disabled || item.disabled) return false;
-
-        // 如果有 handle，返回 true，但实际拖拽通过 mousedown 控制
         return true;
     };
 
@@ -220,15 +233,12 @@
         }
     };
 
-    // 检查是否点击了拖拽手柄
     const isHandleTarget = (target: HTMLElement): boolean => {
         if (!props.handle) return true;
 
-        // 向上查找，检查是否在 draggable-item 内
         let currentElement: HTMLElement | null = target;
         let itemElement: HTMLElement | null = null;
 
-        // 先找到 draggable-item
         while (currentElement) {
             if (currentElement.hasAttribute('data-draggable-item')) {
                 itemElement = currentElement;
@@ -241,14 +251,12 @@
             return false;
         }
 
-        // 查找手柄元素
         const handleElement = itemElement.querySelector(props.handle);
         if (!handleElement) {
             console.warn(`[Draggable] Handle selector "${props.handle}" not found in item`);
             return true;
         }
 
-        // 检查 target 是否是 handleElement 或其子元素
         currentElement = target;
         while (currentElement && currentElement !== itemElement) {
             if (currentElement === handleElement) {
@@ -260,20 +268,17 @@
         return false;
     };
 
-    // mousedown 事件处理
     const handleMouseDown = (event: MouseEvent, item: DraggableItem) => {
         if (props.disabled || item.disabled) {
             canDrag.value = false;
             return;
         }
 
-        // 如果指定了 handle，检查是否点击了手柄
         if (props.handle) {
             const target = event.target as HTMLElement;
             canDrag.value = isHandleTarget(target);
 
             if (!canDrag.value) {
-                // 阻止默认拖拽行为
                 event.preventDefault();
             }
         } else {
@@ -287,7 +292,6 @@
             return;
         }
 
-        // 如果指定了 handle，但没有通过 mousedown 检查，则阻止拖拽
         if (props.handle && !canDrag.value) {
             event.preventDefault();
             return;
@@ -299,10 +303,9 @@
     const startDrag = (event: DragEvent, item: DraggableItem, index: number) => {
         isDragging.value = true;
         dragIndex.value = index;
-        dragItem.value = props.clone ? JSON.parse(JSON.stringify(item)) : item;
+        dragItem.value = item;
         isFromOtherContainer.value = false;
 
-        // 创建删除回调函数
         const removeCallback = () => {
             const newData = [...localData.value];
             newData.splice(index, 1);
@@ -314,16 +317,15 @@
         const dragData: DragData = {
             group: props.group,
             index,
-            item: props.clone ? JSON.parse(JSON.stringify(item)) : item,
+            item: item,
             sourceId: containerId,
-            removeCallback: props.clone ? undefined : removeCallback,
+            removeCallback,
         };
 
-        // 存储到全局
         (window as any)[DRAG_KEY] = dragData;
 
         if (event.dataTransfer) {
-            event.dataTransfer.effectAllowed = props.clone ? 'copy' : 'move';
+            event.dataTransfer.effectAllowed = 'move';
             const dataString = JSON.stringify({
                 group: dragData.group,
                 index: dragData.index,
@@ -354,7 +356,7 @@
         if (props.disabled) return;
         event.preventDefault();
         if (event.dataTransfer) {
-            event.dataTransfer.dropEffect = props.clone ? 'copy' : 'move';
+            event.dataTransfer.dropEffect = 'move';
         }
     };
 
@@ -396,7 +398,6 @@
             return;
         }
 
-        // 获取拖拽数据
         let dragData = (window as any)[DRAG_KEY] as DragData;
 
         if (!dragData) {
@@ -436,19 +437,16 @@
                 targetIndex = localData.value.length;
             }
 
-            // 添加到目标容器
             const newData = [...localData.value];
             newData.splice(targetIndex, 0, dragData.item);
             localData.value = newData;
             emit('update:modelValue', newData);
             emit('add', { item: dragData.item, newIndex: targetIndex });
 
-            // 调用源容器的删除回调
             if (dragData.removeCallback) {
                 dragData.removeCallback();
             }
 
-            // 清理全局数据
             setTimeout(() => {
                 delete (window as any)[DRAG_KEY];
             }, 200);
@@ -457,7 +455,7 @@
             return;
         }
 
-        // 同容器拖拽
+        // 同容器内拖拽
         if (dragIndex.value >= 0 && dropIndex.value >= 0) {
             if (dragIndex.value === dropIndex.value) {
                 handleDragEnd();
@@ -549,7 +547,6 @@
         }
 
         &.is-drop-target {
-            // 用户可以通过插槽自定义样式，这里不添加默认样式
             min-height: 0;
         }
 
@@ -670,7 +667,6 @@
         }
     }
 
-    // 动画
     .flip-list-move {
         transition: transform 0.3s ease;
     }

@@ -26,7 +26,7 @@
             <DraggableCore
                 v-model="listData"
                 animation="flip-list"
-                :style="{ '--list-gap': '12px' }"
+                :gap="12"
                 @change="handleListChange"
             >
                 <template #default="{ item }">
@@ -90,7 +90,6 @@
                 layout="grid"
                 :columns="gridColumns"
                 :gap="16"
-                :style="{ '--grid-columns': gridColumns, '--grid-gap': '16px' }"
                 @change="handleGridChange"
             >
                 <template #default="{ item }">
@@ -127,7 +126,6 @@
             <DraggableCore
                 v-model="handleData"
                 handle=".drag-handle"
-                :style="{ '--list-gap': '12px' }"
                 @change="handleHandleChange"
             >
                 <template #default="{ item }">
@@ -201,7 +199,6 @@
                         group="shared"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
-                        :style="{ '--list-gap': '10px' }"
                         @add="handleTodoAdd"
                     >
                         <template #default="{ item }">
@@ -229,7 +226,6 @@
                         group="shared"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
-                        :style="{ '--list-gap': '10px' }"
                         @add="handleDoingAdd"
                     >
                         <template #default="{ item }">
@@ -257,7 +253,6 @@
                         group="shared"
                         empty-text="拖拽任务到这里"
                         class="drag-container"
-                        :style="{ '--list-gap': '10px' }"
                         @add="handleDoneAdd"
                     >
                         <template #default="{ item }">
@@ -304,7 +299,6 @@
                         :gap="12"
                         class="column-content"
                         empty-text="暂无任务"
-                        :style="{ '--list-gap': '12px' }"
                         @add="(e) => handleKanbanAdd(column.title, e)"
                     >
                         <template #default="{ item }">

@@ -14,7 +14,6 @@
 -   🎛️ **拖拽手柄** - 指定特定区域作为拖拽触发点
 -   📐 **多种布局** - 支持列表和网格布局
 -   🔒 **禁用控制** - 整体或单项禁用拖拽
--   📋 **克隆模式** - 拖拽复制而非移动
 -   🎨 **自定义样式** - 丰富的样式类名支持
 
 ## 📦 安装依赖
@@ -160,7 +159,6 @@ npm install @element-plus/icons-vue
 | `animation`       | 动画名称                     | `String`             | `'flip-list'`          |
 | `handle`          | 拖拽手柄的 CSS 选择器        | `String`             | `''`                   |
 | `group`           | 分组名称，相同组可跨容器拖拽 | `String`             | `'default'`            |
-| `clone`           | 是否克隆模式（拖拽复制）     | `Boolean`            | `false`                |
 | `layout`          | 布局方式                     | `'list' \| 'grid'`   | `'list'`               |
 | `gap`             | 列表项间距（px）             | `Number`             | `12`                   |
 | `columns`         | 网格布局列数                 | `Number`             | `3`                    |
@@ -297,47 +295,6 @@ npm install @element-plus/icons-vue
 </script>
 ```
 
-### 克隆模式示例
-
-拖拽时复制项目而不移动：
-
-```vue
-<template>
-    <div class="clone-demo">
-        <div class="source">
-            <h3>源列表（模板）</h3>
-            <Draggable v-model="templates" group="clone" :clone="true">
-                <template #default="{ item }">
-                    <div class="template-item">{{ item.name }}</div>
-                </template>
-            </Draggable>
-        </div>
-
-        <div class="target">
-            <h3>目标列表（可多次添加）</h3>
-            <Draggable v-model="workspace" group="clone">
-                <template #default="{ item }">
-                    <div class="workspace-item">{{ item.name }}</div>
-                </template>
-            </Draggable>
-        </div>
-    </div>
-</template>
-
-<script setup>
-    import { ref } from 'vue';
-    import Draggable from './Draggable.vue';
-
-    const templates = ref([
-        { id: 1, name: '模板A' },
-        { id: 2, name: '模板B' },
-        { id: 3, name: '模板C' },
-    ]);
-
-    const workspace = ref([]);
-</script>
-```
-
 ### 自定义 Key 函数
 
 当数据项没有固定的 `id` 字段时：
@@ -364,18 +321,6 @@ npm install @element-plus/icons-vue
 </script>
 ```
 
-## 🎨 CSS 变量
-
-组件支持通过 CSS 变量自定义样式：
-
-```css
-.draggable-container {
-    --list-gap: 16px; /* 列表项间距 */
-    --grid-columns: 4; /* 网格列数 */
-    --grid-gap: 20px; /* 网格间距 */
-}
-```
-
 ## 🎯 样式类名
 
 组件在不同状态下会添加以下类名，可用于自定义样式：
@@ -390,8 +335,7 @@ npm install @element-plus/icons-vue
 1. **唯一标识**：确保每个列表项有唯一的 `id` 或通过 `itemKey` 指定唯一标识
 2. **组名匹配**：跨容器拖拽时，两个容器的 `group` 属性必须相同
 3. **拖拽手柄**：使用 `handle` 时，确保指定的选择器在项目内部存在
-4. **克隆模式**：`clone` 模式下，拖拽会复制数据而不移动原数据
-5. **禁用状态**：整体 `disabled` 或单项 `disabled` 都会阻止拖拽
+4. **禁用状态**：整体 `disabled` 或单项 `disabled` 都会阻止拖拽
 
 ## 🔧 故障排除
 
