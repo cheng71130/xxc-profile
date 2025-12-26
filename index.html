@@ -384,41 +384,14 @@
 
         <script type="module" src="/src/main.ts"></script>
         <script>
-            // Vue 挂载后等待图片加载完再隐藏 loading
+            // Vue 挂载后隐藏 loading
             window.addEventListener('DOMContentLoaded', () => {
                 const observer = new MutationObserver(() => {
                     const app = document.getElementById('app');
                     if (app && app.children.length) {
+                        const loading = document.getElementById('loading-screen');
+                        loading.remove();
                         observer.disconnect();
-
-                        // 等待所有图片加载完成
-                        const imageUrls = [
-                            'https://picsum.photos/id/30/1600/1200.webp',
-                            'https://picsum.photos/id/50/1600/1200.webp',
-                            'https://picsum.photos/id/90/1600/1200.webp',
-                            'https://picsum.photos/id/11/3840/2160.webp', // 背景图
-                        ];
-
-                        let loadedCount = 0;
-                        const totalImages = imageUrls.length;
-
-                        imageUrls.forEach((url) => {
-                            const img = new Image();
-                            img.onload = img.onerror = () => {
-                                loadedCount++;
-                                if (loadedCount === totalImages) {
-                                    const loading = document.getElementById('loading-screen');
-                                    if (loading) loading.remove();
-                                }
-                            };
-                            img.src = url;
-                        });
-
-                        // 超时保护：8秒后强制移除 loading
-                        setTimeout(() => {
-                            const loading = document.getElementById('loading-screen');
-                            if (loading) loading.remove();
-                        }, 8000);
                     }
                 });
                 observer.observe(document.getElementById('app'), { childList: true });
