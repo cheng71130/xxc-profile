@@ -380,5 +380,13 @@
             </div>
         </div>
         <script type="module" src="/src/main.ts"></script>
+        <script>
+            window.removeLoading = function () {
+                const loading = document.getElementById('loading-screen');
+                if (loading) {
+                    loading.remove();
+                }
+            };
+        </script>
     </body>
 </html>

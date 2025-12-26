@@ -20,4 +20,11 @@ app.use(router);
 app.use(DataVVue3);
 app.use(elegantLoading);
 app.use(debounceThrottle);
-app.mount('#app');
+
+// 等待路由准备就绪后再挂载应用（解决loading后白屏闪烁）
+router.isReady().then(() => {
+  app.mount('#app')
+  setTimeout(() => {
+    (window as any).removeLoading?.()
+  }, 0) 
+})
