@@ -1,5 +1,5 @@
 <template>
-    <el-container v-show="loaded" class="main-container">
+    <el-container class="main-container">
         <div class="particles">
             <div class="particle" v-for="i in 30" :key="i" :style="particleStyle(i)"></div>
         </div>
@@ -36,13 +36,7 @@
                     <div class="card-glow-pulse"></div>
 
                     <div class="card-image-wrapper">
-                        <img
-                            :src="item.img"
-                            alt="Card Image"
-                            class="card-img"
-                            @load="onImageLoad(index)"
-                            @error="onImageError(index)"
-                        />
+                        <img :src="item.img" alt="Card Image" class="card-img" />
                         <div class="image-overlay"></div>
 
                         <div class="image-hover-overlay">
@@ -108,35 +102,11 @@
             <p>© 2025 FRONT END. Built with ❤️ by cheng71130</p>
         </el-footer>
     </el-container>
-
-    <div v-if="!loaded" class="load-container">
-        <div class="loader-wrapper">
-            <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
-                <div class="wheel"></div>
-                <div class="hamster">
-                    <div class="hamster__body">
-                        <div class="hamster__head">
-                            <div class="hamster__ear"></div>
-                            <div class="hamster__eye"></div>
-                            <div class="hamster__nose"></div>
-                        </div>
-                        <div class="hamster__limb hamster__limb--fr"></div>
-                        <div class="hamster__limb hamster__limb--fl"></div>
-                        <div class="hamster__limb hamster__limb--br"></div>
-                        <div class="hamster__limb hamster__limb--bl"></div>
-                        <div class="hamster__tail"></div>
-                    </div>
-                </div>
-                <div class="spoke"></div>
-            </div>
-        </div>
-    </div>
 </template>
 
 <script setup>
-    import { ref, computed, onMounted } from 'vue';
+    import { ref } from 'vue';
     import { useRouter } from 'vue-router';
-    import { ElMessage } from 'element-plus';
 
     const router = useRouter();
     const titleWords = ['It', 'is', 'up', 'to', 'you', 'how', 'far', 'you', 'will', 'go'];
@@ -178,55 +148,8 @@
             img: 'https://picsum.photos/id/90/1600/1200.webp',
         },
     ]);
-
-    const imagesLoaded = ref([false, false, false, false]);
-    const allImagesLoaded = computed(() => imagesLoaded.value.every((loaded) => loaded));
-    const loaded = computed(() => allImagesLoaded.value);
-
-    const onImageLoad = (index) => {
-        console.log(`Image ${index + 1} loaded`);
-        imagesLoaded.value[index] = true;
-    };
-
-    const onImageError = (index) => {
-        console.warn(`Image ${index + 1} failed`);
-        imagesLoaded.value[index] = true;
-    };
-
-    const preloadBackgroundImage = () => {
-        const bgImage = new Image();
-        bgImage.src = 'https://picsum.photos/id/11/3840/2160.webp';
-
-        bgImage.onload = () => {
-            console.log('Background loaded');
-            const container = document.querySelector('.main-container');
-            if (container) {
-                container.style.backgroundImage = `url(${bgImage.src})`;
-            }
-            imagesLoaded.value[3] = true;
-        };
-
-        bgImage.onerror = () => {
-            console.warn('Background failed');
-            imagesLoaded.value[3] = true;
-        };
-    };
-
-    onMounted(() => {
-        preloadBackgroundImage();
-        setTimeout(() => {
-            if (!allImagesLoaded.value) {
-                ElMessage({
-                    message: '页面加载超时，建议刷新页面重试',
-                    type: 'warning',
-                });
-                imagesLoaded.value = [true, true, true, true];
-            }
-        }, 8000);
-    });
 </script>
 
 <style scoped lang="scss">
-    @use './style/loading.scss';
     @use './style/index.scss';
 </style>

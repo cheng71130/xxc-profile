@@ -147,6 +147,13 @@
     }
 }
 
+.main-container {
+    background-image: url('https://picsum.photos/id/11/3840/2160.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
 .particles {
     position: absolute;
     width: 100%;
