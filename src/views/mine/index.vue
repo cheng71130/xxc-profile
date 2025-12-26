@@ -93,7 +93,7 @@
                                 </el-skeleton>
                                 <img
                                     v-show="!loading"
-                                    src="@/assets/home/xxc.jpg"
+                                    src="@/assets/mine/xxc.jpg"
                                     alt="前端开发者照片"
                                     class="rounded-full"
                                     @load="onImageLoaded"
@@ -128,7 +128,7 @@
                     <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right">
                         <div class="about-image-wrapper">
                             <div class="glow-border">
-                                <img src="@/assets/home/1.jpg" alt="工作照片" class="rounded-lg" />
+                                <img src="@/assets/mine/1.jpg" alt="工作照片" class="rounded-lg" />
                             </div>
                             <div class="experience-badge neon-badge">
                                 <span class="years">4+</span>

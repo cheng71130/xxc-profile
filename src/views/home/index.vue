@@ -133,19 +133,19 @@
             title: 'Visualization',
             path: '/visualizationScreen',
             description: 'This is a cool card with some awesome content.',
-            img: 'https://picsum.photos/id/30/1600/1200.webp',
+            img: new URL('@/assets/home/1.webp', import.meta.url).href,
         },
         {
             title: 'Mine',
             path: '/mine',
             description: 'This card has even more amazing stuff to show.',
-            img: 'https://picsum.photos/id/50/1600/1200.webp',
+            img: new URL('@/assets/home/2.webp', import.meta.url).href,
         },
         {
             title: 'LogicFlow',
             path: '/flowDemo',
             description: 'Check out this card with its fantastic details.',
-            img: 'https://picsum.photos/id/90/1600/1200.webp',
+            img: new URL('@/assets/home/3.webp', import.meta.url).href,
         },
     ]);
 </script>

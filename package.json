@@ -9,7 +9,7 @@
 		"analyze": "vite-bundle-visualizer",
 		"electron:dev": "cross-env ELECTRON_ENABLE=true vite --no-open & electron .",
 		"electron:build": "vue-tsc && vite build && electron-builder",
-		"preview": "vite preview"
+		"preview": "vite preview --open"
 	},
 	"main": "dist-electron/main.js",
 	"build": {
