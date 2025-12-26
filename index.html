@@ -357,9 +357,7 @@
     </head>
     <body>
         <div id="app"></div>
-
-        <!-- 仓鼠 Loading -->
-        <!-- <div id="loading-screen">
+        <div id="loading-screen">
             <div class="loader-wrapper">
                 <div class="wheel-and-hamster">
                     <div class="wheel"></div>
@@ -380,22 +378,7 @@
                     <div class="spoke"></div>
                 </div>
             </div>
-        </div> -->
-
+        </div>
         <script type="module" src="/src/main.ts"></script>
-        <!-- <script>
-            // Vue 挂载后隐藏 loading
-            window.addEventListener('DOMContentLoaded', () => {
-                const observer = new MutationObserver(() => {
-                    const app = document.getElementById('app');
-                    if (app && app.children.length) {
-                        const loading = document.getElementById('loading-screen');
-                        loading.remove();
-                        observer.disconnect();
-                    }
-                });
-                observer.observe(document.getElementById('app'), { childList: true });
-            });
-        </script> -->
     </body>
 </html>
