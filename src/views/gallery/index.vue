@@ -8,7 +8,7 @@
                     <div class="title-section">
                         <h1 class="main-title">Front-end</h1>
                         <!-- <h2 class="sub-title">gallery</h2> -->
-                        <h2 class="sub-title"><router-link to="/test">gallery</router-link></h2>
+                        <h2 class="sub-title" @click.prevent="router.push('/test')">gallery</h2>
                     </div>
                     <div class="header-decoration">
                         <div class="decoration-line"></div>
@@ -141,7 +141,11 @@
                         <div class="grid-pattern"></div>
                     </div>
                     <div class="component-wrapper">
-                        <component :is="selectedComponent.component" v-if="selectedComponent.component" class="animate__animated animate__fadeIn"/>
+                        <component
+                            :is="selectedComponent.component"
+                            v-if="selectedComponent.component"
+                            class="animate__animated animate__fadeIn"
+                        />
                         <div v-else class="placeholder-content">
                             <div class="placeholder-icon">
                                 <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,6 +179,8 @@
     import SkeletonWrapper from './demos/skeletonWrapper/index.vue';
     import Debounce from './demos/debounce/index.vue';
     import ResizableLayout from './demos/resizableLayout/index.vue';
+    import { useRouter } from 'vue-router';
+    const router = useRouter();
 
     // 响应式数据
     const searchQuery = ref('');
