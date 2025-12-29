@@ -24,7 +24,5 @@ app.use(debounceThrottle);
 // 等待路由准备就绪后再挂载应用（解决loading后白屏闪烁）
 router.isReady().then(() => {
     app.mount('#app');
-    setTimeout(() => {
-        (window as any).removeLoading?.();
-    }, 300);
+    (window as any).removeLoading?.();
 });

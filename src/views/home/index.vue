@@ -14,7 +14,7 @@
                         class="title-word"
                         v-for="(word, i) in titleWords"
                         :key="i"
-                        :style="`animation-delay: ${0.3 + i * 0.1}s`"
+                        :style="`animation-delay: ${i * 0.1}s`"
                     >
                         {{ word }}
                     </span>
@@ -30,7 +30,7 @@
                     v-for="(item, index) in cards"
                     :key="index"
                     @click="toNavigation(item.path)"
-                    :style="`animation-delay: ${0.3 + index * 0.15}s`"
+                    :style="`animation-delay: ${index * 0.15}s`"
                 >
                     <div class="card-shine-effect"></div>
                     <div class="card-glow-pulse"></div>

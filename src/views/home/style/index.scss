@@ -290,7 +290,7 @@
         padding: 3rem 2rem 1.5rem;
         gap: 3rem;
         z-index: 2;
-        animation: slide-up 0.8s ease-out 0.3s backwards;
+        animation: slide-up 0.8s ease-out;
 
         .card {
             background: rgba(20, 15, 40, 0.7);
@@ -627,7 +627,7 @@
         justify-content: center;
         margin: 1rem auto 3rem;
         animation: slide-up 1s ease-out backwards;
-        animation-delay: 0.8s;
+        animation-delay: 0.5s;
         z-index: 2;
 
         .show-more-btn {
