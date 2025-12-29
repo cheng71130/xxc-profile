@@ -7,7 +7,8 @@
                 <div class="header-content">
                     <div class="title-section">
                         <h1 class="main-title">Front-end</h1>
-                        <h2 class="sub-title">gallery</h2>
+                        <!-- <h2 class="sub-title">gallery</h2> -->
+                        <h2 class="sub-title"><router-link to="/test">gallery</router-link></h2>
                     </div>
                     <div class="header-decoration">
                         <div class="decoration-line"></div>

@@ -348,7 +348,7 @@
             container: LogicFlowContainer.value,
             // 背景或grid二选一
             background: {
-                backgroundImage: 'url(/assets/grid.svg)',
+                backgroundImage: 'url(/images/grid.svg)',
                 backgroundRepeat: 'repeat',
             },
             // grid: {

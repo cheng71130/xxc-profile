@@ -133,19 +133,19 @@
             title: 'Visualization',
             path: '/visualizationScreen',
             description: 'This is a cool card with some awesome content.',
-            img: new URL('@/assets/home/1.webp', import.meta.url).href,
+            img: '/images/1.webp',
         },
         {
             title: 'Mine',
             path: '/mine',
             description: 'This card has even more amazing stuff to show.',
-            img: new URL('@/assets/home/2.webp', import.meta.url).href,
+            img: '/images/2.webp',
         },
         {
             title: 'LogicFlow',
             path: '/flowDemo',
             description: 'Check out this card with its fantastic details.',
-            img: new URL('@/assets/home/3.webp', import.meta.url).href,
+            img: '/images/3.webp',
         },
     ]);
 </script>
