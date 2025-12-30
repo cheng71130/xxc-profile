@@ -322,5 +322,6 @@
 </script>
 
 <style scoped lang="scss">
-    @use './styles/index.scss';
+    @use './styles/dark.scss';
+    // @use './styles/light.scss';
 </style>

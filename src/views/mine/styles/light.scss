@@ -1,21 +1,23 @@
-// 1. 背景
-$bg-dark: #02050e;
-$bg-gradient-center: #0f172a;
+// --- 浅色主题：极地蓝图 (Arctic Blueprint) ---
 
-// 2. 文字
-$primary-text: #f1f5f9;
-$secondary-text: #94a3b8;
+// 1. 背景：极冷灰白，类似高级素描纸
+$bg-dark: #f8fafc;
+$bg-gradient-center: #eef2ff; // 中心带一点点紫调的白
 
-// 3. 核心高亮色
-$neon-cyan: #06b6d4;
-$neon-cyan-glow: #22d3ee;
+// 2. 文字：不再是纯黑，而是深邃的蓝灰，更有高级感
+$primary-text: #1e293b; // Slate-800
+$secondary-text: #64748b; // Slate-500
 
-// 4. 辅助色
-$neon-indigo: #6366f1;
+// 3. 核心高亮色：深海蓝 (Cerulean) - 浅色背景下要深一点才看得清
+$neon-cyan: #0891b2; // Cyan-700 用于文字
+$neon-cyan-glow: #06b6d4; // Cyan-500 用于装饰块
 
-// 5. 边框与卡片背景
-$border-color: rgba($neon-cyan, 0.3);
-$card-bg: rgba(15, 23, 42, 0.6);
+// 4. 辅助色：皇家靛蓝
+$neon-indigo: #4338ca; // Indigo-700
+
+// 5. 边框与卡片：磨砂白玻璃
+$border-color: rgba($neon-indigo, 0.1);
+$card-bg: rgba(255, 255, 255, 0.75); // 白透
 
 .portfolio-container {
     background-color: $bg-dark;
@@ -26,7 +28,7 @@ $card-bg: rgba(15, 23, 42, 0.6);
     position: relative;
 }
 
-// --- 背景系统 ---
+// --- 背景系统 (重构) ---
 .bg-scene {
     position: fixed;
     inset: 0;
@@ -36,26 +38,29 @@ $card-bg: rgba(15, 23, 42, 0.6);
     .bg-base {
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at 50% 30%, $bg-gradient-center 0%, $bg-dark 80%);
+        // 浅色径向：中间白亮，四周微灰
+        background: radial-gradient(circle at 50% 30%, #ffffff 0%, #f1f5f9 80%);
     }
 
     .grid-lines {
         position: absolute;
         inset: 0;
         background-size: 50px 50px;
-        background-image: linear-gradient(to right, rgba($neon-cyan, 0.05) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba($neon-cyan, 0.05) 1px, transparent 1px);
+        // 网格线改为极淡的蓝灰
+        background-image: linear-gradient(to right, rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
         mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 85%);
     }
 
     .spotlight {
+        // 浅色模式下，顶光不需要那么强，改为微妙的色调晕染
         position: absolute;
         top: -20%;
         left: 50%;
         transform: translateX(-50%);
         width: 80%;
         height: 60%;
-        background: radial-gradient(ellipse at center, rgba($neon-indigo, 0.25) 0%, transparent 70%);
+        background: radial-gradient(ellipse at center, rgba($neon-indigo, 0.08) 0%, transparent 70%);
         filter: blur(80px);
     }
 }
@@ -64,23 +69,26 @@ $card-bg: rgba(15, 23, 42, 0.6);
     position: fixed;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba($neon-cyan-glow, 0.15), transparent 70%);
+    // 浅色模式下，光标改为极淡的蓝色晕染，移除 mix-blend-mode: screen
+    background: radial-gradient(circle, rgba($neon-cyan, 0.08), transparent 70%);
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 1;
-    mix-blend-mode: screen;
+    // 注意：浅色背景不能用 screen，否则看不见，用 normal 或 multiply
+    mix-blend-mode: normal;
 }
 
-// --- Header ---
+// --- Header (玻璃拟态) ---
 .fixed-header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 100;
-    background: rgba(2, 6, 23, 0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid $border-color;
+    // 纯白磨砂
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); // 极淡的灰线
 
     .header-inner {
         max-width: 1280px;
@@ -97,8 +105,9 @@ $card-bg: rgba(15, 23, 42, 0.6);
         letter-spacing: 1px;
         color: $primary-text;
         .dot {
-            color: $neon-cyan-glow;
-            text-shadow: 0 0 10px $neon-cyan-glow;
+            color: $neon-cyan;
+            // 浅色模式去掉了发光，改为实色
+            text-shadow: none;
         }
     }
 
@@ -106,21 +115,21 @@ $card-bg: rgba(15, 23, 42, 0.6);
         display: flex;
         gap: 32px;
         a {
+            cursor: pointer;
             font-size: 14px;
             color: $secondary-text;
-            font-weight: 500;
+            font-weight: 600; // 加粗一点
             text-decoration: none;
             transition: 0.3s;
             &:hover,
             &.active {
-                color: $neon-cyan-glow;
-                text-shadow: 0 0 8px rgba($neon-cyan-glow, 0.6);
+                color: $neon-indigo;
             }
         }
     }
 }
 
-// --- Hero ---
+// --- Hero Section ---
 .hero-section {
     min-height: 100vh;
     display: flex;
@@ -147,6 +156,7 @@ $card-bg: rgba(15, 23, 42, 0.6);
             font-weight: 900;
             margin-bottom: 30px;
             letter-spacing: -2px;
+            color: $primary-text;
 
             .line-mask {
                 display: block;
@@ -157,22 +167,22 @@ $card-bg: rgba(15, 23, 42, 0.6);
             }
 
             .accent-text {
-                color: $neon-cyan-glow;
+                color: $neon-indigo; // 强调色改为深蓝
                 position: relative;
                 display: inline-block;
                 margin-right: 15px;
-                text-shadow: 0 0 20px rgba($neon-cyan-glow, 0.4);
+                text-shadow: none; // 去掉发光
 
+                // 下划线
                 &::after {
                     content: '';
                     position: absolute;
                     bottom: 5px;
                     left: 0;
                     width: 100%;
-                    height: 4px;
-                    background: $neon-indigo;
+                    height: 6px; // 加粗一点
+                    background: rgba($neon-cyan, 0.3); // 半透明青色
                     z-index: -1;
-                    opacity: 0.7;
                 }
             }
         }
@@ -183,18 +193,22 @@ $card-bg: rgba(15, 23, 42, 0.6);
             line-height: 1.8;
             max-width: 480px;
             margin-bottom: 40px;
+            font-weight: 500;
+
             .neon-highlight {
-                color: #fff;
-                background: rgba($neon-indigo, 0.3);
-                padding: 0 4px;
+                color: $neon-indigo;
+                background: rgba($neon-indigo, 0.1);
+                padding: 0 6px;
+                border-radius: 4px;
+                font-weight: 700;
             }
             .sub-gray {
                 font-size: 14px;
-                opacity: 0.9;
+                opacity: 1;
                 margin-top: 15px;
                 display: inline-block;
                 color: $neon-cyan;
-                font-weight: 500;
+                font-weight: 600;
                 letter-spacing: 0.5px;
             }
         }
@@ -215,22 +229,21 @@ $card-bg: rgba(15, 23, 42, 0.6);
         .orbit-ring {
             position: absolute;
             border-radius: 50%;
-            border: 1px solid rgba($secondary-text, 0.2);
+            // 环的颜色加深
+            border: 1px solid rgba($secondary-text, 0.15);
             top: 50%;
             left: 50%;
             z-index: 0;
             &.ring-1 {
                 width: 120%;
                 height: 110%;
-                border-color: rgba($neon-indigo, 0.5);
-                box-shadow: 0 0 15px rgba($neon-indigo, 0.2);
+                border-color: rgba($neon-indigo, 0.3);
                 transform: translate(-50%, -50%) rotate(-15deg);
             }
             &.ring-2 {
                 width: 110%;
                 height: 120%;
-                border-color: rgba($neon-cyan, 0.5);
-                box-shadow: 0 0 15px rgba($neon-cyan, 0.2);
+                border-color: rgba($neon-cyan, 0.3);
                 transform: translate(-50%, -50%) rotate(15deg);
             }
         }
@@ -242,36 +255,43 @@ $card-bg: rgba(15, 23, 42, 0.6);
             z-index: 2;
             border-radius: 20px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: -10px -10px 0 rgba($neon-cyan, 0.2), 10px 10px 0 rgba($neon-indigo, 0.3);
+            border: 4px solid #fff; // 白框
+            // 浅色阴影：柔和的深蓝扩散
+            box-shadow: 0 20px 40px rgba($primary-text, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
 
             .hero-img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                // --- 移除滤镜，保持原色 ---
                 filter: none;
             }
 
             .glitch-overlay {
                 position: absolute;
                 inset: 0;
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 40%, rgba($neon-indigo, 0.1));
-                mix-blend-mode: soft-light;
+                // 浅色光泽
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.4),
+                    transparent 40%,
+                    rgba($neon-indigo, 0.05)
+                );
             }
         }
 
         .float-card {
             position: absolute;
-            background: rgba(10, 20, 40, 0.95);
-            border: 1px solid $neon-cyan;
+            background: #fff;
+            border: 1px solid rgba($neon-cyan, 0.2);
             padding: 10px 20px;
             border-radius: 8px;
-            color: $neon-cyan-glow;
+            color: $neon-cyan; // 深青色字
             font-family: monospace;
             font-size: 13px;
+            font-weight: 600;
             z-index: 3;
-            box-shadow: 0 0 15px rgba($neon-cyan, 0.3);
+            // 投影
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 
             &.code-snippet {
                 top: 40px;
@@ -285,7 +305,7 @@ $card-bg: rgba(15, 23, 42, 0.6);
                 background: $neon-indigo;
                 border: none;
                 transform: rotate(5deg);
-                box-shadow: 0 5px 15px rgba($neon-indigo, 0.5);
+                box-shadow: 0 10px 25px rgba($neon-indigo, 0.3);
             }
         }
     }
@@ -302,14 +322,14 @@ $card-bg: rgba(15, 23, 42, 0.6);
         span {
             font-size: 10px;
             letter-spacing: 3px;
-            color: $neon-cyan;
-            opacity: 0.8;
+            color: $secondary-text;
+            font-weight: 700;
         }
         .line {
             height: 40px;
             width: 2px;
-            background: linear-gradient(to bottom, $neon-cyan-glow, transparent);
-            box-shadow: 0 0 8px $neon-cyan-glow;
+            // 线条改为深色渐变
+            background: linear-gradient(to bottom, $neon-cyan, transparent);
         }
     }
 }
@@ -324,10 +344,10 @@ $card-bg: rgba(15, 23, 42, 0.6);
 }
 .section-label {
     font-size: 13px;
-    color: $neon-cyan;
+    color: $neon-indigo;
     letter-spacing: 3px;
     margin-bottom: 30px;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -336,19 +356,19 @@ $card-bg: rgba(15, 23, 42, 0.6);
         content: '';
         display: block;
         width: 20px;
-        height: 2px;
-        background: $neon-cyan;
+        height: 3px; // 更粗
+        background: $neon-indigo;
     }
 }
 
 .about-content-single {
     .section-heading {
         font-size: 42px;
-        font-weight: 700;
+        font-weight: 800; // 极粗
         line-height: 1.2;
         margin-bottom: 30px;
-        color: #fff;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        color: $primary-text;
+        text-shadow: none;
     }
     .bio-text {
         color: $secondary-text;
@@ -356,24 +376,27 @@ $card-bg: rgba(15, 23, 42, 0.6);
         line-height: 1.8;
         max-width: 700px;
         margin-bottom: 40px;
+        font-weight: 500;
     }
     .tech-stack-row {
         display: flex;
         gap: 12px;
         .tech-pill {
             padding: 8px 20px;
-            background: rgba($neon-indigo, 0.15);
+            background: #fff;
             border-radius: 4px;
             font-size: 13px;
-            font-weight: 600;
-            color: #a5b4fc;
-            border: 1px solid rgba($neon-indigo, 0.3);
+            font-weight: 700;
+            color: $secondary-text;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
             transition: 0.3s;
             &:hover {
-                background: rgba($neon-indigo, 0.3);
+                background: $neon-indigo;
                 border-color: $neon-indigo;
                 color: #fff;
-                box-shadow: 0 0 10px rgba($neon-indigo, 0.4);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba($neon-indigo, 0.25);
             }
         }
     }
@@ -383,16 +406,17 @@ $card-bg: rgba(15, 23, 42, 0.6);
 .projects-section {
     .big-heading {
         font-size: 48px;
-        font-weight: 700;
+        font-weight: 800;
         margin-bottom: 60px;
         color: $primary-text;
+        letter-spacing: -1px;
     }
 }
 
 .project-list {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid $border-color;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .project-row {
@@ -400,26 +424,26 @@ $card-bg: rgba(15, 23, 42, 0.6);
     justify-content: space-between;
     align-items: center;
     padding: 50px 30px;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); // 浅灰线
     cursor: pointer;
     transition: 0.3s;
     border-radius: 12px;
     margin-bottom: 20px;
 
     &:hover {
-        background: $card-bg;
-        border-color: $neon-cyan;
+        background: #fff; // 纯白悬浮
+        // 浅色模式阴影：柔和扩散
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
 
         .project-title {
-            color: $neon-cyan-glow;
+            color: $neon-indigo; // 标题变蓝
             padding-left: 10px;
         }
-        // --- Hover 触发左旋动画 ---
         .project-thumbnail {
             opacity: 1;
             transform: rotate(-3deg) scale(1.05);
-            border-color: $neon-cyan-glow;
-            box-shadow: 0 0 20px rgba($neon-cyan, 0.2);
+            border-color: $neon-indigo;
+            box-shadow: 0 15px 30px rgba($neon-indigo, 0.15);
         }
     }
 
@@ -429,14 +453,14 @@ $card-bg: rgba(15, 23, 42, 0.6);
 
         .project-id {
             font-size: 12px;
-            color: $neon-indigo;
+            color: $neon-cyan;
             margin-bottom: 10px;
-            font-weight: 700;
+            font-weight: 800;
             display: block;
         }
         .project-title {
             font-size: 32px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 15px;
             transition: all 0.3s ease;
             color: $primary-text;
@@ -451,11 +475,12 @@ $card-bg: rgba(15, 23, 42, 0.6);
         .project-meta {
             span {
                 font-size: 12px;
-                color: $neon-cyan;
+                color: $neon-indigo;
                 margin-right: 15px;
-                background: rgba($neon-cyan, 0.1);
+                background: rgba($neon-indigo, 0.08); // 极淡蓝底
                 padding: 4px 8px;
                 border-radius: 4px;
+                font-weight: 600;
             }
         }
     }
@@ -465,9 +490,9 @@ $card-bg: rgba(15, 23, 42, 0.6);
         height: 200px;
         position: relative;
         transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s;
-        border: 2px solid $secondary-text;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        background: #000;
+        border: 4px solid #fff;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); // 柔和阴影
+        background: #f0f0f0;
         overflow: hidden;
         border-radius: 6px;
 
@@ -492,8 +517,8 @@ $card-bg: rgba(15, 23, 42, 0.6);
         .timeline-date {
             text-align: right;
             font-size: 14px;
-            color: $neon-cyan;
-            font-weight: 600;
+            color: $neon-indigo; // 靛蓝
+            font-weight: 700;
             padding-top: 5px;
         }
         .timeline-divider {
@@ -504,12 +529,12 @@ $card-bg: rgba(15, 23, 42, 0.6);
             .dot {
                 width: 12px;
                 height: 12px;
-                background: $bg-dark;
-                border: 2px solid $neon-indigo;
+                background: #fff;
+                border: 3px solid $neon-indigo; // 实心圈
                 border-radius: 50%;
                 margin-top: 6px;
                 z-index: 2;
-                box-shadow: 0 0 8px $neon-indigo;
+                box-shadow: none;
             }
             &::after {
                 content: '';
@@ -517,15 +542,17 @@ $card-bg: rgba(15, 23, 42, 0.6);
                 top: 18px;
                 bottom: -34px;
                 width: 2px;
-                background: rgba($neon-indigo, 0.2);
+                background: rgba($neon-indigo, 0.15);
             }
         }
         .timeline-content {
             padding-left: 20px;
-            background: linear-gradient(to right, rgba($neon-indigo, 0.05), transparent);
-            padding: 15px;
+            // 浅色卡片
+            background: #fff;
+            padding: 20px;
             border-radius: 8px;
-            border-left: 1px solid rgba($neon-indigo, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
 
             .job-header {
                 margin-bottom: 10px;
@@ -533,13 +560,15 @@ $card-bg: rgba(15, 23, 42, 0.6);
                 align-items: baseline;
                 .role {
                     font-size: 18px;
-                    font-weight: 600;
-                    color: #fff;
+                    font-weight: 700;
+                    color: $primary-text;
                     margin-right: 10px;
+                    margin-top: auto;
                 }
                 .company {
                     font-size: 14px;
-                    color: $neon-cyan-glow;
+                    color: $neon-cyan;
+                    font-weight: 600;
                 }
             }
             .desc {
@@ -550,8 +579,9 @@ $card-bg: rgba(15, 23, 42, 0.6);
             }
             .tags span {
                 font-size: 12px;
-                color: rgba($neon-cyan, 0.8);
+                color: $secondary-text;
                 margin-right: 10px;
+                font-weight: 600;
                 &::before {
                     content: '#';
                     margin-right: 2px;
@@ -565,19 +595,21 @@ $card-bg: rgba(15, 23, 42, 0.6);
 // --- Contact ---
 .contact-section {
     padding-top: 100px;
-    border-top: 1px solid $border-color;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
     padding-bottom: 60px;
-    background: radial-gradient(circle at 50% 100%, rgba($neon-indigo, 0.1), transparent 50%);
+    // 浅色底部渐变
+    background: linear-gradient(to bottom, transparent, rgba($neon-indigo, 0.05));
 }
 .contact-content {
     .contact-cta {
         font-size: 3rem;
-        font-weight: 700;
+        font-weight: 800;
         line-height: 1.2;
         margin-bottom: 80px;
+        color: $primary-text;
         .highlight {
-            color: $neon-cyan-glow;
-            text-shadow: 0 0 20px rgba($neon-cyan-glow, 0.3);
+            color: $neon-indigo;
+            text-shadow: none;
         }
     }
     .footer-grid {
@@ -588,9 +620,9 @@ $card-bg: rgba(15, 23, 42, 0.6);
 
         h4 {
             font-size: 14px;
-            color: #fff;
+            color: $primary-text;
             margin-bottom: 24px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .service-list {
@@ -601,13 +633,13 @@ $card-bg: rgba(15, 23, 42, 0.6);
 
         .footer-link.email {
             font-size: 20px;
-            color: $neon-cyan;
+            color: $neon-indigo;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 700;
             transition: 0.3s;
             &:hover {
-                color: #fff;
-                text-shadow: 0 0 15px $neon-cyan;
+                color: $neon-cyan;
+                text-shadow: none;
             }
         }
 
@@ -618,23 +650,25 @@ $card-bg: rgba(15, 23, 42, 0.6);
             display: block;
             text-decoration: none;
             transition: 0.3s;
+            font-weight: 500;
             &:hover {
-                color: $neon-cyan-glow;
+                color: $neon-indigo;
                 transform: translateX(5px);
             }
         }
     }
     .footer-bottom {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
         padding-top: 30px;
         display: flex;
         justify-content: space-between;
         font-size: 12px;
         color: $secondary-text;
+        font-weight: 600;
         .scroll-top {
             cursor: pointer;
             &:hover {
-                color: $neon-cyan-glow;
+                color: $neon-indigo;
             }
         }
     }
