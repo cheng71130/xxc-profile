@@ -231,7 +231,7 @@
     const workExperience = [
         {
             title: '高级前端开发工程师',
-            company: '上海数设科技',
+            company: '四川万网鑫成',
             period: '2025 - PRESENT',
             description:
                 '定义技术标准。主导核心架构演进，推行微前端方案拆解巨石应用，建立工程化体系以支撑团队高效产出。',
