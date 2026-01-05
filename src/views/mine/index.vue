@@ -113,7 +113,8 @@
                         </div>
                     </div>
                     <div class="project-thumbnail">
-                        <div class="thumb-inner" :style="{ backgroundImage: `url(${project.image})` }"></div>
+                        <!-- <div class="thumb-inner" :style="{ backgroundImage: `url(${project.image})` }"></div> -->
+                        <LazyImage :src="project.image" />
                     </div>
                 </div>
             </div>
@@ -191,6 +192,7 @@
     import { ref, onMounted, onUnmounted } from 'vue';
     import gsap from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import LazyImage from '@/components/LazyImage/index.vue';
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -324,4 +326,8 @@
 <style scoped lang="scss">
     @use './styles/dark.scss';
     // @use './styles/light.scss';
+
+    .lazy-image-container {
+        border-radius: 0;
+    }
 </style>
