@@ -48,7 +48,6 @@
 		"@logicflow/extension": "^2.0.6",
 		"@logicflow/vue-node-registry": "^1.0.3",
 		"@vueuse/core": "^13.1.0",
-		"aos": "^2.3.4",
 		"autofit.js": "^3.2.2",
 		"axios": "^1.9.0",
 		"echarts": "^5.4.3",
@@ -60,7 +59,8 @@
 		"typeit": "^8.8.7",
 		"urdf-loader": "^0.12.5",
 		"vue": "^3.4.37",
-		"vue-router": "^4.2.5"
+		"vue-router": "^4.2.5",
+		"web-vitals": "^5.1.0"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-vue": "^5.1.2",
