@@ -50,10 +50,7 @@
                     </div>
                 </template>
                 <template #badge>
-                    <el-tag type="success" effect="dark" size="small">
-                        <!-- <el-icon><Picture /></el-icon> -->
-                        超清
-                    </el-tag>
+                    <el-tag type="success" effect="dark" size="small">超清</el-tag>
                 </template>
             </LazyImage>
             <ImagePreview ref="previewRef" :images="hdImages" :maskClosable="false" />
@@ -209,17 +206,7 @@
     import LazyImage from '@/components/LazyImage/index.vue';
     import ImagePreview from '@/components/ImagePreview/index.vue';
     import VirtualScroll from '@/components/VirtualScroll/index.vue';
-    import {
-        RefreshRight,
-        Picture,
-        ZoomIn,
-        Download,
-        Share,
-        Clock,
-        View,
-        Document,
-        Search,
-    } from '@element-plus/icons-vue';
+    import { RefreshRight, ZoomIn, Download, Share, Clock, View, Document, Search } from '@element-plus/icons-vue';
 
     const currentDemo = ref('skeleton');
     const segmentedOptions = [

@@ -60,7 +60,7 @@ importers:
         specifier: ^0.12.5
         version: 0.12.6(three@0.174.0)
       vue:
-        specifier: ^3.4.37
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
       vue-router:
         specifier: ^4.2.5

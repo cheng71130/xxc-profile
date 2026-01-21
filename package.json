@@ -58,7 +58,7 @@
 		"three-viewport-gizmo": "^2.2.0",
 		"typeit": "^8.8.7",
 		"urdf-loader": "^0.12.5",
-		"vue": "^3.4.37",
+		"vue": "^3.5.27",
 		"vue-router": "^4.2.5",
 		"web-vitals": "^5.1.0"
 	},
