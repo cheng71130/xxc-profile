@@ -2,13 +2,7 @@
     <div class="draggable-demo">
         <!-- 顶部操作栏 -->
         <div class="demo-actions">
-            <el-radio-group v-model="currentDemo" size="large">
-                <el-radio-button value="list">列表排序</el-radio-button>
-                <el-radio-button value="grid">网格布局</el-radio-button>
-                <el-radio-button value="handle">拖拽手柄</el-radio-button>
-                <el-radio-button value="multi">多容器</el-radio-button>
-                <el-radio-button value="kanban">看板系统</el-radio-button>
-            </el-radio-group>
+            <el-segmented v-model="currentDemo" :options="segmentedOptions" />
 
             <button class="reload-btn" @click="resetData">
                 <el-icon><RefreshRight /></el-icon>
@@ -23,12 +17,7 @@
                 <el-tag type="info" effect="dark">{{ listData.length }} 项任务</el-tag>
             </div>
 
-            <DraggableCore
-                v-model="listData"
-                animation="flip-list"
-                :gap="12"
-                @change="handleListChange"
-            >
+            <DraggableCore v-model="listData" animation="flip-list" :gap="12" @change="handleListChange">
                 <template #default="{ item }">
                     <div class="task-item" :class="{ 'is-completed': item.completed }">
                         <el-checkbox
@@ -85,13 +74,7 @@
                 </div>
             </div>
 
-            <DraggableCore
-                v-model="gridData"
-                layout="grid"
-                :columns="gridColumns"
-                :gap="16"
-                @change="handleGridChange"
-            >
+            <DraggableCore v-model="gridData" layout="grid" :columns="gridColumns" :gap="16" @change="handleGridChange">
                 <template #default="{ item }">
                     <div class="image-card">
                         <LazyImage :src="item.url" aspectRatio="4/3" :alt="item.title" />
@@ -123,11 +106,7 @@
                 <el-tag type="warning">只能通过手柄拖拽</el-tag>
             </div>
 
-            <DraggableCore
-                v-model="handleData"
-                handle=".drag-handle"
-                @change="handleHandleChange"
-            >
+            <DraggableCore v-model="handleData" handle=".drag-handle" @change="handleHandleChange">
                 <template #default="{ item }">
                     <div class="handle-item">
                         <div class="drag-handle">
@@ -429,6 +408,13 @@
     }
 
     const currentDemo = ref<string>('list');
+    const segmentedOptions = [
+        { label: '列表排序', value: 'list' },
+        { label: '网格布局', value: 'grid' },
+        { label: '拖拽手柄', value: 'handle' },
+        { label: '多容器', value: 'multi' },
+        { label: '看板系统', value: 'kanban' },
+    ];
     const gridColumns = ref<number>(4);
 
     // 列表数据
@@ -787,23 +773,36 @@
         backdrop-filter: blur(10px);
         flex-wrap: wrap;
 
-        :deep(.el-radio-button__inner) {
+        :deep(.el-segmented) {
             background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        :deep(.el-segmented__item) {
             color: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 6px 20px;
+            border-radius: 8px;
 
             &:hover {
                 color: #667eea;
-                border-color: rgba(102, 126, 234, 0.5);
+                background: rgba(102, 126, 234, 0.1);
             }
         }
 
-        :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+        :deep(.el-segmented__item-selected) {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
             color: #ffffff;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            border-radius: 8px;
+            box-shadow:
+                0 4px 12px rgba(102, 126, 234, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        :deep(.el-segmented__item.is-selected) {
+            color: #ffffff !important;
         }
 
         .reload-btn {

@@ -2,13 +2,7 @@
     <div class="lazy-image-demo">
         <!-- 顶部操作栏 -->
         <div class="demo-actions">
-            <el-radio-group v-model="currentDemo" size="large">
-                <el-radio-button label="skeleton">骨架屏占位</el-radio-button>
-                <el-radio-button label="progressive">渐进式加载</el-radio-button>
-                <el-radio-button label="error">失败重试</el-radio-button>
-                <el-radio-button label="hover">Hover遮罩</el-radio-button>
-                <el-radio-button label="virtual">虚拟滚动</el-radio-button>
-            </el-radio-group>
+            <el-segmented v-model="currentDemo" :options="segmentedOptions" />
 
             <button class="reload-btn" @click="reloadCurrent">
                 <el-icon><RefreshRight /></el-icon>
@@ -57,8 +51,8 @@
                 </template>
                 <template #badge>
                     <el-tag type="success" effect="dark" size="small">
-                        <el-icon><Picture /></el-icon>
-                        高清
+                        <!-- <el-icon><Picture /></el-icon> -->
+                        超清
                     </el-tag>
                 </template>
             </LazyImage>
@@ -228,6 +222,13 @@
     } from '@element-plus/icons-vue';
 
     const currentDemo = ref('skeleton');
+    const segmentedOptions = [
+        { label: '骨架屏占位', value: 'skeleton' },
+        { label: '渐进式加载', value: 'progressive' },
+        { label: '失败重试', value: 'error' },
+        { label: 'Hover遮罩', value: 'hover' },
+        { label: '虚拟滚动', value: 'virtual' },
+    ];
     const previewRef = ref();
 
     // 每个 tab 独立的 key
@@ -342,28 +343,36 @@
         backdrop-filter: blur(10px);
         flex-wrap: wrap;
 
-        :deep(.el-radio-button) {
-            --el-radio-button-checked-bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --el-radio-button-checked-border-color: #667eea;
+        :deep(.el-segmented) {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            border-radius: 10px;
         }
 
-        :deep(.el-radio-button__inner) {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+        :deep(.el-segmented__item) {
             color: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 6px 20px;
+            border-radius: 8px;
 
             &:hover {
                 color: #667eea;
-                border-color: rgba(102, 126, 234, 0.5);
+                background: rgba(102, 126, 234, 0.1);
             }
         }
 
-        :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+        :deep(.el-segmented__item-selected) {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
             color: #ffffff;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            border-radius: 8px;
+            box-shadow:
+                0 4px 12px rgba(102, 126, 234, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        :deep(.el-segmented__item.is-selected) {
+            color: #ffffff !important;
         }
 
         .reload-btn {

@@ -85,9 +85,9 @@
                                             layout="prev, pager, next"
                                             v-model:current-page="state.algorithmCurrentPage"
                                             :page-size="5"
-                                            :pager-count="3"
+                                            :pager-count="5"
                                             :total="state.algorithmTotal"
-                                            small
+                                            size="small"
                                         />
                                     </el-tooltip>
                                 </div>
@@ -125,9 +125,9 @@
                                             layout="prev, pager, next"
                                             v-model:current-page="state.processCurrentPage"
                                             :page-size="5"
-                                            :pager-count="3"
+                                            :pager-count="5"
                                             :total="state.processTotal"
-                                            small
+                                            size="small"
                                         />
                                     </el-tooltip>
                                 </div>
@@ -139,7 +139,7 @@
             <el-card
                 class="cardRight"
                 shadow="always"
-                :body-style="{ padding: 0 }"
+                :body-style="{ padding: 0, overflow: 'hidden' }"
                 v-elegant-loading="{ show: state.canvasLoading, type: 'bars' }"
             >
                 <!-- 画布 -->

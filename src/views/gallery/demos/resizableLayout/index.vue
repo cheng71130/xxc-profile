@@ -1,11 +1,7 @@
 <template>
     <div class="resizable-demo">
         <div class="demo-actions">
-            <el-radio-group v-model="currentDemo" size="large">
-                <el-radio-button label="horizontal">水平分割</el-radio-button>
-                <el-radio-button label="vertical">垂直分割</el-radio-button>
-                <el-radio-button label="nested">嵌套布局</el-radio-button>
-            </el-radio-group>
+            <el-segmented v-model="currentDemo" :options="segmentedOptions" />
 
             <!-- 新增提示文字 -->
             <div class="demo-tip">
@@ -212,6 +208,12 @@
 
     const currentDemo = ref('horizontal');
 
+    const segmentedOptions = [
+        { label: '水平分割', value: 'horizontal' },
+        { label: '垂直分割', value: 'vertical' },
+        { label: '嵌套布局', value: 'nested' },
+    ];
+
     // 文件列表
     const fileList = [
         { id: 1, name: 'src', icon: '📁', level: 0, count: 8 },
@@ -334,7 +336,6 @@
         gap: 20px;
         width: 100%;
         min-height: 100%;
-        overflow: hidden;
     }
 
     .demo-actions {
@@ -346,28 +347,36 @@
         justify-content: space-between;
         gap: 20px;
 
-        :deep(.el-radio-button) {
-            --el-radio-button-checked-bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --el-radio-button-checked-border-color: #667eea;
+        :deep(.el-segmented) {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            border-radius: 10px;
         }
 
-        :deep(.el-radio-button__inner) {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+        :deep(.el-segmented__item) {
             color: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 6px 20px;
+            border-radius: 8px;
 
             &:hover {
                 color: #667eea;
-                border-color: rgba(102, 126, 234, 0.5);
+                background: rgba(102, 126, 234, 0.1);
             }
         }
 
-        :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+        :deep(.el-segmented__item-selected) {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
             color: #ffffff;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            border-radius: 8px;
+            box-shadow:
+                0 4px 12px rgba(102, 126, 234, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        :deep(.el-segmented__item.is-selected) {
+            color: #ffffff !important;
         }
     }
 
