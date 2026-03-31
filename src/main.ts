@@ -11,11 +11,6 @@ import './styles/index.scss';
 import '@/assets/fonts/dsFont.css'; // 电子字体样式
 import 'virtual:uno.css';
 
-// 性能监控
-import { initPerformanceMonitor } from '@/utils/performance'
-import PerformancePanel from '@/components/PerformancePanel.vue'
-initPerformanceMonitor()
-
 const app = createApp(App);
 
 // 全局组件
@@ -31,11 +26,3 @@ router.isReady().then(() => {
     app.mount('#app');
     (window as any).removeLoading?.();
 });
-
-// 开发环境加载性能面板
-if (import.meta.env.DEV) {
-  const panelApp = createApp(PerformancePanel)
-  const container = document.createElement('div')
-  document.body.appendChild(container)
-  panelApp.mount(container)
-}
