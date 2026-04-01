@@ -56,7 +56,7 @@
                         <div class="orbit-ring ring-1"></div>
                         <div class="orbit-ring ring-2"></div>
                         <div class="photo-frame">
-                            <img src="@/assets/mine/xxc.jpg" alt="肖学成" class="hero-img" />
+                            <img src="@/assets/mine/2.jpg" alt="肖学成" class="hero-img" />
                             <div class="glitch-overlay"></div>
                         </div>
                         <div class="float-card code-snippet">
