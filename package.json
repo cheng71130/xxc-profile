@@ -13,7 +13,7 @@
 	},
 	"main": "dist-electron/main.js",
 	"build": {
-		"appId": "com.yourapp.id",
+		"appId": "com.xxc.profile",
 		"productName": "xxc_website",
 		"directories": {
 			"output": "release"

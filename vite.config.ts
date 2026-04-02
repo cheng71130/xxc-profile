@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
@@ -7,7 +7,12 @@ import UnoCSS from 'unocss/vite';
 import electron from 'vite-plugin-electron';
 import viteCompression from 'vite-plugin-compression';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+    const serverPort = Number(env.VITE_DEV_SERVER_PORT || 5173);
+    const apiProxyPrefix = env.VITE_API_PROXY_PREFIX || '/api';
+    const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:3000';
+
     return {
         resolve: {
             alias: {
@@ -79,12 +84,12 @@ export default defineConfig(() => {
         },
         // 服务器配置
         server: {
-            port: 5173,
+            port: Number.isNaN(serverPort) ? 5173 : serverPort,
             cors: true,
             // 反向代理（解决开发环境跨域）
             proxy: {
-                '/api': {
-                    target: 'http://localhost:3000',
+                [apiProxyPrefix]: {
+                    target: apiProxyTarget,
                     changeOrigin: true,
                 },
             },
