@@ -59,6 +59,11 @@ const routes: RouteRecordRaw[] = [
         name: 'test',
         component: () => import('@/views/others/test/index.vue'),
     },
+    {
+        path: '/weightDashboard',
+        name: 'WeightDashboard',
+        component: () => import('@/views/weightDashboard/index.vue'),
+    },
 ];
 
 const router = createRouter({
