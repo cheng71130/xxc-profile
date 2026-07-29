@@ -1,22 +1,30 @@
 <template>
     <div class="history-card panel-card">
-        <div class="history-card__header">
+        <div class="wd-card-head">
             <div>
-                <h3 class="card-title">历史记录</h3>
-                <p class="card-desc">点击任意行可进行编辑，右侧垃圾桶按钮可删除该条记录。</p>
+                <h3 class="wd-card-title">历史记录</h3>
+                <p class="wd-card-desc">点击任意行可编辑，右侧按钮可删除该条记录。</p>
             </div>
-            <span class="record-count">共 <strong class="font-mono">{{ records.length }}</strong> 条</span>
+            <span class="record-count">共 <strong class="wd-font-num">{{ records.length }}</strong> 条</span>
         </div>
 
-        <div class="table-scroll">
+        <div class="table-scroll wd-scroll">
             <table class="history-table">
+                <colgroup>
+                    <col class="col-date" />
+                    <col class="col-weight" />
+                    <col class="col-weight" />
+                    <col class="col-diff" />
+                    <col class="col-note" />
+                    <col class="col-action" />
+                </colgroup>
                 <thead>
                     <tr>
-                        <th>日期</th>
-                        <th class="text-right col-morning">早称</th>
-                        <th class="text-right col-evening">晚称</th>
-                        <th class="text-right">差值</th>
-                        <th>事件备注</th>
+                        <th class="text-left col-date">日期</th>
+                        <th class="text-center col-morning">早称</th>
+                        <th class="text-center col-evening">晚称</th>
+                        <th class="text-center">差值</th>
+                        <th class="text-left col-note">事件备注</th>
                         <th class="text-center col-action">操作</th>
                     </tr>
                 </thead>
@@ -33,17 +41,17 @@
                         }"
                         @click="emit('edit', record)"
                     >
-                        <td class="font-mono date-cell">{{ record.date }}</td>
-                        <td class="text-right font-mono col-morning">
+                        <td class="text-left wd-font-num date-cell">{{ record.date }}</td>
+                        <td class="text-center wd-font-num col-morning">
                             {{ formatWeight(record.morning) }}
                         </td>
-                        <td class="text-right font-mono col-evening">
+                        <td class="text-center wd-font-num col-evening">
                             {{ formatWeight(record.evening) }}
                         </td>
-                        <td class="text-right font-mono">
+                        <td class="text-center wd-font-num diff-cell">
                             {{ formatDiff(record) }}
                         </td>
-                        <td>
+                        <td class="text-left note-cell">
                             <span v-if="record.note" class="note-pill">{{ record.note }}</span>
                             <span v-else class="dash">—</span>
                         </td>
@@ -53,11 +61,7 @@
                                 title="删除"
                                 @click.stop="handleDelete(record)"
                             >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
-                                    <line x1="10" y1="11" x2="10" y2="17" />
-                                    <line x1="14" y1="11" x2="14" y2="17" />
-                                </svg>
+                                <el-icon><Delete /></el-icon>
                             </button>
                         </td>
                     </tr>
@@ -69,6 +73,7 @@
 
 <script setup lang="ts">
 import { ElMessageBox } from 'element-plus';
+import { Delete } from '@element-plus/icons-vue';
 import type { WeightRecord } from '../types';
 import { calcDiff, formatWeight } from '../utils';
 
@@ -100,82 +105,87 @@ async function handleDelete(record: WeightRecord) {
 </script>
 
 <style scoped lang="scss">
+@use '../styles/shared.scss';
+
 .history-card {
     display: flex;
     flex-direction: column;
     height: 100%;
     min-height: 0;
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 12px;
-        flex-shrink: 0;
-        margin-bottom: 12px;
-    }
-}
-
-.card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    margin: 0;
-}
-
-.card-desc {
-    font-size: 12px;
-    color: #94a3b8;
-    margin: 4px 0 0;
+    overflow: hidden;
 }
 
 .record-count {
+    flex-shrink: 0;
+    padding: 5px 11px;
+    border: 1px solid var(--wd-line-strong);
+    border-radius: 999px;
+    background: #fff;
     font-size: 12px;
-    color: #64748b;
+    color: var(--wd-ink-soft);
     white-space: nowrap;
 
     strong {
-        color: #0ea5e9;
+        color: #0284c7;
     }
 }
 
 .table-scroll {
-    flex: 1;
-    overflow: auto;
+    flex: 1 1 auto;
     min-height: 0;
-    border-radius: 10px;
-    border: 1px solid #f1f5f9;
+    overflow: auto;
+    border-radius: var(--wd-radius-md);
+    border: 1px solid #e7eef5;
+    background: #fff;
 }
 
 .history-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    table-layout: fixed;
+
+    .col-date { width: 112px; }
+    .col-weight { width: 72px; }
+    .col-diff { width: 64px; }
+    .col-action { width: 56px; }
 
     thead {
         position: sticky;
         top: 0;
-        z-index: 1;
+        z-index: 2;
 
         th {
             background: #f8fafc;
-            padding: 10px 12px;
-            text-align: left;
+            padding: 11px 12px;
+            text-align: center;
             font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--wd-ink-muted);
             border-bottom: 1px solid #e2e8f0;
             white-space: nowrap;
+
+            &.text-left,
+            &.col-note,
+            &.col-date {
+                text-align: left;
+            }
         }
     }
 
     tbody td {
-        padding: 9px 12px;
-        border-bottom: 1px solid #f1f5f9;
-        color: #334155;
+        padding: 10px 12px;
+        border-bottom: 1px solid #edf2f7;
+        color: #344054;
         cursor: pointer;
+        text-align: center;
+        vertical-align: middle;
+
+        &.date-cell,
+        &.note-cell {
+            text-align: left;
+        }
     }
 
     tbody tr {
@@ -187,7 +197,7 @@ async function handleDelete(record: WeightRecord) {
         }
 
         &.row-even {
-            background: #fafbfc;
+            background: #fbfdff;
 
             &:hover {
                 background: #f0f9ff;
@@ -195,44 +205,52 @@ async function handleDelete(record: WeightRecord) {
         }
 
         &.row-note {
-            background: #fffbeb;
+            background: #fffcf0;
 
             &:hover {
-                background: #fef3c7;
-            }
-
-            &.row-even {
-                background: #fffbeb;
+                background: #fff7d6;
             }
         }
     }
 }
 
-.text-right { text-align: right; }
 .text-center { text-align: center; }
+.text-left { text-align: left; }
 
-.col-morning { color: #0ea5e9 !important; }
-.col-evening { color: #f472b6 !important; }
-
-.col-action {
-    width: 56px;
+.note-cell {
+    .note-pill,
+    .dash {
+        display: inline-block;
+        text-align: left;
+    }
 }
+
+.col-morning { color: #0284c7 !important; }
+.col-evening { color: #db2777 !important; }
 
 .date-cell {
     white-space: nowrap;
+    font-size: 12px;
+}
+
+.diff-cell {
+    font-weight: 700;
 }
 
 .note-pill {
     display: inline-block;
-    padding: 2px 10px;
+    max-width: 100%;
+    padding: 3px 9px;
     border-radius: 999px;
-    background: #fef9c3;
-    color: #854d0e;
+    background: #fff7d6;
+    color: #92400e;
+    border: 1px solid #fde68a;
     font-size: 12px;
-    max-width: 200px;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    vertical-align: middle;
 }
 
 .dash {
@@ -241,8 +259,8 @@ async function handleDelete(record: WeightRecord) {
 
 .empty-row {
     text-align: center !important;
-    color: #94a3b8 !important;
-    padding: 32px !important;
+    color: #98a2b3 !important;
+    padding: 36px !important;
     cursor: default !important;
 }
 
@@ -250,22 +268,19 @@ async function handleDelete(record: WeightRecord) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border: none;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border: 1px solid transparent;
+    border-radius: var(--wd-radius-sm);
     background: transparent;
-    color: #94a3b8;
+    color: #98a2b3;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
 
     &:hover {
-        background: #fee2e2;
-        color: #dc2626;
+        background: #fef3f2;
+        border-color: #fecdca;
+        color: #d92d20;
     }
-}
-
-.font-mono {
-    font-family: 'Courier New', Courier, monospace;
 }
 </style>

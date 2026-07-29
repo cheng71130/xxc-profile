@@ -1,60 +1,64 @@
 <template>
     <div class="form-card panel-card" :class="{ 'form-card--editing': editingId }">
-        <div class="form-card__header">
+        <div class="wd-card-head">
             <div>
-                <h3 class="card-title">{{ editingId ? '编辑记录' : '记录今日体重' }}</h3>
-                <p class="card-desc">输入早晚体重与备注，帮助你回顾每一次波动的原因。</p>
+                <h3 class="wd-card-title">{{ editingId ? '编辑记录' : '记录今日体重' }}</h3>
+                <p class="wd-card-desc">输入早晚体重与备注，帮助你回顾每一次波动的原因。</p>
             </div>
             <span v-if="editingId" class="edit-badge">编辑模式</span>
         </div>
 
         <el-form @submit.prevent="handleSubmit">
             <div class="form-row">
-                <div class="form-field">
-                    <label class="field-label">日期</label>
+                <div class="form-field wd-input-shell">
+                    <div class="wd-field-head">
+                        <label class="wd-field-label">日期</label>
+                    </div>
                     <el-date-picker
                         v-model="formDate"
                         type="date"
                         value-format="YYYY-MM-DD"
                         format="YYYY-MM-DD"
                         :clearable="false"
-                        class="uniform-input"
+                        class="wd-date-picker"
                         placeholder="选择日期"
                     />
                 </div>
-                <div class="form-field">
-                    <label class="field-label">早称（斤）</label>
-                    <span class="field-hint">晨起空腹</span>
+                <div class="form-field wd-input-shell">
+                    <div class="wd-field-head">
+                        <label class="wd-field-label">早称（斤）</label>
+                        <span class="wd-field-hint">晨起空腹</span>
+                    </div>
                     <el-input
                         v-model="morningStr"
                         type="number"
                         step="0.1"
                         placeholder="如 148.6"
-                        class="uniform-input"
                     />
                 </div>
-                <div class="form-field">
-                    <label class="field-label">晚称（斤）</label>
-                    <span class="field-hint">睡前或晚餐后</span>
+                <div class="form-field wd-input-shell">
+                    <div class="wd-field-head">
+                        <label class="wd-field-label">晚称（斤）</label>
+                        <span class="wd-field-hint">睡前或晚饭后</span>
+                    </div>
                     <el-input
                         v-model="eveningStr"
                         type="number"
                         step="0.1"
                         placeholder="可留空"
-                        class="uniform-input"
                     />
                 </div>
             </div>
 
-            <div class="form-field form-field--full">
-                <div class="field-label-row">
-                    <label class="field-label">事件备注（选填）</label>
-                    <span class="field-hint">如「打篮球」「暴饮暴食」「聚餐」</span>
+            <div class="form-field form-field--full wd-input-shell">
+                <div class="wd-field-head">
+                    <label class="wd-field-label">事件备注（选填）</label>
+                    <span class="wd-field-hint">如「打篮球」「聚餐」「暴食」</span>
                 </div>
                 <el-input
                     v-model="noteStr"
                     type="textarea"
-                    :rows="2"
+                    :rows="4"
                     placeholder="记录今天影响体重的关键事件，方便后续回顾。"
                 />
             </div>
@@ -142,6 +146,8 @@ defineExpose({ resetForm });
 </script>
 
 <style scoped lang="scss">
+@use '../styles/shared.scss';
+
 .form-card {
     position: relative;
     overflow: hidden;
@@ -149,109 +155,50 @@ defineExpose({ resetForm });
     &::before {
         content: '';
         position: absolute;
-        top: -40px;
-        right: -40px;
-        width: 120px;
-        height: 120px;
-        background: radial-gradient(circle, rgba(56, 189, 248, 0.15), transparent 70%);
-        pointer-events: none;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, var(--wd-teal), var(--wd-sky));
     }
 
     &--editing {
-        border-color: rgba(250, 204, 21, 0.5) !important;
-        box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.15), 0 4px 20px rgba(100, 160, 220, 0.1) !important;
+        border-color: rgba(245, 158, 11, 0.45) !important;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1), var(--wd-shadow) !important;
     }
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 16px;
-    }
-}
-
-.card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    margin: 0;
-}
-
-.card-desc {
-    font-size: 12px;
-    color: #94a3b8;
-    margin: 4px 0 0;
 }
 
 .edit-badge {
     font-size: 12px;
-    padding: 4px 12px;
-    border-radius: 8px;
-    background: #fef9c3;
-    color: #a16207;
-    font-weight: 500;
-    flex-shrink: 0;
+    padding: 5px 11px;
+    border-radius: var(--wd-radius-sm);
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    font-weight: 600;
 }
 
 .form-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 25px;
 
-    @media (max-width: 640px) {
+    @media (max-width: 720px) {
         grid-template-columns: 1fr;
     }
 }
 
 .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+
+    :deep(.el-date-editor.wd-date-picker) {
+        width: 100% !important;
+        max-width: 100%;
+        --el-date-editor-width: 100%;
+    }
 
     &--full {
         margin-bottom: 16px;
-    }
-}
-
-.field-label-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-
-.field-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #475569;
-}
-
-.field-hint {
-    font-size: 11px;
-    color: #94a3b8;
-}
-
-.uniform-input {
-    width: 100%;
-
-    :deep(.el-input__wrapper),
-    :deep(.el-input__inner) {
-        height: 40px;
-        border-radius: 10px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    }
-}
-
-:deep(.el-date-editor.el-input) {
-    width: 100%;
-    height: 40px;
-
-    .el-input__wrapper {
-        height: 40px;
-        border-radius: 10px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 }
 
@@ -259,39 +206,40 @@ defineExpose({ resetForm });
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-primary,
+.btn-secondary {
+    height: var(--wd-field-h);
+    padding: 0 22px;
+    border-radius: var(--wd-radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--wd-font);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
 }
 
 .btn-primary {
-    padding: 10px 28px;
     border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #06b6d4, #22c55e);
+    background: linear-gradient(135deg, #0f766e, #0284c7);
     color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
-    transition: filter 0.2s, box-shadow 0.2s, transform 0.15s;
+    box-shadow: 0 10px 22px rgba(14, 116, 144, 0.22);
 
     &:hover {
-        filter: brightness(1.06);
-        box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45);
         transform: translateY(-1px);
+        box-shadow: 0 14px 26px rgba(14, 116, 144, 0.28);
     }
 }
 
 .btn-secondary {
-    padding: 10px 20px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border: 1px solid var(--wd-line-strong);
     background: #fff;
-    color: #64748b;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    color: var(--wd-ink-soft);
 
     &:hover {
-        background: #f8fafc;
+        background: var(--wd-surface-muted);
         border-color: #cbd5e1;
     }
 }

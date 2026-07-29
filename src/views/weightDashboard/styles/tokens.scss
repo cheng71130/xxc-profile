@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;900&family=Nunito+Sans:ital,opsz,wght@0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,600&display=swap');
+
+.weight-dashboard {
+    --wd-font: 'Noto Sans SC', 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei UI', sans-serif;
+    --wd-font-num: 'Nunito Sans', 'Noto Sans SC', tabular-nums, sans-serif;
+    --wd-ink: #0f172a;
+    --wd-ink-soft: #475569;
+    --wd-ink-muted: #64748b;
+    --wd-line: rgba(203, 213, 225, 0.72);
+    --wd-line-strong: #dbe4ee;
+    --wd-surface: rgba(255, 255, 255, 0.9);
+    --wd-surface-muted: #f8fafc;
+    --wd-radius-xl: 22px;
+    --wd-radius-lg: 16px;
+    --wd-radius-md: 12px;
+    --wd-radius-sm: 10px;
+    --wd-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+    --wd-shadow-hover: 0 24px 56px rgba(15, 23, 42, 0.1);
+    --wd-teal: #14b8a6;
+    --wd-sky: #0ea5e9;
+    --wd-pink: #ec4899;
+    --wd-green: #22c55e;
+    --wd-amber: #f59e0b;
+    --wd-field-h: 44px;
+    --wd-label-h: 28px;
+    --wd-gap: 18px;
+}

@@ -1,0 +1,143 @@
+.wd-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.wd-card-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--wd-ink);
+    letter-spacing: -0.01em;
+}
+
+.wd-card-desc {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--wd-ink-muted);
+}
+
+.wd-pill {
+    flex-shrink: 0;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.wd-field-head {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--wd-label-h);
+    margin-bottom: 6px;
+}
+
+.wd-field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+    line-height: 1.3;
+    flex-shrink: 0;
+}
+
+.wd-field-hint {
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.3;
+    text-align: right;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.wd-input-shell {
+    width: 100%;
+    min-width: 0;
+
+    :deep(.el-input),
+    :deep(.el-date-editor) {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    :deep(.el-input__wrapper),
+    :deep(.el-textarea__inner) {
+        border-radius: var(--wd-radius-md);
+        box-shadow: 0 0 0 1px var(--wd-line-strong) inset;
+        background: #fff;
+        transition: box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    :deep(.el-input__wrapper) {
+        min-height: var(--wd-field-h);
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    :deep(.el-input__inner) {
+        height: calc(var(--wd-field-h) - 2px);
+        line-height: calc(var(--wd-field-h) - 2px);
+        font-family: var(--wd-font-num);
+        font-weight: 700;
+        color: var(--wd-ink);
+    }
+
+    :deep(.el-input__wrapper.is-focus),
+    :deep(.el-textarea__inner:focus) {
+        box-shadow:
+            0 0 0 1px var(--wd-sky) inset,
+            0 0 0 3px rgba(14, 165, 233, 0.12);
+    }
+}
+
+.wd-date-picker {
+    width: 100% !important;
+    max-width: 100%;
+    --el-date-editor-width: 100%;
+
+    :deep(.el-input__wrapper) {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: var(--wd-field-h);
+        border-radius: var(--wd-radius-md);
+    }
+
+    :deep(.el-input__inner) {
+        font-family: var(--wd-font-num);
+        font-weight: 700;
+    }
+}
+
+.wd-font-num {
+    font-family: var(--wd-font-num);
+    font-variant-numeric: tabular-nums;
+}
+
+.wd-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.45);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(100, 116, 139, 0.55);
+        background-clip: padding-box;
+    }
+}

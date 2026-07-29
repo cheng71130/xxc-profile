@@ -1,9 +1,9 @@
 <template>
     <div class="backup-card panel-card">
-        <div class="backup-card__header">
+        <div class="wd-card-head">
             <div>
-                <h3 class="card-title">数据备份</h3>
-                <p class="card-desc">导出 / 导入 JSON，方便在不同设备间迁移记录。</p>
+                <h3 class="wd-card-title">数据备份</h3>
+                <p class="wd-card-desc">导出 / 导入 JSON，方便在不同设备间迁移记录。</p>
             </div>
             <span class="pill-tag">建议定期备份</span>
         </div>
@@ -20,22 +20,21 @@
                     :rows="6"
                     readonly
                     placeholder="点击「生成备份」导出当前数据"
-                    class="backup-textarea"
+                    class="backup-textarea wd-input-shell"
                 />
             </div>
             <div class="backup-col">
                 <div class="col-header">
                     <span class="col-title">导入 JSON</span>
-                    <span class="col-hint">粘贴备份后点击导入</span>
+                    <button class="btn-import btn-import--header" @click="handleImport">导入数据</button>
                 </div>
                 <el-input
                     v-model="importText"
                     type="textarea"
                     :rows="6"
                     placeholder="粘贴之前导出的 JSON 数据"
-                    class="backup-textarea"
+                    class="backup-textarea wd-input-shell"
                 />
-                <button class="btn-import" @click="handleImport">导入数据</button>
             </div>
         </div>
 
@@ -83,44 +82,25 @@ function handleImport() {
 </script>
 
 <style scoped lang="scss">
-.backup-card {
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 16px;
-    }
-}
-
-.card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    margin: 0;
-}
-
-.card-desc {
-    font-size: 12px;
-    color: #94a3b8;
-    margin: 4px 0 0;
-}
+@use '../styles/shared.scss';
 
 .pill-tag {
     font-size: 11px;
-    padding: 3px 10px;
+    padding: 5px 10px;
     border-radius: 999px;
-    background: rgba(250, 204, 21, 0.15);
-    color: #a16207;
-    border: 1px solid rgba(250, 204, 21, 0.3);
-    flex-shrink: 0;
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    font-weight: 600;
 }
 
 .backup-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 14px;
+    align-items: start;
 
-    @media (max-width: 640px) {
+    @media (max-width: 720px) {
         grid-template-columns: 1fr;
     }
 }
@@ -129,81 +109,90 @@ function handleImport() {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .col-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
+    min-height: 30px;
 }
 
 .col-title {
     font-size: 13px;
-    font-weight: 600;
-    color: #475569;
-}
-
-.col-hint {
-    font-size: 11px;
-    color: #94a3b8;
+    font-weight: 700;
+    color: #344054;
 }
 
 .backup-textarea {
     :deep(.el-textarea__inner) {
-        height: 140px !important;
-        min-height: 140px !important;
-        max-height: 140px;
-        border-radius: 10px;
-        font-family: 'Courier New', Courier, monospace;
+        height: 136px !important;
+        min-height: 136px !important;
+        max-height: 136px;
+        padding: 12px;
+        font-family: var(--wd-font-num);
         font-size: 12px;
+        line-height: 1.55;
         resize: none;
     }
 }
 
+.btn-sm,
+.btn-import {
+    border-radius: var(--wd-radius-sm);
+    font-weight: 700;
+    font-family: var(--wd-font);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+}
+
 .btn-sm {
-    padding: 5px 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--wd-line-strong);
     background: #fff;
     font-size: 12px;
-    color: #475569;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    color: #344054;
 
     &:hover {
         background: #f0f9ff;
         border-color: #7dd3fc;
-        color: #0284c7;
+        color: #0369a1;
     }
 }
 
 .btn-import {
-    align-self: flex-start;
-    padding: 8px 20px;
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #06b6d4, #22c55e);
+    background: linear-gradient(135deg, #0f766e, #0284c7);
     color: #fff;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
-    transition: filter 0.2s;
+    font-size: 12px;
+    box-shadow: 0 10px 22px rgba(14, 116, 144, 0.2);
+
+    &--header {
+        height: 32px;
+        padding: 0 12px;
+    }
 
     &:hover {
-        filter: brightness(1.06);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 26px rgba(14, 116, 144, 0.26);
     }
 }
 
 .status-msg {
-    margin-top: 12px;
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: var(--wd-radius-sm);
+    background: #ecfdf3;
+    color: #067647;
     font-size: 12px;
-    color: #16a34a;
+    font-weight: 600;
 
     &--error {
-        color: #dc2626;
+        background: #fef3f2;
+        color: #b42318;
     }
 }
 </style>
