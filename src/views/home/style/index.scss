@@ -250,20 +250,20 @@
     .title {
         font-size: 2.5rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: rgb(239, 211, 247);
-        background-clip: text;
         letter-spacing: 3px;
-        text-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
         display: flex;
         gap: 0.5rem;
         position: relative;
         z-index: 2;
-        filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5));
 
         .title-word {
             display: inline-block;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: rgb(239, 211, 247);
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5));
             animation: title-wave 3s ease-in-out infinite;
             will-change: transform;
         }
